@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "281740730063",
+    "project_id": "yanbaru-hackathon",
+    "storage_bucket": "yanbaru-hackathon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281740730063:android:db18f1e499e78d816461ba",
+        "android_client_info": {
+          "package_name": "com.example.yanbaru_hackathon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPCwiVQcEeHRMhm4j2HOV1n1k5GjmE94M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
