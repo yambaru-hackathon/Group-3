@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                       color: Colors.black,
                     ),
                     label: const Text(
-                      'ルートをシミュレーション',
+                      'ルートをシミュレーションDA',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
