@@ -38,6 +38,8 @@ dependencies:
   firebase_core: ^2.25.4
   cloud_firestore: ^4.15.5
   speech_balloon: ^0.0.4
+  persistent_bottom_nav_bar: ^5.0.2
+  
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'firebase_options.dart';
 // ignore: unused_import
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,9 +18,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
@@ -43,32 +43,48 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
-  final _pageWidgets = [
-    const HomePage(),
-    const MapPage(),
-    const ProfilePage(),
-  ];
+
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.home),
+        title: 'Home',
+        activeColorPrimary:
+            Colors.blue, // 修正点: activeColor から activeColorPrimary に変更
+        inactiveColorPrimary:
+            Colors.grey, // 修正点: inactiveColor から inactiveColorPrimary に変更
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.map),
+        title: 'Map',
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.person),
+        title: 'Profile',
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pageWidgets.elementAt(_currentIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-      ),
+    return PersistentTabView(
+      context,
+      controller: PersistentTabController(initialIndex: _currentIndex),
+      items: _navBarsItems(),
+      screens: const [
+        HomePage(),
+        MapPage(),
+        ProfilePage(),
+      ],
+      onItemSelected: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
     );
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
   }
 }
