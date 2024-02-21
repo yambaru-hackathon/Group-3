@@ -15,12 +15,12 @@ class HomePage extends StatelessWidget {
             children: [
               Image.asset(
                 'lib/images/napi.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               Image.asset(
                 'lib/images/napi_think.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               const Center(
@@ -36,12 +36,12 @@ class HomePage extends StatelessWidget {
               const Spacer(),
               Image.asset(
                 'lib/images/napi_guruguru.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               Image.asset(
                 'lib/images/napi_kirakira.png',
-                height: 50,
+                height: 45,
               ),
             ],
           ),
@@ -49,61 +49,75 @@ class HomePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: Column(
             children: [
-              Column(children: [
-                const SizedBox(height: 120),
-                const SpeechBalloon(
-                  nipLocation: NipLocation.bottom,
-                  borderColor: Color.fromARGB(255, 255, 255, 255),
-                  color: Colors.white,
-                  height: 50,
-                  width: 250,
-                  child: Center(
-                    child: Text(
-                      '遊びに行きますか？',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+              Container(
+                height: 2,
+                color: Colors.black,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(children: [
+                    const SizedBox(height: 120),
+                    const SpeechBalloon(
+                      nipLocation: NipLocation.bottom,
+                      borderColor: Color.fromARGB(255, 255, 255, 255),
+                      color: Colors.white,
+                      height: 50,
+                      width: 250,
+                      child: Center(
+                        child: Text(
+                          '遊びに行きますか？',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                Center(
-                  child: Image.asset(
-                    'lib/images/napi.png',
-                    height: 400,
-                  ),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(
-                    Icons.touch_app_outlined,
-                    color: Colors.black,
-                  ),
-                  label: const Text('ルートをシミュレーション',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      )),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    fixedSize: const Size.fromHeight(50),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            SelectLocationPage(),
-                        transitionDuration:
-                            const Duration(milliseconds: 0), // アニメーションの速度を0にする
+                    Center(
+                      child: Image.asset(
+                        'lib/images/napi.png',
+                        height: 400,
                       ),
-                    );
-                  },
-                ),
-              ])
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(
+                        Icons.touch_app_outlined,
+                        color: Colors.grey,
+                      ),
+                      label: const Text('ルートをシミュレーション',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          )),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        fixedSize: const Size.fromHeight(50),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    SelectLocationPage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      },
+                    ),
+                  ])
+                ],
+              ),
+              const Spacer(),
+              Container(
+                height: 2.5,
+                color: Colors.black,
+              ),
             ],
           ),
         ),
@@ -115,11 +129,13 @@ class HomePage extends StatelessWidget {
 class SelectLocationPage extends StatelessWidget {
   SelectLocationPage({super.key});
 
+  // ignore: unused_field
   final TextEditingController _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xffaaccff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
@@ -127,7 +143,7 @@ class SelectLocationPage extends StatelessWidget {
           title: const Row(
             children: [
               SizedBox(
-                width: 70,
+                width: 72.4,
               ),
               Center(
                 child: Text(
@@ -143,17 +159,94 @@ class SelectLocationPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
+      body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Container(
+                height: 2,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 20),
+              const SpeechBalloon(
+                nipLocation: NipLocation.bottom,
+                borderColor: Color.fromARGB(255, 255, 255, 255),
+                color: Colors.white,
+                height: 50,
+                width: 250,
+                child: Center(
+                  child: Text(
+                    'どこに行きますか？',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+              Center(
+                child: Image.asset(
+                  'lib/images/napi.png',
+                  height: 300,
+                ),
+              ),
               // 目的地の入力フォームなどを配置
-              TextField(
-                controller: _textController,
-                decoration: const InputDecoration(
-                  labelText: 'テキストを入力してください',
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xffc5e1ff),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter text',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter text',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter text',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter text',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               Row(
@@ -181,6 +274,13 @@ class SelectLocationPage extends StatelessWidget {
                     child: const Text('次へ'),
                   ),
                 ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 2,
+                color: Colors.black,
               ),
             ],
           ),
