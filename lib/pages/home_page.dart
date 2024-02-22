@@ -14,11 +14,6 @@ String selectedValue_food = 'お米';
 List<String> dropdownItems_food = ['お米', '麺', 'パン', 'お肉', 'お寿司', 'ピザ'];
 
 // ignore: non_constant_identifier_names
-String selectedValue_foodEx = 'くら寿司';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_foodEx = ['くら寿司', 'はま寿司', 'かっぱ寿司', 'スシロー'];
-
-// ignore: non_constant_identifier_names
 String selectedValue_view = '海';
 // ignore: non_constant_identifier_names
 List<String> dropdownItems_view = ['海', '山'];
@@ -865,6 +860,11 @@ class SelectFoodExPage extends StatefulWidget {
 class _SelectFoodPageExState extends State<SelectFoodExPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // ignore: non_constant_identifier_names
+  String selectedValue_foodEx = 'たけ寿司';
+
+  // ignore: non_constant_identifier_names
+  List<String> dropdownItems_foodEx = ['たけ寿司', 'はま寿司', 'かっぱ寿司', 'スシロー'];
 
   @override
   Widget build(BuildContext context) {
@@ -1658,56 +1658,38 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
 
   Future<void> fetchDataFromFirestore() async {
     try {
+      // ログインユーザーを取得
+      User? user = _auth.currentUser;
       // Firestoreからデータを取得
-      QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance.collection('user_data').get();
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('user_data')
+          .doc(user?.uid)
+          .get();
 
-      // データをリストに格納
-      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
-        // Firestoreドキュメントから'1destination1'フィールドの値を取得
-        String destination1 = doc['1destination1'];
+      // Firestoreドキュメントから各フィールドの値を取得
+      String destination1 = snapshot['1destination1'];
+      String destination2 = snapshot['1destination2'];
+      String destination3 = snapshot['1destination3'];
+      String destination4 = snapshot['1destination4'];
+      String foodStore = snapshot['4foodStore'];
+      String viewLocation = snapshot['6viewLocation'];
+      String storeLocation = snapshot['7storeLocation'];
 
-        // '1destination1'が空でない場合にのみリストに追加
-        if (destination1.isNotEmpty) {
-          originalItems.add(destination1);
-        }
+      // 各フィールドが空でない場合にリストに追加
+      if (destination1.isNotEmpty) originalItems.add(destination1);
+      if (destination2.isNotEmpty) originalItems.add(destination2);
+      if (destination3.isNotEmpty) originalItems.add(destination3);
+      if (destination4.isNotEmpty) originalItems.add(destination4);
+      if (foodStore.isNotEmpty) originalItems.add(foodStore);
+      if (viewLocation.isNotEmpty) originalItems.add(viewLocation);
+      if (storeLocation.isNotEmpty) originalItems.add(storeLocation);
 
-        String destination2 = doc['1destination2'];
-        if (destination2.isNotEmpty) {
-          originalItems.add(destination2);
-        }
+      // 初期選択肢を設定
+      resetDropdownItems();
 
-        String destination3 = doc['1destination3'];
-        if (destination3.isNotEmpty) {
-          originalItems.add(destination3);
-        }
-
-        String destination4 = doc['1destination4'];
-        if (destination4.isNotEmpty) {
-          originalItems.add(destination4);
-        }
-
-        String foodStore = doc['4foodStore'];
-        if (foodStore.isNotEmpty) {
-          originalItems.add(foodStore);
-        }
-
-        String viewLocation = doc['6viewLocation'];
-        if (viewLocation.isNotEmpty) {
-          originalItems.add(viewLocation);
-        }
-
-        String storeLocation = doc['7storeLocation'];
-        if (storeLocation.isNotEmpty) {
-          originalItems.add(storeLocation);
-        }
-
-        // 初期選択肢を設定
-        resetDropdownItems();
-
-        // setStateを呼び出してウィジェットを再構築
-        setState(() {});
-      }
+      // setStateを呼び出してウィジェットを再構築
+      setState(() {});
     } catch (e) {
       // エラーが発生した場合、エラーメッセージをコンソールに出力
       Text('Error fetching data: $e');
@@ -1800,26 +1782,43 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                           ),
                         ),
                         // ドロップダウンリストを作成
-                        for (int i = 0; i < dropdownItems_route.length; i++)
-                          DropdownButton<String>(
-                            value: selectedItemsList[i].isNotEmpty
-                                ? selectedItemsList[i].last
-                                : null,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                if (newValue != null) {
-                                  selectedItemsList[i].add(newValue);
-                                }
-                              });
-                            },
-                            items: dropdownItems_route
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
+                        Column(
+                          children:
+                              List.generate(dropdownItems_route.length, (i) {
+                            String? selectedValue =
+                                selectedItemsList[i].isNotEmpty
+                                    ? selectedItemsList[i].last
+                                    : null;
+
+                            List<String> uniqueItems = dropdownItems_route
+                                .where((item) =>
+                                    !selectedItemsList[i].contains(item))
+                                .toList();
+
+                            // デバッグログ
+                            print('Unique items for index $i: $uniqueItems');
+
+                            return DropdownButton<String>(
+                              value: selectedValue,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  if (newValue != null &&
+                                      !selectedItemsList[i]
+                                          .contains(newValue)) {
+                                    selectedItemsList[i].add(newValue);
+                                  }
+                                });
+                              },
+                              items: uniqueItems.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            );
+                          }),
+                        ),
                         const Text(
                           'ゴール',
                           style: TextStyle(
