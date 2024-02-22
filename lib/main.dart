@@ -15,7 +15,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(home: LoginPage (),));
+  runApp(
+    const MaterialApp(
+      home: LoginPage(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
