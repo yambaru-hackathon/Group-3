@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       screens:  [
         HomePage(),
         const MapPage(),
-        const ProfilePage(),
+         ProfilePage(),
       ],
       onItemSelected: (index) {
         setState(() {

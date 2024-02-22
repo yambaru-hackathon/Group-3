@@ -1,16 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:yanbaru_hackathon/login/login_page.dart';
+import 'package:yanbaru_hackathon/login/profile.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
+  
   @override
+  
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffaabbff),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(40),
-        child: AppBar(
+    return ChangeNotifierProvider<ProfileModel>(
+      create: (_) => ProfileModel()..fetchUser(),
+      child: Scaffold(
+        backgroundColor: const Color(0xffaabbff),
+        appBar: AppBar(
           title: Row(
             children: [
               Image.asset(
@@ -46,70 +49,96 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      body:
-       Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              IconButton(
-                   onPressed: () {
-                    Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) => const LoginPage()),
-                    );
-                      // ボタンが押された時の処理をここに記述
-                     },
-                   icon: const Icon(Icons.person),
-              ),
-            
-              const CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage('https://example.com/user_profile_image.jpg'),
-               // ユーザーのプロフィール画像
-              ),
-              
-              const SizedBox(height: 20),
-              const Text(
-                'ユーザー名',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'user@example.com',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // プロフィールを編集する画面に遷移する処理を追加
-                },
-                child: const Text('プロフィールを編集'),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    children: List.generate(6, (index) {
-                      return Container(
-                        color: Colors.blueGrey,
-                        child: Center(
-                          child: Text(
-                            'Item $index',
-                            style: const TextStyle(color: Colors.white, fontSize: 24),
+        body: Center(
+          child: Consumer<ProfileModel>(builder: (context, model, child) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      showDialog<void>(
+                         context: context,
+                         builder: (_) {
+                           return AlertDialogSample();
+                         });
+                    },
+                    icon: const Icon(Icons.logout),
+                  ),
+                  const CircleAvatar(
+                   radius: 50,
+                   backgroundImage: AssetImage('lib/user_image/icon.jpg'),
+                      // ユーザーのプロフィール画像
+                  ),
+                  Text(model.email ?? 'メールアドレスなし'),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // プロフィールを編集する画面に遷移する処理を追加
+                    },
+                    child: const Text('プロフィールを編集'),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      children: List.generate(6, (index) {
+                        return Container(
+                          color: Colors.blueGrey,
+                          child: Center(
+                            child: Text(
+                              'Item $index',
+                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
-                  )
-              )
-              
-            ],
-          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ),
+      ),
+    );
+  }
+}
+class AlertDialogSample extends StatelessWidget {
+  const AlertDialogSample({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('ログアウトしますか？'),
+      actions: <Widget>[
+        GestureDetector(
+          child: Text('いいえ'),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+        GestureDetector(
+          child: Text('はい'),
+          onTap: () async {
+            try {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false, // ログインページに遷移した後に戻ることを禁止する
+              );// ダイアログを閉じる
+              
+            }
+            catch (e) {
+              print('ログアウト中にエラーが発生しました: $e');
+            }
+          },
+        )
+      ],
     );
   }
 }
