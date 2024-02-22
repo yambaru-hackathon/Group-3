@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 
@@ -38,7 +40,10 @@ List<String> dropdownItems_route = ['目的地A', '目的地B', '食事', '景�
 
 //homeページ
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -135,8 +140,32 @@ class HomePage extends StatelessWidget {
                         backgroundColor: Colors.white,
                         fixedSize: const Size.fromHeight(50),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        User? user = _auth.currentUser;
+
+                        if (user != null) {
+                          await _firestore
+                              .collection('user_data')
+                              .doc(user.uid)
+                              .set({
+                            '1destination1': '',
+                            '1destination2': '',
+                            '1destination3': '',
+                            '1destination4': '',
+                            '2status_Eat': false,
+                            '2status_WatchView': false,
+                            '2status_GoStore': false,
+                            '2status_None': true,
+                            '3foodType': '',
+                            '4foodStore': '',
+                            '5viewType': '',
+                            '6viewLocation': '',
+                            '7storeLocation': '',
+                            'VisitLocation': [],
+                          });
+                        }
                         Navigator.push(
+                          // ignore: use_build_context_synchronously
                           context,
                           PageRouteBuilder(
                             pageBuilder:
@@ -165,8 +194,26 @@ class HomePage extends StatelessWidget {
 }
 
 //目的地入力
-class SelectLocationPage extends StatelessWidget {
-  const SelectLocationPage({super.key});
+class SelectLocationPage extends StatefulWidget {
+  const SelectLocationPage({Key? key}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SelectLocationPageState createState() => _SelectLocationPageState();
+}
+
+class _SelectLocationPageState extends State<SelectLocationPage> {
+  final TextEditingController _textFieldController1 = TextEditingController();
+  final TextEditingController _textFieldController2 = TextEditingController();
+  final TextEditingController _textFieldController3 = TextEditingController();
+  final TextEditingController _textFieldController4 = TextEditingController();
+  String _inputText1 = '';
+  String _inputText2 = '';
+  String _inputText3 = '';
+  String _inputText4 = '';
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -235,50 +282,54 @@ class SelectLocationPage extends StatelessWidget {
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
                         TextField(
-                          decoration: InputDecoration(
+                          controller: _textFieldController1,
+                          decoration: const InputDecoration(
                             hintText: 'Enter text',
                             contentPadding: EdgeInsets.all(10), // パディングの調整
                             border: OutlineInputBorder(),
                           ),
-                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         TextField(
-                          decoration: InputDecoration(
+                          controller: _textFieldController2,
+                          decoration: const InputDecoration(
                             hintText: 'Enter text',
                             contentPadding: EdgeInsets.all(10), // パディングの調整
                             border: OutlineInputBorder(),
                           ),
-                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         TextField(
-                          decoration: InputDecoration(
+                          controller: _textFieldController3,
+                          decoration: const InputDecoration(
                             hintText: 'Enter text',
                             contentPadding: EdgeInsets.all(10), // パディングの調整
                             border: OutlineInputBorder(),
                           ),
-                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         TextField(
-                          decoration: InputDecoration(
+                          controller: _textFieldController4,
+                          decoration: const InputDecoration(
                             hintText: 'Enter text',
                             contentPadding: EdgeInsets.all(10), // パディングの調整
                             border: OutlineInputBorder(),
                           ),
-                          style: TextStyle(fontSize: 14), // フォントサイズの指定
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -306,8 +357,17 @@ class SelectLocationPage extends StatelessWidget {
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      setState(() {
+                        //入力した文字列を格納
+                        _inputText1 = _textFieldController1.text;
+                        _inputText2 = _textFieldController2.text;
+                        _inputText3 = _textFieldController3.text;
+                        _inputText4 = _textFieldController4.text;
+                      });
+                      await _writeToFirestore(); //firestoreに目的地保存
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -346,6 +406,29 @@ class SelectLocationPage extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '1destination1': _inputText1,
+      '1destination2': _inputText2,
+      '1destination3': _inputText3,
+      '1destination4': _inputText4,
+      // 他のデータも同様に続く
+    });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController1.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    _textFieldController2.dispose();
+    _textFieldController3.dispose();
+    _textFieldController4.dispose();
+    super.dispose();
+  }
 }
 
 //目的地行くまでにしたいこと選択
@@ -358,6 +441,9 @@ class BeforeGoPage extends StatefulWidget {
 }
 
 class _BeforeGoPageState extends State<BeforeGoPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -493,9 +579,12 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                 //4択で選んだ時の分岐
 
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    // ボタンが押された時にFirestoreにデータを書き込む処理
+                    await _writeToFirestore();
                     if (action1Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -507,6 +596,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                       );
                     } else if (action2Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -518,6 +608,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                       );
                     } else if (action3Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -530,6 +621,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                     }
                     if (action4Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -566,6 +658,21 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      // ユーザーごとにデータをFirestoreに書き込む
+      await _firestore.collection('user_data').doc(user.uid).update({
+        '2status_Eat': action1Checked,
+        '2status_WatchView': action2Checked,
+        '2status_GoStore': action3Checked,
+        '2status_None': action4Checked,
+      });
+    }
+  }
 }
 
 //ご飯の種類を選択
@@ -578,6 +685,9 @@ class SelectFoodPage extends StatefulWidget {
 }
 
 class _SelectFoodPageState extends State<SelectFoodPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -692,12 +802,11 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                   ),
                 ),
                 const Spacer(),
-
-                //4択で選んだ時の分岐
-
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _writeToFirestore(); //firestoreに食べたいもの保存
                     Navigator.push(
+                      // ignore: use_build_context_synchronously
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -732,6 +841,16 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに更新
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '3foodType': selectedValue_food,
+    });
+  }
 }
 
 //ご飯のお店を選択
@@ -744,6 +863,9 @@ class SelectFoodExPage extends StatefulWidget {
 }
 
 class _SelectFoodPageExState extends State<SelectFoodExPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -858,13 +980,12 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                   ),
                 ),
                 const Spacer(),
-
-                //4択で選んだ時の分岐
-
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _writeToFirestore(); //firestoreに食べるお店
                     if (action2Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -876,6 +997,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                       );
                     } else if (action3Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -887,6 +1009,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                       );
                     } else if (action4Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -898,6 +1021,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                       );
                     } else {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -934,6 +1058,16 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '4foodStore': selectedValue_foodEx,
+    });
+  }
 }
 
 //景色の種類選択
@@ -947,6 +1081,9 @@ class SelectViewPage extends StatefulWidget {
 }
 
 class _SelectViewPageState extends State<SelectViewPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1062,8 +1199,10 @@ class _SelectViewPageState extends State<SelectViewPage> {
                 ),
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
                     Navigator.push(
+                      // ignore: use_build_context_synchronously
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -1098,6 +1237,16 @@ class _SelectViewPageState extends State<SelectViewPage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '5viewType': selectedValue_view,
+    });
+  }
 }
 
 //景色を見る場所の選択
@@ -1111,6 +1260,9 @@ class SelectViewExPage extends StatefulWidget {
 }
 
 class _SelectViewExPageState extends State<SelectViewExPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1225,13 +1377,12 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                   ),
                 ),
                 const Spacer(),
-
-                //4択で選んだ時の分岐
-
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _writeToFirestore();
                     if (action3Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -1243,6 +1394,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                       );
                     } else if (action4Checked) {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -1254,6 +1406,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                       );
                     } else {
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -1290,6 +1443,16 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '6viewLocation': selectedValue_viewEx,
+    });
+  }
 }
 
 //お店の選択
@@ -1302,6 +1465,9 @@ class SelectStorePage extends StatefulWidget {
 }
 
 class _SelectStorePageState extends State<SelectStorePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1416,12 +1582,11 @@ class _SelectStorePageState extends State<SelectStorePage> {
                   ),
                 ),
                 const Spacer(),
-
-                //4択で選んだ時の分岐
-
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _writeToFirestore();
                     Navigator.push(
+                      // ignore: use_build_context_synchronously
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -1456,6 +1621,16 @@ class _SelectStorePageState extends State<SelectStorePage> {
       ),
     );
   }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '7storeLocation': selectedValue_store,
+    });
+  }
 }
 
 //経路の順番を選択
@@ -1468,6 +1643,83 @@ class SelectRoutePage extends StatefulWidget {
 }
 
 class _SelectRoutePageState extends State<SelectRoutePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // ignore: non_constant_identifier_names
+  List<String> originalItems = []; // Firestoreから取得したデータを格納するリスト
+  // ignore: non_constant_identifier_names
+  List<String> dropdownItems_route = []; // 選択肢のリスト
+  List<String> selectedItems = []; // 選択されたアイテムを格納するリスト
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDataFromFirestore(); // 初期化時にFirestoreからデータを取得
+  }
+
+  Future<void> fetchDataFromFirestore() async {
+    try {
+      // Firestoreからデータを取得
+      QuerySnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('user_data').get();
+
+      // データをリストに格納
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
+        // Firestoreドキュメントから'1destination1'フィールドの値を取得
+        String destination1 = doc['1destination1'];
+
+        // '1destination1'が空でない場合にのみリストに追加
+        if (destination1.isNotEmpty) {
+          originalItems.add(destination1);
+        }
+
+        String destination2 = doc['1destination2'];
+        if (destination2.isNotEmpty) {
+          originalItems.add(destination2);
+        }
+
+        String destination3 = doc['1destination3'];
+        if (destination3.isNotEmpty) {
+          originalItems.add(destination3);
+        }
+
+        String destination4 = doc['1destination4'];
+        if (destination4.isNotEmpty) {
+          originalItems.add(destination4);
+        }
+
+        String foodStore = doc['4foodStore'];
+        if (foodStore.isNotEmpty) {
+          originalItems.add(foodStore);
+        }
+
+        String viewLocation = doc['6viewLocation'];
+        if (viewLocation.isNotEmpty) {
+          originalItems.add(viewLocation);
+        }
+
+        String storeLocation = doc['7storeLocation'];
+        if (storeLocation.isNotEmpty) {
+          originalItems.add(storeLocation);
+        }
+
+        // 初期選択肢を設定
+        resetDropdownItems();
+
+        // setStateを呼び出してウィジェットを再構築
+        setState(() {});
+      }
+    } catch (e) {
+      // エラーが発生した場合、エラーメッセージをコンソールに出力
+      Text('Error fetching data: $e');
+    }
+  }
+
+// ドロップダウンリストを初期化
+  void resetDropdownItems() {
+    dropdownItems_route = List.from(originalItems);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1547,81 +1799,27 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        DropdownButton<String>(
-                          value: selectedValue_route,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_route = newValue!;
-                            });
-                          },
-                          items: dropdownItems_route
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        DropdownButton<String>(
-                          value: selectedValue_route,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_route = newValue!;
-                            });
-                          },
-                          items: dropdownItems_route
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        DropdownButton<String>(
-                          value: selectedValue_route,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_route = newValue!;
-                            });
-                          },
-                          items: dropdownItems_route
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        DropdownButton<String>(
-                          value: selectedValue_route,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_route = newValue!;
-                            });
-                          },
-                          items: dropdownItems_route
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        DropdownButton<String>(
-                          value: selectedValue_route,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_route = newValue!;
-                            });
-                          },
-                          items: dropdownItems_route
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
+                        // ドロップダウンリストを作成
+                        for (int i = 0; i < dropdownItems_route.length; i++)
+                          DropdownButton<String>(
+                            value: selectedItems.length > i
+                                ? selectedItems[i]
+                                : null,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  selectedItems.add(newValue);
+                                }
+                              });
+                            },
+                            items: dropdownItems_route
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         const Text(
                           'ゴール',
                           style: TextStyle(
@@ -1657,8 +1855,11 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // Firestoreに選択されたアイテムを保存
+                      await _writeToFirestore();
                       Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         PageRouteBuilder(
                           pageBuilder:
@@ -1696,6 +1897,16 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      'VisitLocation': selectedItems,
+    });
   }
 }
 

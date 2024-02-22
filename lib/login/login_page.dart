@@ -14,7 +14,16 @@ class LoginPage extends StatelessWidget {
       create: (_) => LoginModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('ログイン'),
+          title: const Center(
+            child: Text(
+              'Login to Navinator',
+              style: TextStyle(
+                color: Color(0xffffffff),
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
+              ),
+            ),
+          ),
           backgroundColor: Colors.blue,
         ),
         body: Center(

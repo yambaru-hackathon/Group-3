@@ -85,10 +85,10 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       controller: PersistentTabController(initialIndex: _currentIndex),
       items: _navBarsItems(),
-      screens: const [
+      screens:  [
         HomePage(),
-        MapPage(),
-        ProfilePage(),
+        const MapPage(),
+        const ProfilePage(),
       ],
       onItemSelected: (index) {
         setState(() {
