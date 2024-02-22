@@ -38,6 +38,9 @@ dependencies:
   firebase_core: ^2.25.4
   cloud_firestore: ^4.15.5
   speech_balloon: ^0.0.4
+  firebase_auth: ^4.17.5
+  firebase_storage: ^11.6.6
+  provider: ^6.1.1
   persistent_bottom_nav_bar: ^5.0.2
   
 
