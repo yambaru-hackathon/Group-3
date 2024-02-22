@@ -1645,58 +1645,60 @@ class SelectRoutePage extends StatefulWidget {
 class _SelectRoutePageState extends State<SelectRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<String> originalItems = []; // Firestoreから取得したデータを格納するリスト
+  List<String> originalItems = [];
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_route = []; // 選択肢のリスト
-  List<List<String>> selectedItemsList = [[]]; // 選択されたアイテムを格納するリスト
+  List<String> dropdownItems_route = [];
+  List<List<String>> selectedItemsList = [[]];
 
   @override
   void initState() {
     super.initState();
-    fetchDataFromFirestore(); // 初期化時にFirestoreからデータを取得
+    fetchDataFromFirestore();
   }
 
   Future<void> fetchDataFromFirestore() async {
     try {
       // ログインユーザーを取得
       User? user = _auth.currentUser;
-      // Firestoreからデータを取得
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection('user_data')
-          .doc(user?.uid)
-          .get();
 
-      // Firestoreドキュメントから各フィールドの値を取得
-      String destination1 = snapshot['1destination1'];
-      String destination2 = snapshot['1destination2'];
-      String destination3 = snapshot['1destination3'];
-      String destination4 = snapshot['1destination4'];
-      String foodStore = snapshot['4foodStore'];
-      String viewLocation = snapshot['6viewLocation'];
-      String storeLocation = snapshot['7storeLocation'];
+      if (user != null) {
+        // Firestoreからデータを取得
+        DocumentSnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance
+                .collection('user_data')
+                .doc(user.uid)
+                .get();
 
-      // 各フィールドが空でない場合にリストに追加
-      if (destination1.isNotEmpty) originalItems.add(destination1);
-      if (destination2.isNotEmpty) originalItems.add(destination2);
-      if (destination3.isNotEmpty) originalItems.add(destination3);
-      if (destination4.isNotEmpty) originalItems.add(destination4);
-      if (foodStore.isNotEmpty) originalItems.add(foodStore);
-      if (viewLocation.isNotEmpty) originalItems.add(viewLocation);
-      if (storeLocation.isNotEmpty) originalItems.add(storeLocation);
+        // データをリストに格納
+        String destination1 = snapshot['1destination1'];
+        String destination2 = snapshot['1destination2'];
+        String destination3 = snapshot['1destination3'];
+        String destination4 = snapshot['1destination4'];
+        String foodStore = snapshot['4foodStore'];
+        String viewLocation = snapshot['6viewLocation'];
+        String storeLocation = snapshot['7storeLocation'];
 
-      // 初期選択肢を設定
-      resetDropdownItems();
+        // 各フィールドが空でない場合にリストに追加
+        if (destination1.isNotEmpty) originalItems.add(destination1);
+        if (destination2.isNotEmpty) originalItems.add(destination2);
+        if (destination3.isNotEmpty) originalItems.add(destination3);
+        if (destination4.isNotEmpty) originalItems.add(destination4);
+        if (foodStore.isNotEmpty) originalItems.add(foodStore);
+        if (viewLocation.isNotEmpty) originalItems.add(viewLocation);
+        if (storeLocation.isNotEmpty) originalItems.add(storeLocation);
 
-      // setStateを呼び出してウィジェットを再構築
-      setState(() {});
+        // 初期選択肢を設定
+        resetDropdownItems();
+
+        // setStateを呼び出してウィジェットを再構築
+        setState(() {});
+      }
     } catch (e) {
       // エラーが発生した場合、エラーメッセージをコンソールに出力
       Text('Error fetching data: $e');
     }
   }
 
-  // ドロップダウンリストを初期化
   void resetDropdownItems() {
     dropdownItems_route = List.from(originalItems);
     selectedItemsList = List.generate(originalItems.length, (index) => []);
@@ -1782,43 +1784,26 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                           ),
                         ),
                         // ドロップダウンリストを作成
-                        Column(
-                          children:
-                              List.generate(dropdownItems_route.length, (i) {
-                            String? selectedValue =
-                                selectedItemsList[i].isNotEmpty
-                                    ? selectedItemsList[i].last
-                                    : null;
-
-                            List<String> uniqueItems = dropdownItems_route
-                                .where((item) =>
-                                    !selectedItemsList[i].contains(item))
-                                .toList();
-
-                            // デバッグログ
-                            print('Unique items for index $i: $uniqueItems');
-
-                            return DropdownButton<String>(
-                              value: selectedValue,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  if (newValue != null &&
-                                      !selectedItemsList[i]
-                                          .contains(newValue)) {
-                                    selectedItemsList[i].add(newValue);
-                                  }
-                                });
-                              },
-                              items: uniqueItems.map<DropdownMenuItem<String>>(
-                                  (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            );
-                          }),
-                        ),
+                        for (int i = 0; i < dropdownItems_route.length; i++)
+                          DropdownButton<String>(
+                            value: selectedItemsList[i].isNotEmpty
+                                ? selectedItemsList[i].last
+                                : null,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  selectedItemsList[i].add(newValue);
+                                }
+                              });
+                            },
+                            items: dropdownItems_route
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         const Text(
                           'ゴール',
                           style: TextStyle(
@@ -1899,13 +1884,13 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
   }
 
   Future<void> _writeToFirestore() async {
-    // ログインユーザーを取得
     User? user = _auth.currentUser;
 
-    // ユーザーごとにデータをFirestoreに書き込む
-    await _firestore.collection('user_data').doc(user?.uid).update({
-      'VisitLocation': selectedItemsList.map((list) => list.last).toList(),
-    });
+    if (user != null) {
+      await _firestore.collection('user_data').doc(user.uid).update({
+        'VisitLocation': selectedItemsList.map((list) => list.last).toList(),
+      });
+    }
   }
 }
 
@@ -1979,6 +1964,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
         ),
       ),
       body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -2033,9 +2019,8 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         ),
                         const Icon(Icons.arrow_downward),
                         Text(
-                          visitLocations.isNotEmpty
-                              ? visitLocations.first
-                              : 'データがありません',
+                          visitLocations.isNotEmpty ? visitLocations.first : '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
 
                         // VisitLocationリストの表示
@@ -2043,7 +2028,11 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           Column(
                             children: [
                               const Icon(Icons.arrow_downward),
-                              Text(visitLocations[i]),
+                              Text(
+                                visitLocations[i],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
 
@@ -2061,7 +2050,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 110,
               ),
 
               Row(
@@ -2105,7 +2094,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                 ],
               ),
               const SizedBox(
-                height: 20,
+                height: 30,
               ),
               Container(
                 height: 2.5,
