@@ -117,10 +117,30 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Center(
-                      child: Image.asset(
-                        'lib/images/napi.png',
-                        height: 400,
+                  ),
+                  const SizedBox(height: 20),
+
+                  Center(
+                    child: Image.asset(
+                      'char_images/char_imageA.png',
+                      width: 250,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  ElevatedButton.icon(
+                    icon: const Icon(
+                      Icons.touch_app,
+                      color: Colors.black,
+                    ),
+                    label: const Text(
+                      'ルートをシミュレーション',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+
+                        )
                       ),
                     ),
                     ElevatedButton.icon(
