@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yanbaru_hackathon/login/login_model.dart';
 import 'package:yanbaru_hackathon/login/register_page.dart';
-import 'package:yanbaru_hackathon/pages/home_page.dart';
 
-
+import '../main.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -17,14 +15,15 @@ class LoginPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('ログイン'),
-           backgroundColor: Colors.blue,
+          backgroundColor: Colors.blue,
         ),
         body: Center(
           child: Consumer<LoginModel>(builder: (context, model, child) {
             return Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   child: Column(
                     children: [
                       Padding(
@@ -44,7 +43,8 @@ class LoginPage extends StatelessWidget {
                               height: 8,
                             ),
                             Padding(
-                                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 0, vertical: 30),
                               child: Column(
                                 children: [
                                   TextField(
@@ -66,14 +66,24 @@ class LoginPage extends StatelessWidget {
                             ElevatedButton(
                               onPressed: () async {
                                 model.startLoading();
-                      
+
                                 // 追加の処理
                                 try {
                                   await model.login();
                                   // ignore: use_build_context_synchronously
                                   Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomePage(), // 画面遷移したい！！！HOMEに！！
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                          secondaryAnimation) {
+                                        // 画面遷移したい！！！HOMEに！！！
+                                        // HomePageにアクセスし、特定の処理を実行
+                                        // MyApp()を起動する
+                                        MyHomePage.homeKey.currentState
+                                            ?.executeAfterLogin();
+                                        return const MyApp();
+                                      },
+                                      transitionDuration: const Duration(
+                                          milliseconds: 0), // アニメーションの時間を0にする
                                     ),
                                   );
                                 } catch (e) {

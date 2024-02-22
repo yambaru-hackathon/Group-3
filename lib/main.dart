@@ -42,6 +42,11 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
+  // 追加: GlobalKeyの定義
+  // ignore: library_private_types_in_public_api
+  static final GlobalKey<_MyHomePageState> homeKey =
+      GlobalKey<_MyHomePageState>();
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -91,5 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       },
     );
+  }
+
+  void executeAfterLogin() {
+    // ログイン後に実行したい処理をここに追加
+    // 特定のタブに切り替えるなど
+    // HomePageにする
+    setState(() {
+      _currentIndex = 1; // Mapタブに切り替える例
+    });
   }
 }
