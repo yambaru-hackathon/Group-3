@@ -139,6 +139,41 @@ class HomePage extends StatelessWidget {
                         User? user = _auth.currentUser;
 
                         if (user != null) {
+                          List<dynamic> oldData = [];
+                          DocumentSnapshot<Map<String, dynamic>>? userDataDoc = await _firestore
+                            .collection('user_data')
+                              .doc(user.uid)
+                              .get();
+                          if (userDataDoc.exists) {
+                            oldData = userDataDoc.get('VisitLocation');
+                          }
+
+                          DocumentSnapshot<Map<String, dynamic>> userData01Doc = await _firestore
+                            .collection('user_old_data')
+                              .doc(user.uid)
+                              .get();
+                          // ドキュメントが存在しない場合のみ新しいドキュメントを作成
+                          if (!userData01Doc.exists) {
+                            await _firestore
+                              .collection('user_old_data')
+                                .doc(user.uid)
+                                .set({
+                                  'NumberofData': 1, //現在何個のデータがあるか
+                                  'VisitLocation1': oldData,
+                                });
+                          }
+                          else {
+                            int a = userData01Doc.get('NumberofData') + 1;
+                            await _firestore
+                              .collection('user_old_data')
+                                .doc(user.uid)
+                                .update({
+                                  'NumberofData': a,
+                                  'VisitLocation$a':oldData,
+                                });
+
+                          }
+                              
                           await _firestore
                               .collection('user_data')
                               .doc(user.uid)
