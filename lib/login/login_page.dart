@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
       builder: (context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // ログイン状態の確認中はローディング表示を行う
-          return Scaffold(
+          return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
@@ -97,6 +97,7 @@ class LoginPage extends StatelessWidget {
                                         // 追加の処理
                                         try {
                                           await model.login();
+                                          // ignore: use_build_context_synchronously
                                           Navigator.of(context).pushReplacement(
                                             PageRouteBuilder(
                                               pageBuilder: (context, animation, secondaryAnimation) {
@@ -111,6 +112,7 @@ class LoginPage extends StatelessWidget {
                                             backgroundColor: Colors.red,
                                             content: Text(e.toString()),
                                           );
+                                          // ignore: use_build_context_synchronously
                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                         } finally {
                                           model.endLoading();
