@@ -20,7 +20,7 @@ class ProfileModel extends ChangeNotifier {
 
   void fetchUser(){
     final user = FirebaseAuth.instance.currentUser;
-  this.email = user?.email;
+  email = user?.email;
   notifyListeners();
 
   }
