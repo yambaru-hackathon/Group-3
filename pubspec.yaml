@@ -30,7 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -39,6 +40,9 @@ dependencies:
   cloud_firestore: ^4.15.5
   speech_balloon: ^0.0.4
   persistent_bottom_nav_bar: ^5.0.2
+  geolocator: ^11.0.0
+  geocoding: ^2.2.0
+  geocoding_platform_interface: ^3.2.0
   
 
 dev_dependencies:
@@ -69,6 +73,8 @@ flutter:
     - lib/images/napi_think.png
     - lib/images/napi_guruguru.png
     - lib/images/napi_kirakira.png
+
+    - lib/images/map.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
