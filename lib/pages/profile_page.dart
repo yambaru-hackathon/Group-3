@@ -143,6 +143,7 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
         ),
+
       ),
     );
   }
@@ -188,20 +189,19 @@ class AlertDialogSample extends StatelessWidget {
         ),
         GestureDetector(
           child: const Text('はい'),
-          onTap
-          : () async {
-              try {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushAndRemoveUntil(
-                  // ignore: use_build_context_synchronously
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              } catch (e) {
-                // ログアウト中にエラーが発生した場合の処理
-              }
-            },
+          onTap: () async {
+            try {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+                (route) => false, // ログインページに遷移した後に戻ることを禁止する
+              ); // ダイアログを閉じる
+            } catch (e) {
+              Text('ログアウト中にエラーが発生しました: $e');
+            }
+          },
         )
       ],
     );
