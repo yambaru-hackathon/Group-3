@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_balloon/speech_balloon.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 bool action1Checked = false;
 bool action2Checked = false;
@@ -845,6 +847,18 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
                       );
+                    } else {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectRoutePage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -897,10 +911,17 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // ignore: non_constant_identifier_names
-  String selectedValue_foodEx = 'たけ寿司';
-
+  String selectedValue_foodEx = 'データ取れてないよ';
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_foodEx = ['たけ寿司', 'はま寿司', 'かっぱ寿司', 'スシロー'];
+  List<String> dropdownItems_foodEx = ['データ取れてないよ'];
+  String? foodType = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _searchAndSave(); // ページ読み込み時にサーチして結果を更新
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -959,12 +980,10 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                 height: 300,
               ),
             ),
-
-            // 目的地の入力フォームなどを配置
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
-                width: 200,
+                width: 400,
                 decoration: BoxDecoration(
                   color: const Color(0xffc5e1ff),
                   borderRadius: BorderRadius.circular(8),
@@ -984,9 +1003,13 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           );
                         }).toList(),
+                        isExpanded: true,
                       ),
                     ],
                   ),
@@ -994,7 +1017,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
               ),
             ),
             const Spacer(),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1006,7 +1028,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffd32929),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                     shadowColor: Colors.black,
                   ),
@@ -1018,7 +1040,8 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () async {
-                    await _writeToFirestore(); //firestoreに食べるお店
+                    // Google Maps APIを使用して検索し、結果を保存
+                    await _writeToFirestore();
                     if (action2Checked) {
                       Navigator.push(
                         // ignore: use_build_context_synchronously
@@ -1027,8 +1050,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
                                   const SelectViewExPage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                          transitionDuration: const Duration(milliseconds: 0),
                         ),
                       );
                     } else if (action3Checked) {
@@ -1039,8 +1061,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
                                   const SelectStoreExPage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                          transitionDuration: const Duration(milliseconds: 0),
                         ),
                       );
                     } else if (action4Checked) {
@@ -1051,8 +1072,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
                                   const ShowRoutePage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                          transitionDuration: const Duration(milliseconds: 0),
                         ),
                       );
                     } else {
@@ -1063,8 +1083,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
                                   const ShowRoutePage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                          transitionDuration: const Duration(milliseconds: 0),
                         ),
                       );
                     }
@@ -1072,7 +1091,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff1a69c6),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                     shadowColor: Colors.black,
                   ),
@@ -1095,14 +1114,192 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
     );
   }
 
-  Future<void> _writeToFirestore() async {
-    // ログインユーザーを取得
-    User? user = _auth.currentUser;
+  Future<void> _searchAndSave() async {
+    try {
+      foodType = await _getFoodTypeFromFirestore();
+      if (foodType == null) {
+        return;
+      }
 
-    // ユーザーごとにデータをFirestoreに書き込む
-    await _firestore.collection('user_data').doc(user?.uid).update({
-      '4foodStore': selectedValue_foodEx,
-    });
+      List<String> visitLocations = await _getVisitLocationsFromFirestore();
+      String location = _getLocationForSearch(visitLocations);
+
+      // VisitLocationからfoodTypeを含む文字列を検索
+      String? selectedValuePrevious = visitLocations.firstWhere(
+        (element) => element.contains(foodType!),
+        orElse: () => '',
+      );
+
+      setState(() {
+        selectedValue_foodEx = selectedValuePrevious;
+      });
+
+      List<String> searchResults =
+          await searchPlaces(selectedValue_foodEx, location);
+
+      setState(() {
+        dropdownItems_foodEx = searchResults.toList();
+        if (dropdownItems_foodEx.isNotEmpty) {
+          selectedValue_foodEx = dropdownItems_foodEx[0];
+        }
+      });
+    } catch (e) {
+      print('Error in _searchAndSave: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+    }
+  }
+
+  Future<String?> _getFoodTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 3foodTypeの値を取得して返す
+        return snapshot.get('3foodType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<List<String>> _getVisitLocationsFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // VisitLocationをリストとして返す
+        return List<String>.from(snapshot.get('VisitLocation'));
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error in _getVisitLocationsFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return [];
+    }
+  }
+
+  String? _getPreviousElement(String location, List<String> visitLocations) {
+    int index = visitLocations.indexOf(location);
+    if (index >= 1) {
+      return visitLocations[index - 1];
+    } else {
+      return null;
+    }
+  }
+
+  String _getLocationForSearch(List<String> visitLocations) {
+    String location = '現在地'; // デフォルトは'現在地'
+
+    // VisitLocationの中でVisitLocationのいずれかを含む要素の一つ前の要素を取得
+    String? selectedValuePrevious =
+        _getPreviousElement('$foodTypeを食べる', visitLocations);
+
+    if (selectedValuePrevious != null) {
+      location = selectedValuePrevious;
+    }
+
+    return location;
+  }
+
+  Future<void> _writeToFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+
+      await _firestore.collection('user_data').doc(user?.uid).update({
+        '4foodStore': selectedValue_foodEx,
+      });
+    } catch (e) {
+      print('Error in _writeToFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+    }
+  }
+
+  Future<List<String>> searchPlaces(String foodType, String location) async {
+    try {
+      // 住所から緯度経度を取得
+      List<double> coordinates = await getLocationCoordinates(location);
+
+      if (coordinates.isEmpty) {
+        // 緯度経度が取得できない場合のエラー処理
+        print('Error in searchPlaces: Failed to get coordinates for location');
+        return [];
+      }
+
+      String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
+      String endpoint =
+          'https://maps.googleapis.com/maps/api/place/textsearch/json';
+
+      // UriクラスのqueryParametersを使用してクエリパラメータを指定
+      Uri uri = Uri.parse(endpoint).replace(queryParameters: {
+        'language': 'ja',
+        'query': foodType,
+        'location': '${coordinates[0]},${coordinates[1]}', // 緯度経度を指定
+        // 'radius': '500',
+        'key': apiKey,
+      });
+
+      http.Response response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        List<String> results = List<String>.from(
+          json.decode(response.body)['results'].map((result) => result['name']),
+        );
+
+        results = results.take(10).toList();
+        return results;
+      } else {
+        print('Error in searchPlaces: Status Code ${response.statusCode}');
+        // エラーが発生した場合の処理を追加
+        // 例: エラーダイアログを表示するなど
+        return [];
+      }
+    } catch (e) {
+      print('Error in searchPlaces: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return [];
+    }
+  }
+
+  Future<List<double>> getLocationCoordinates(String location) async {
+    try {
+      String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
+      String endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+      Uri uri = Uri.parse(endpoint).replace(queryParameters: {
+        'address': location,
+        'key': apiKey,
+      });
+
+      http.Response response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> result = json.decode(response.body);
+        if (result['status'] == 'OK' && result['results'].isNotEmpty) {
+          double lat = result['results'][0]['geometry']['location']['lat'];
+          double lng = result['results'][0]['geometry']['location']['lng'];
+          return [lat, lng];
+        }
+      }
+
+      return [];
+    } catch (e) {
+      print('Error in getLocationCoordinates: $e');
+      return [];
+    }
   }
 }
 
@@ -1997,7 +2194,7 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  width: 200,
+                  width: 300,
                   decoration: BoxDecoration(
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
