@@ -36,11 +36,6 @@ String selectedValue_store = 'コンビニ';
 // ignore: non_constant_identifier_names
 List<String> dropdownItems_store = ['コンビニ', 'デパート', '家具屋', 'スポーツ店', '車', '服'];
 
-// ignore: non_constant_identifier_names
-String selectedValue_route = '目的地A';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_route = ['目的地A', '目的地B', '食事', '景色', '買い物'];
-
 //homeページ
 class HomePage extends StatelessWidget {
   HomePage({super.key});
