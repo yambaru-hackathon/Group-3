@@ -158,7 +158,7 @@ class HomePage extends StatelessWidget {
                               .collection('user_old_data')
                                 .doc(user.uid)
                                 .set({
-                                  'NumberofData': 1, //現在何個のデータがあるか
+                                  'NumberofData': 1, //直近で追加されたデータの添え字
                                   'VisitLocation1': oldData,
                                 });
                           }
