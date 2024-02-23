@@ -1117,8 +1117,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
     );
   }
 
-  
-
   Future<void> _searchAndSave() async {
     try {
       foodType = await _getFoodTypeFromFirestore();
@@ -1280,44 +1278,44 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   }
 
   Future<List<double>> getLocationCoordinates(String location) async {
-  try {
-    if (location == '現在地') {
-      // 位置情報の取得
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+    try {
+      if (location == '現在地') {
+        // 位置情報の取得
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
 
-      double lat = position.latitude;
-      double lng = position.longitude;
+        double lat = position.latitude;
+        double lng = position.longitude;
 
-      return [lat, lng];
-    } else {
-      String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
-      String endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
+        return [lat, lng];
+      } else {
+        String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
+        String endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
 
-      Uri uri = Uri.parse(endpoint).replace(queryParameters: {
-        'address': location,
-        'key': apiKey,
-      });
+        Uri uri = Uri.parse(endpoint).replace(queryParameters: {
+          'address': location,
+          'key': apiKey,
+        });
 
-      http.Response response = await http.get(uri);
+        http.Response response = await http.get(uri);
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> result = json.decode(response.body);
-        if (result['status'] == 'OK' && result['results'].isNotEmpty) {
-          double lat = result['results'][0]['geometry']['location']['lat'];
-          double lng = result['results'][0]['geometry']['location']['lng'];
-          return [lat, lng];
+        if (response.statusCode == 200) {
+          Map<String, dynamic> result = json.decode(response.body);
+          if (result['status'] == 'OK' && result['results'].isNotEmpty) {
+            double lat = result['results'][0]['geometry']['location']['lat'];
+            double lng = result['results'][0]['geometry']['location']['lng'];
+            return [lat, lng];
+          }
         }
-      }
 
+        return [];
+      }
+    } catch (e) {
+      print('Error in getLocationCoordinates: $e');
       return [];
     }
-  } catch (e) {
-    print('Error in getLocationCoordinates: $e');
-    return [];
   }
-}
 }
 
 //景色の種類選択
