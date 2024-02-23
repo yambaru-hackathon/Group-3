@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:geolocator/geolocator.dart';
 
 bool action1Checked = false;
 bool action2Checked = false;
@@ -1275,7 +1276,18 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   }
 
   Future<List<double>> getLocationCoordinates(String location) async {
-    try {
+  try {
+    if (location == '現在地') {
+      // 位置情報の取得
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      double lat = position.latitude;
+      double lng = position.longitude;
+
+      return [lat, lng];
+    } else {
       String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
       String endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
 
@@ -1296,11 +1308,12 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
       }
 
       return [];
-    } catch (e) {
-      print('Error in getLocationCoordinates: $e');
-      return [];
     }
+  } catch (e) {
+    print('Error in getLocationCoordinates: $e');
+    return [];
   }
+}
 }
 
 //景色の種類選択
