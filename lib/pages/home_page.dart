@@ -11,7 +11,15 @@ bool action4Checked = false;
 // ignore: non_constant_identifier_names
 String selectedValue_food = 'お米';
 // ignore: non_constant_identifier_names
-List<String> dropdownItems_food = ['お米', '麺', 'パン', 'お肉', 'お寿司', 'ピザ'];
+List<String> dropdownItems_food = [
+  'お米',
+  '麺',
+  'パン',
+  'お肉',
+  'お寿司',
+  'ピザ',
+  'ファストフード'
+];
 
 // ignore: non_constant_identifier_names
 String selectedValue_view = '海';
@@ -24,9 +32,9 @@ String selectedValue_viewEx = 'エメラルドビーチ';
 List<String> dropdownItems_viewEx = ['エメラルドビーチ', 'シーグラスビーチ'];
 
 // ignore: non_constant_identifier_names
-String selectedValue_store = 'ファミリーマート';
+String selectedValue_store = 'コンビニ';
 // ignore: non_constant_identifier_names
-List<String> dropdownItems_store = ['ファミリーマート', '麺', 'パン', 'お肉', 'お寿司', 'ピザ'];
+List<String> dropdownItems_store = ['コンビニ', 'デパート', '家具屋', 'スポーツ店', '車', '服'];
 
 // ignore: non_constant_identifier_names
 String selectedValue_route = '目的地A';
@@ -155,7 +163,7 @@ class HomePage extends StatelessWidget {
                             '4foodStore': '',
                             '5viewType': '',
                             '6viewLocation': '',
-                            '7storeLocation': '',
+                            '7storeType': '',
                             'VisitLocation': [],
                           });
                         }
@@ -1674,19 +1682,20 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
         String destination2 = snapshot['1destination2'];
         String destination3 = snapshot['1destination3'];
         String destination4 = snapshot['1destination4'];
-        String foodStore = snapshot['4foodStore'];
-        String viewLocation = snapshot['6viewLocation'];
-        String storeLocation = snapshot['7storeLocation'];
+        String foodType = snapshot['3foodType'];
+        String viewType = snapshot['5viewType'];
+        String storeType = snapshot['7storeType'];
 
         // 各フィールドが空でない場合にリストに追加
         if (destination1.isNotEmpty) originalItems.add(destination1);
         if (destination2.isNotEmpty) originalItems.add(destination2);
         if (destination3.isNotEmpty) originalItems.add(destination3);
         if (destination4.isNotEmpty) originalItems.add(destination4);
-        if (foodStore.isNotEmpty) originalItems.add(foodStore);
-        if (viewLocation.isNotEmpty) originalItems.add(viewLocation);
-        if (storeLocation.isNotEmpty) originalItems.add(storeLocation);
-
+        if (foodType.isNotEmpty) originalItems.add(foodType);
+        if (viewType.isNotEmpty) originalItems.add(viewType);
+        if (storeType.isNotEmpty) originalItems.add(storeType);
+        foodType = '$foodType屋さん';
+        viewType = '$viewTypeを見る';
         // 初期選択肢を設定
         resetDropdownItems();
 

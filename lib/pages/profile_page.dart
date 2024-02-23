@@ -5,9 +5,9 @@ import 'package:yanbaru_hackathon/login/login_page.dart';
 import 'package:yanbaru_hackathon/login/profile.dart';
 
 class ProfilePage extends StatelessWidget {
-  
+  const ProfilePage({super.key});
+
   @override
-  
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ProfileModel>(
       create: (_) => ProfileModel()..fetchUser(),
@@ -59,17 +59,17 @@ class ProfilePage extends StatelessWidget {
                   IconButton(
                     onPressed: () {
                       showDialog<void>(
-                         context: context,
-                         builder: (_) {
-                           return AlertDialogSample();
-                         });
+                          context: context,
+                          builder: (_) {
+                            return const AlertDialogSample();
+                          });
                     },
                     icon: const Icon(Icons.logout),
                   ),
                   const CircleAvatar(
-                   radius: 50,
-                   backgroundImage: AssetImage('lib/user_image/icon.jpg'),
-                      // ユーザーのプロフィール画像
+                    radius: 50,
+                    backgroundImage: AssetImage('lib/user_image/icon.jpg'),
+                    // ユーザーのプロフィール画像
                   ),
                   Text(model.email ?? 'メールアドレスなし'),
                   const SizedBox(height: 20),
@@ -91,7 +91,8 @@ class ProfilePage extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'Item $index',
-                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 24),
                             ),
                           ),
                         );
@@ -107,34 +108,34 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
+
 class AlertDialogSample extends StatelessWidget {
   const AlertDialogSample({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('ログアウトしますか？'),
+      title: const Text('ログアウトしますか？'),
       actions: <Widget>[
         GestureDetector(
-          child: Text('いいえ'),
+          child: const Text('いいえ'),
           onTap: () {
             Navigator.pop(context);
           },
         ),
         GestureDetector(
-          child: Text('はい'),
+          child: const Text('はい'),
           onTap: () async {
             try {
               await FirebaseAuth.instance.signOut();
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false, // ログインページに遷移した後に戻ることを禁止する
-              );// ダイアログを閉じる
-              
-            }
-            catch (e) {
-              print('ログアウト中にエラーが発生しました: $e');
+              ); // ダイアログを閉じる
+            } catch (e) {
+              Text('ログアウト中にエラーが発生しました: $e');
             }
           },
         )
