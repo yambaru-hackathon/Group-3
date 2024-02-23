@@ -2610,7 +2610,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff1a69c6),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径a
                       ),
                       shadowColor: Colors.black,
                     ),
