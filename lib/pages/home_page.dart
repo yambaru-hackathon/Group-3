@@ -2615,7 +2615,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                       shadowColor: Colors.black,
                     ),
                     child: const Text(
-                      'ホームa',
+                      'ホーム',
                       style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
