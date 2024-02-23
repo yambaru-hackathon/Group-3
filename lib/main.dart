@@ -3,8 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:yanbaru_hackathon/login/login_page.dart';
 import 'firebase_options.dart';
-// ignore: unused_import
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'pages/home_page.dart';
 import 'pages/map_page.dart';
@@ -12,9 +10,11 @@ import 'pages/profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(
     const MaterialApp(
       home: LoginPage(),
@@ -52,6 +52,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  
   int _currentIndex = 0;
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
@@ -85,10 +86,10 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       controller: PersistentTabController(initialIndex: _currentIndex),
       items: _navBarsItems(),
-      screens:  [
+      screens: [
         HomePage(),
         const MapPage(),
-         const ProfilePage(),
+        const ProfilePage(),
       ],
       onItemSelected: (index) {
         setState(() {
