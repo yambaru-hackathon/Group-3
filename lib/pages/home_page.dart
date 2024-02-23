@@ -9,10 +9,10 @@ bool action3Checked = false;
 bool action4Checked = false;
 
 // ignore: non_constant_identifier_names
-String selectedValue_food = 'お米';
+String selectedValue_food = 'お米/丼';
 // ignore: non_constant_identifier_names
 List<String> dropdownItems_food = [
-  'お米',
+  'お米/丼',
   '麺',
   'パン',
   'お肉',
@@ -164,6 +164,7 @@ class HomePage extends StatelessWidget {
                             '5viewType': '',
                             '6viewLocation': '',
                             '7storeType': '',
+                            '8storeLocation': '',
                             'VisitLocation': [],
                           });
                         }
@@ -808,16 +809,43 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                 ElevatedButton(
                   onPressed: () async {
                     await _writeToFirestore(); //firestoreに食べたいもの保存
-                    Navigator.push(
-                      // ignore: use_build_context_synchronously
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const SelectFoodExPage(),
-                        transitionDuration:
-                            const Duration(milliseconds: 0), // アニメーションの速度を0にする
-                      ),
-                    );
+                    if (action2Checked) {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectViewPage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
+                    } else if (action3Checked) {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectStorePage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
+                    } else if (action4Checked) {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectRoutePage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff1a69c6),
@@ -917,7 +945,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
               width: 250,
               child: Center(
                 child: Text(
-                  'お店を選んでね',
+                  'ご飯を食べるお店を選んでね',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -998,7 +1026,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectViewPage(),
+                                  const SelectViewExPage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1010,7 +1038,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectStorePage(),
+                                  const SelectStoreExPage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1022,7 +1050,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectStorePage(),
+                                  const ShowRoutePage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1034,7 +1062,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectRoutePage(),
+                                  const ShowRoutePage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1209,16 +1237,31 @@ class _SelectViewPageState extends State<SelectViewPage> {
                 ElevatedButton(
                   onPressed: () async {
                     await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
-                    Navigator.push(
-                      // ignore: use_build_context_synchronously
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const SelectViewExPage(),
-                        transitionDuration:
-                            const Duration(milliseconds: 0), // アニメーションの速度を0にする
-                      ),
-                    );
+                    if (action3Checked) {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectStorePage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
+                    } else if (action4Checked) {
+                      Navigator.push(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const SelectRoutePage(),
+                          transitionDuration: const Duration(
+                              milliseconds: 0), // アニメーションの速度を0にする
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff1a69c6),
@@ -1314,7 +1357,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
               width: 250,
               child: Center(
                 child: Text(
-                  '見る場所を選んでね',
+                  '景色を見る場所を選んでね',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -1395,7 +1438,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectStorePage(),
+                                  const SelectStoreExPage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1407,7 +1450,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectStorePage(),
+                                  const ShowRoutePage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1419,7 +1462,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  const SelectRoutePage(),
+                                  const ShowRoutePage(),
                           transitionDuration: const Duration(
                               milliseconds: 0), // アニメーションの速度を0にする
                         ),
@@ -1463,7 +1506,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   }
 }
 
-//お店の選択
+//お店の種類選択
 class SelectStorePage extends StatefulWidget {
   const SelectStorePage({Key? key}) : super(key: key);
 
@@ -1636,7 +1679,185 @@ class _SelectStorePageState extends State<SelectStorePage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '7storeLocation': selectedValue_store,
+      '7storeType': selectedValue_store,
+    });
+  }
+}
+
+//行く店舗の選択
+class SelectStoreExPage extends StatefulWidget {
+  const SelectStoreExPage({Key? key}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SelectStoreExPageState createState() => _SelectStoreExPageState();
+}
+
+class _SelectStoreExPageState extends State<SelectStoreExPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xffaaccff),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40),
+        child: AppBar(
+          title: const Row(
+            children: [
+              SizedBox(
+                width: 72.4,
+              ),
+              Center(
+                child: Text(
+                  'Navinator',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 2,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 20),
+            const SpeechBalloon(
+              nipLocation: NipLocation.bottom,
+              borderColor: Color.fromARGB(255, 255, 255, 255),
+              color: Colors.white,
+              height: 50,
+              width: 250,
+              child: Center(
+                child: Text(
+                  '買い物するお店を選んでね',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: Image.asset(
+                'lib/images/napi_guruguru.png',
+                height: 300,
+              ),
+            ),
+
+            // 目的地の入力フォームなどを配置
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                width: 200,
+                decoration: BoxDecoration(
+                  color: const Color(0xffc5e1ff),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      DropdownButton<String>(
+                        value: selectedValue_store,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValue_store = newValue!;
+                          });
+                        },
+                        items: dropdownItems_store
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const Spacer(),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // 1つ前の画面に戻る
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffd32929),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                    ),
+                    shadowColor: Colors.black,
+                  ),
+                  child: const Text(
+                    'もどる',
+                    style: TextStyle(color: Color(0xffffffff)),
+                  ),
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _writeToFirestore();
+                    Navigator.push(
+                      // ignore: use_build_context_synchronously
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const ShowRoutePage(),
+                        transitionDuration:
+                            const Duration(milliseconds: 0), // アニメーションの速度を0にする
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff1a69c6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                    ),
+                    shadowColor: Colors.black,
+                  ),
+                  child: const Text(
+                    'つぎへ',
+                    style: TextStyle(color: Color(0xffffffff)),
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+            const Spacer(),
+            Container(
+              height: 2.5,
+              color: Colors.black,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _writeToFirestore() async {
+    // ログインユーザーを取得
+    User? user = _auth.currentUser;
+
+    // ユーザーごとにデータをFirestoreに書き込む
+    await _firestore.collection('user_data').doc(user?.uid).update({
+      '8storeLocation': selectedValue_store,
     });
   }
 }
@@ -1691,11 +1912,10 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
         if (destination2.isNotEmpty) originalItems.add(destination2);
         if (destination3.isNotEmpty) originalItems.add(destination3);
         if (destination4.isNotEmpty) originalItems.add(destination4);
-        if (foodType.isNotEmpty) originalItems.add(foodType);
-        if (viewType.isNotEmpty) originalItems.add(viewType);
+        if (foodType.isNotEmpty) originalItems.add('$foodTypeを食べる');
+        if (viewType.isNotEmpty) originalItems.add('$viewTypeを見る');
         if (storeType.isNotEmpty) originalItems.add(storeType);
-        foodType = '$foodType屋さん';
-        viewType = '$viewTypeを見る';
+
         // 初期選択肢を設定
         resetDropdownItems();
 
@@ -1851,17 +2071,67 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                     onPressed: () async {
                       // Firestoreに選択されたアイテムを保存
                       await _writeToFirestore();
-                      Navigator.push(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const ShowRoutePage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
-                        ),
-                      );
+                      if (action1Checked) {
+                        Navigator.push(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const SelectFoodExPage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      } else if (action2Checked) {
+                        Navigator.push(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const SelectViewExPage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      } else if (action3Checked) {
+                        Navigator.push(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const SelectStoreExPage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      } else if (action4Checked) {
+                        Navigator.push(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const ShowRoutePage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const ShowRoutePage(),
+                            transitionDuration: const Duration(
+                                milliseconds: 0), // アニメーションの速度を0にする
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff1a69c6),
