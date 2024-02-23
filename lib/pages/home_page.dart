@@ -14,11 +14,6 @@ String selectedValue_food = 'お米';
 List<String> dropdownItems_food = ['お米', '麺', 'パン', 'お肉', 'お寿司', 'ピザ'];
 
 // ignore: non_constant_identifier_names
-String selectedValue_foodEx = 'くら寿司';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_foodEx = ['くら寿司', 'はま寿司', 'かっぱ寿司', 'スシロー'];
-
-// ignore: non_constant_identifier_names
 String selectedValue_view = '海';
 // ignore: non_constant_identifier_names
 List<String> dropdownItems_view = ['海', '山'];
@@ -865,6 +860,11 @@ class SelectFoodExPage extends StatefulWidget {
 class _SelectFoodPageExState extends State<SelectFoodExPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // ignore: non_constant_identifier_names
+  String selectedValue_foodEx = 'たけ寿司';
+
+  // ignore: non_constant_identifier_names
+  List<String> dropdownItems_foodEx = ['たけ寿司', 'はま寿司', 'かっぱ寿司', 'スシロー'];
 
   @override
   Widget build(BuildContext context) {
@@ -1645,63 +1645,47 @@ class SelectRoutePage extends StatefulWidget {
 class _SelectRoutePageState extends State<SelectRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<String> originalItems = [];
   // ignore: non_constant_identifier_names
-  List<String> originalItems = []; // Firestoreから取得したデータを格納するリスト
-  // ignore: non_constant_identifier_names
-  List<String> dropdownItems_route = []; // 選択肢のリスト
-  List<String> selectedItems = []; // 選択されたアイテムを格納するリスト
+  List<String> dropdownItems_route = [];
+  List<List<String>> selectedItemsList = [[]];
 
   @override
   void initState() {
     super.initState();
-    fetchDataFromFirestore(); // 初期化時にFirestoreからデータを取得
+    fetchDataFromFirestore();
   }
 
   Future<void> fetchDataFromFirestore() async {
     try {
-      // Firestoreからデータを取得
-      QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance.collection('user_data').get();
+      // ログインユーザーを取得
+      User? user = _auth.currentUser;
 
-      // データをリストに格納
-      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
-        // Firestoreドキュメントから'1destination1'フィールドの値を取得
-        String destination1 = doc['1destination1'];
+      if (user != null) {
+        // Firestoreからデータを取得
+        DocumentSnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance
+                .collection('user_data')
+                .doc(user.uid)
+                .get();
 
-        // '1destination1'が空でない場合にのみリストに追加
-        if (destination1.isNotEmpty) {
-          originalItems.add(destination1);
-        }
+        // データをリストに格納
+        String destination1 = snapshot['1destination1'];
+        String destination2 = snapshot['1destination2'];
+        String destination3 = snapshot['1destination3'];
+        String destination4 = snapshot['1destination4'];
+        String foodStore = snapshot['4foodStore'];
+        String viewLocation = snapshot['6viewLocation'];
+        String storeLocation = snapshot['7storeLocation'];
 
-        String destination2 = doc['1destination2'];
-        if (destination2.isNotEmpty) {
-          originalItems.add(destination2);
-        }
-
-        String destination3 = doc['1destination3'];
-        if (destination3.isNotEmpty) {
-          originalItems.add(destination3);
-        }
-
-        String destination4 = doc['1destination4'];
-        if (destination4.isNotEmpty) {
-          originalItems.add(destination4);
-        }
-
-        String foodStore = doc['4foodStore'];
-        if (foodStore.isNotEmpty) {
-          originalItems.add(foodStore);
-        }
-
-        String viewLocation = doc['6viewLocation'];
-        if (viewLocation.isNotEmpty) {
-          originalItems.add(viewLocation);
-        }
-
-        String storeLocation = doc['7storeLocation'];
-        if (storeLocation.isNotEmpty) {
-          originalItems.add(storeLocation);
-        }
+        // 各フィールドが空でない場合にリストに追加
+        if (destination1.isNotEmpty) originalItems.add(destination1);
+        if (destination2.isNotEmpty) originalItems.add(destination2);
+        if (destination3.isNotEmpty) originalItems.add(destination3);
+        if (destination4.isNotEmpty) originalItems.add(destination4);
+        if (foodStore.isNotEmpty) originalItems.add(foodStore);
+        if (viewLocation.isNotEmpty) originalItems.add(viewLocation);
+        if (storeLocation.isNotEmpty) originalItems.add(storeLocation);
 
         // 初期選択肢を設定
         resetDropdownItems();
@@ -1715,9 +1699,9 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
     }
   }
 
-// ドロップダウンリストを初期化
   void resetDropdownItems() {
     dropdownItems_route = List.from(originalItems);
+    selectedItemsList = List.generate(originalItems.length, (index) => []);
   }
 
   @override
@@ -1802,13 +1786,13 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                         // ドロップダウンリストを作成
                         for (int i = 0; i < dropdownItems_route.length; i++)
                           DropdownButton<String>(
-                            value: selectedItems.length > i
-                                ? selectedItems[i]
+                            value: selectedItemsList[i].isNotEmpty
+                                ? selectedItemsList[i].last
                                 : null,
                             onChanged: (String? newValue) {
                               setState(() {
                                 if (newValue != null) {
-                                  selectedItems.add(newValue);
+                                  selectedItemsList[i].add(newValue);
                                 }
                               });
                             },
@@ -1831,7 +1815,7 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 110),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1886,7 +1870,7 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                 ],
               ),
               const SizedBox(
-                height: 10,
+                height: 50,
               ),
               Container(
                 height: 2,
@@ -1900,13 +1884,13 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
   }
 
   Future<void> _writeToFirestore() async {
-    // ログインユーザーを取得
     User? user = _auth.currentUser;
 
-    // ユーザーごとにデータをFirestoreに書き込む
-    await _firestore.collection('user_data').doc(user?.uid).update({
-      'VisitLocation': selectedItems,
-    });
+    if (user != null) {
+      await _firestore.collection('user_data').doc(user.uid).update({
+        'VisitLocation': selectedItemsList.map((list) => list.last).toList(),
+      });
+    }
   }
 }
 
@@ -1920,6 +1904,39 @@ class ShowRoutePage extends StatefulWidget {
 }
 
 class _ShowRoutePageState extends State<ShowRoutePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  List<String> visitLocations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+  }
+
+  Future<void> fetchVisitLocations() async {
+    try {
+      User? user = _auth.currentUser;
+      // FirestoreからVisitLocationのデータを取得
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('user_data')
+              .doc(user?.uid) // ユーザーIDに置き換える
+              .get();
+
+      // VisitLocationのデータが存在する場合、visitLocationsリストに格納
+      if (snapshot.exists && snapshot.data() != null) {
+        List<dynamic>? visitLocationData = snapshot.data()?['VisitLocation'];
+        if (visitLocationData != null && visitLocationData.isNotEmpty) {
+          visitLocations = visitLocationData.cast<String>().toList();
+        }
+      }
+
+      setState(() {});
+    } catch (e) {
+      Text('Error fetching data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1946,122 +1963,145 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 2,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 20),
-            const SpeechBalloon(
-              nipLocation: NipLocation.bottom,
-              borderColor: Color.fromARGB(255, 255, 255, 255),
-              color: Colors.white,
-              height: 50,
-              width: 250,
-              child: Center(
-                child: Text(
-                  'なぴの考えたルートです！',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+      body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 2,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 20),
+              const SpeechBalloon(
+                nipLocation: NipLocation.bottom,
+                borderColor: Color.fromARGB(255, 255, 255, 255),
+                color: Colors.white,
+                height: 50,
+                width: 250,
+                child: Center(
+                  child: Text(
+                    'なぴの考えたルートです！',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Center(
-              child: Image.asset(
-                'lib/images/napi_kirakira.png',
-                height: 300,
-              ),
-            ),
-
-            // 目的地の入力フォームなどを配置
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                width: 200,
-                decoration: BoxDecoration(
-                  color: const Color(0xffc5e1ff),
-                  borderRadius: BorderRadius.circular(8),
+              Center(
+                child: Image.asset(
+                  'lib/images/napi_kirakira.png',
+                  height: 300,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      DropdownButton<String>(
-                        value: selectedValue_store,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedValue_store = newValue!;
-                          });
-                        },
-                        items: dropdownItems_store
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+              ),
+
+              // 目的地の入力フォームなどを配置
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffc5e1ff),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        // 現在地
+                        const Text(
+                          '現在地',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_downward),
+                        Text(
+                          visitLocations.isNotEmpty ? visitLocations.first : '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+
+                        // VisitLocationリストの表示
+                        for (int i = 1; i < visitLocations.length; i++)
+                          Column(
+                            children: [
+                              const Icon(Icons.arrow_downward),
+                              Text(
+                                visitLocations[i],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+
+                        // ゴール
+                        const Icon(Icons.arrow_downward),
+                        const Text(
+                          'ゴール',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 110,
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // 1つ前の画面に戻る
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffd32929),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
                       ),
-                    ],
+                      shadowColor: Colors.black,
+                    ),
+                    child: const Text(
+                      'もどる',
+                      style: TextStyle(color: Color(0xffffffff)),
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1a69c6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                      ),
+                      shadowColor: Colors.black,
+                    ),
+                    child: const Text(
+                      'ホーム',
+                      style: TextStyle(color: Color(0xffffffff)),
+                    ),
+                  ),
+                  const Spacer(),
+                ],
               ),
-            ),
-            const Spacer(),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // 1つ前の画面に戻る
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffd32929),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                    ),
-                    shadowColor: Colors.black,
-                  ),
-                  child: const Text(
-                    'もどる',
-                    style: TextStyle(color: Color(0xffffffff)),
-                  ),
-                ),
-                const Spacer(),
-
-                //4択で選んだ時の分岐
-
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff1a69c6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                    ),
-                    shadowColor: Colors.black,
-                  ),
-                  child: const Text(
-                    'ホーム',
-                    style: TextStyle(color: Color(0xffffffff)),
-                  ),
-                ),
-                const Spacer(),
-              ],
-            ),
-            const Spacer(),
-            Container(
-              height: 2.5,
-              color: Colors.black,
-            ),
-          ],
+              const SizedBox(
+                height: 30,
+              ),
+              Container(
+                height: 2.5,
+                color: Colors.black,
+              ),
+            ],
+          ),
         ),
       ),
     );
