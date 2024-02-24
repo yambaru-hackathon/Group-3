@@ -2870,29 +2870,6 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
       await _firestore.collection('user_data').doc(user.uid).update({
         'VisitLocation': selectedItemsList.map((list) => list.last).toList(),
       });
-      //ここからuser_old_dataにルートのデータ入れる処理
-      List<dynamic> oldData = [];
-      DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-          await _firestore.collection('user_data').doc(user.uid).get();
-      if (userDataDoc.exists) {
-        oldData = userDataDoc.get('VisitLocation');
-      }
-
-      DocumentSnapshot<Map<String, dynamic>> userData01Doc =
-          await _firestore.collection('user_old_data').doc(user.uid).get();
-      // ドキュメントが存在しない場合のみ新しいドキュメントを作成
-      if (!userData01Doc.exists) {
-        await _firestore.collection('user_old_data').doc(user.uid).set({
-          'NumberofData': 1, //直近で追加されたデータの添え字
-          'VisitLocation1': oldData,
-        });
-      } else {
-        int a = userData01Doc.get('NumberofData') + 1;
-        await _firestore.collection('user_old_data').doc(user.uid).update({
-          'NumberofData': a,
-          'VisitLocation$a': oldData,
-        });
-      }
     }
   }
 }
@@ -2908,7 +2885,9 @@ class ShowRoutePage extends StatefulWidget {
 
 class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
+  bool isSaved = false;// ルートが保存されたかどうかを示す状態フラグ
 
   @override
   void initState() {
@@ -3073,6 +3052,85 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                     ),
                     child: const Text(
                       'もどる',
+                      style: TextStyle(color: Color(0xffffffff)),
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () async{
+                      if (isSaved) {
+                        // すでに保存されている場合はダイアログを表示して処理を終了
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('保存済み'),
+                            content: const Text('すでにルートが保存されています！'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return; // ここで処理を終了する
+                      }
+                      User? user = _auth.currentUser;
+                      //ここからuser_old_dataにルート保存する処理
+                      List<dynamic> oldData = [];
+                      DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+                          await _firestore.collection('user_data').doc(user?.uid).get();
+                      if (userDataDoc.exists) {
+                        oldData = userDataDoc.get('VisitLocation');
+                      }
+
+                      DocumentSnapshot<Map<String, dynamic>> userData01Doc =
+                          await _firestore.collection('user_old_data').doc(user?.uid).get();
+                      // ドキュメントが存在しない場合のみ新しいドキュメントを作成
+                      if (!userData01Doc.exists) {
+                        await _firestore.collection('user_old_data').doc(user?.uid).set({
+                          'NumberofData': 1, //直近で追加されたデータの添え字
+                          'VisitLocation1': oldData,
+                        });
+                      } else {
+                        int a = userData01Doc.get('NumberofData') + 1;
+                        await _firestore.collection('user_old_data').doc(user?.uid).update({
+                          'NumberofData': a,
+                          'VisitLocation$a': oldData,
+                        });
+                      }
+
+                      // ルートが保存されたことをフラグで示す
+                      isSaved = true;
+                      
+                      showDialog(
+                        // ignore: use_build_context_synchronously
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('保存完了'),
+                          content: const Text('ルートの保存が完了しました！'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1a69c6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                      ),
+                      shadowColor: Colors.black,
+                    ),
+                    child: const Text(
+                      '保存',
                       style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
