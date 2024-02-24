@@ -23,22 +23,38 @@ class _KeepMapState extends State<KeepMap> {
 
   Future<List<String>> _fetchDataFromFirestore() async {
     try {
-      // ログインユーザーのUIDを取得
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      
-      // Firestoreからデータを取得する
+
       DocumentSnapshot<Map<String, dynamic>> querySnapshot =
           await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
 
-      // 取得したデータをリストに変換して返す
       List<String> dataList = [];
-      List<dynamic>? visitLocationData = querySnapshot.data()!['VisitLocation${widget.visitLocationIndex + 1}'];
+      List<dynamic>? visitLocationData =
+          querySnapshot.data()!['VisitLocation${widget.visitLocationIndex + 1}'];
       if (visitLocationData != null && visitLocationData.isNotEmpty) {
         dataList.addAll(visitLocationData.cast<String>());
       }
-      return dataList;
+      return dataList.reversed.toList(); 
     } catch (e) {
-      return []; // エラーが発生した場合は空のリストを返す
+      return [];
+    }
+  }
+
+  void _deleteVisitLocationData() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // VisitLocationが格納されているドキュメントを削除
+      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+        'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
+      });
+
+      // データ再取得
+      setState(() {
+        _data = _fetchDataFromFirestore();
+      });
+    // ignore: empty_catches
+    } catch (e) {
     }
   }
 
@@ -47,6 +63,12 @@ class _KeepMapState extends State<KeepMap> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('行ったとこ表示'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _deleteVisitLocationData,
+          ),
+        ],
       ),
       body: FutureBuilder<List<String>>(
         future: _data,
@@ -56,7 +78,6 @@ class _KeepMapState extends State<KeepMap> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            // データをリストビューに表示
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {

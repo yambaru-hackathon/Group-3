@@ -4,9 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yanbaru_hackathon/keep/keep_map.dart';
 import 'package:yanbaru_hackathon/login/login_page.dart';
 
+class ProfilePage extends StatefulWidget {
+  // ignore: use_key_in_widget_constructors
+  const ProfilePage({Key? key});
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  @override
+  // ignore: library_private_types_in_public_api
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late int numberOfData;
 
   @override
   Widget build(BuildContext context) {
@@ -54,16 +62,17 @@ class ProfilePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               IconButton(
-                    onPressed: () {
-                      showDialog<void>(
-                          context: context,
-                          builder: (_) {
-                            return const AlertDialogSample();
-                          });
+              IconButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (_) {
+                      return const AlertDialogSample();
                     },
-                    icon: const Icon(Icons.logout),
-                  ),
+                  );
+                },
+                icon: const Icon(Icons.logout),
+              ),
               const CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage('lib/user_image/icon.png'),
@@ -105,7 +114,7 @@ class ProfilePage extends StatelessWidget {
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else {
-                      int numberOfData = snapshot.data!['NumberofData'];
+                      numberOfData = snapshot.data!['NumberofData'];
                       return GridView.builder(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -118,14 +127,14 @@ class ProfilePage extends StatelessWidget {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => KeepMap(visitLocationIndex: index)),
+                                MaterialPageRoute(builder: (context) => KeepMap(visitLocationIndex: (numberOfData - 1) - index)),
                               );
                             },
                             child: Container(
                               color: Colors.blueGrey,
                               child: Center(
                                 child: Text(
-                                  'Item $index',
+                                  'Item $index', 
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 24,
@@ -143,7 +152,6 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
         ),
-
       ),
     );
   }
@@ -152,8 +160,8 @@ class ProfilePage extends StatelessWidget {
     try {
       // ログインユーザーのUIDを取得
       String uid = FirebaseAuth.instance.currentUser!.uid;
-
-      // Firestoreからログインユーザーのデータを取得する
+      
+      // Firestoreからデータを取得する
       return await FirebaseFirestore.instance.collection('users').doc(uid).get();
     } catch (e) {
       rethrow;
@@ -168,13 +176,15 @@ class ProfilePage extends StatelessWidget {
       // Firestoreからログインユーザーの古いデータを取得するストリームを返す
       return FirebaseFirestore.instance.collection('user_old_data').doc(uid).snapshots();
     } catch (e) {
-      rethrow;
+      // ignore: use_rethrow_when_possible
+      throw e;
     }
   }
 }
 
 class AlertDialogSample extends StatelessWidget {
-  const AlertDialogSample({super.key});
+  // ignore: use_key_in_widget_constructors
+  const AlertDialogSample({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -196,8 +206,8 @@ class AlertDialogSample extends StatelessWidget {
                 // ignore: use_build_context_synchronously
                 context,
                 MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false, // ログインページに遷移した後に戻ることを禁止する
-              ); // ダイアログを閉じる
+                (route) => false,
+              );
             } catch (e) {
               Text('ログアウト中にエラーが発生しました: $e');
             }

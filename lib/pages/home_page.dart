@@ -13,29 +13,6 @@ bool action2Checked = false;
 bool action3Checked = false;
 bool action4Checked = false;
 
-// ignore: non_constant_identifier_names
-String selectedValue_food = 'お米/丼';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_food = [
-  'お米/丼',
-  '麺',
-  'パン',
-  'お肉',
-  'お寿司',
-  'ピザ',
-  'ファストフード'
-];
-
-// ignore: non_constant_identifier_names
-String selectedValue_view = 'ビーチ';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_view = ['ビーチ', '山/岳'];
-
-// ignore: non_constant_identifier_names
-String selectedValue_store = 'コンビニ';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_store = ['コンビニ', 'デパート', '家具屋', 'スポーツ店', '車', '服'];
-
 //homeページ
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -703,8 +680,14 @@ class SelectFoodPage extends StatefulWidget {
 }
 
 class _SelectFoodPageState extends State<SelectFoodPage> {
+  //firestoreのユーザー情報の取得
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  //テキストボックスのコントローラー
+  final TextEditingController _textFieldController = TextEditingController();
+  //入力したものを格納する
+  String _inputText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -770,29 +753,23 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  width: 200,
+                  width: 300,
                   decoration: BoxDecoration(
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_food,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_food = newValue!;
-                            });
-                          },
-                          items: dropdownItems_food
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：お寿司',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -826,6 +803,9 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore(); //firestoreに食べたいもの保存
                       if (action2Checked) {
                         Navigator.push(
@@ -912,8 +892,14 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
 
     // ユーザーごとにデータをFirestoreに更新
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '3foodType': selectedValue_food,
+      '3foodType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -936,6 +922,8 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   // ignore: non_constant_identifier_names
   List<String> dropdownItems_foodEx = ['data fetching'];
   String? foodType = '';
+  String? viewType = '';
+  String? storeType = '';
 
   @override
   void initState() {
@@ -1151,6 +1139,16 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
         return;
       }
 
+      viewType = await _getViewTypeFromFirestore();
+      if (viewType == null) {
+        return;
+      }
+
+      storeType = await _getStoreTypeFromFirestore();
+      if (storeType == null) {
+        return;
+      }
+
       List<String> visitLocations = await _getVisitLocationsFromFirestore();
       String location = _getLocationForSearch(visitLocations);
 
@@ -1202,6 +1200,46 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
     }
   }
 
+  Future<String?> _getViewTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getStoreTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('7storeType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
   Future<List<String>> _getVisitLocationsFromFirestore() async {
     try {
       User? user = _auth.currentUser;
@@ -1225,10 +1263,28 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
-    } else {
-      return null;
+      // その前の要素が、viewTypeでない&&storeTypeでない
+      if (index - 1 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 1] != '$viewTypeを見る' &&
+          visitLocations[index - 1] != '$storeTypeに行く') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、viewTypeでない&&storeTypeでない
+      else if (index - 2 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 2] != '$viewTypeを見る' &&
+          visitLocations[index - 2] != '$storeTypeに行く') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、viewTypeでない&&storeTypeでない
+      else if (index - 3 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 3] != '$viewTypeを見る' &&
+          visitLocations[index - 3] != '$storeTypeに行く') {
+        return visitLocations[index - 3];
+      } else {
+        return null;
+      }
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -1361,6 +1417,9 @@ class _SelectViewPageState extends State<SelectViewPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final TextEditingController _textFieldController = TextEditingController();
+  String _inputText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1434,20 +1493,14 @@ class _SelectViewPageState extends State<SelectViewPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_view,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_view = newValue!;
-                            });
-                          },
-                          items: dropdownItems_view
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：ビーチ',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -1481,6 +1534,10 @@ class _SelectViewPageState extends State<SelectViewPage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        //入力した文字列を格納
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
                       if (action3Checked) {
                         Navigator.push(
@@ -1555,8 +1612,14 @@ class _SelectViewPageState extends State<SelectViewPage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '5viewType': selectedValue_view,
+      '5viewType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -1581,7 +1644,9 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
 // ignore: non_constant_identifier_names
   List<String> dropdownItems_viewEx = ['data fetching'];
 
+  String? foodType = '';
   String? viewType = '';
+  String? storeType = '';
 
   @override
   void initState() {
@@ -1785,15 +1850,25 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
 
   Future<void> _searchAndSave() async {
     try {
+      foodType = await _getFoodTypeFromFirestore();
+      if (foodType == null) {
+        return;
+      }
+
       viewType = await _getViewTypeFromFirestore();
       if (viewType == null) {
+        return;
+      }
+
+      storeType = await _getStoreTypeFromFirestore();
+      if (storeType == null) {
         return;
       }
 
       List<String> visitLocations = await _getVisitLocationsFromFirestore();
       String location = _getLocationForSearch(visitLocations);
 
-      // VisitLocationからfoodTypeを含む文字列を検索
+      // VisitLocationからviewTypeを含む文字列を検索
       String? selectedValuePrevious = visitLocations.firstWhere(
         (element) => element.contains(viewType!),
         orElse: () => '',
@@ -1821,6 +1896,26 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
     }
   }
 
+  Future<String?> _getFoodTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 3foodTypeの値を取得して返す
+        return snapshot.get('3foodType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
   Future<String?> _getViewTypeFromFirestore() async {
     try {
       User? user = _auth.currentUser;
@@ -1830,6 +1925,26 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
       if (snapshot.exists) {
         // 5viewTypeの値を取得して返す
         return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getStoreTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 7storeTypeの値を取得して返す
+        return snapshot.get('7storeType');
       } else {
         return null;
       }
@@ -1864,10 +1979,28 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
+      // その前の要素が、foodTypeでない&&storeTypeでない
+      if (index - 1 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 1] != '$foodTypeを食べる' &&
+          visitLocations[index - 1] != '$storeTypeに行く') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、foodTypeでない&&storeTypeでない
+      else if (index - 2 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 2] != '$foodTypeを食べる' &&
+          visitLocations[index - 2] != '$storeTypeに行く') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、foodTypeでない&&storeTypeでない
+      else if (index - 3 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 3] != '$foodTypeを見る' &&
+          visitLocations[index - 3] != '$storeTypeに行く') {
+        return visitLocations[index - 3];
+      }
     } else {
       return null;
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -1995,6 +2128,9 @@ class _SelectStorePageState extends State<SelectStorePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final TextEditingController _textFieldController = TextEditingController();
+  String _inputText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2068,20 +2204,14 @@ class _SelectStorePageState extends State<SelectStorePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_store,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_store = newValue!;
-                            });
-                          },
-                          items: dropdownItems_store
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：コンビニ',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -2115,6 +2245,9 @@ class _SelectStorePageState extends State<SelectStorePage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore();
                       Navigator.push(
                         // ignore: use_build_context_synchronously
@@ -2163,8 +2296,14 @@ class _SelectStorePageState extends State<SelectStorePage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '7storeType': selectedValue_store,
+      '7storeType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -2185,9 +2324,11 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   String selectedValue_storeEx = 'data fetching';
   // ignore: non_constant_identifier_names
   String selectedValue_storeEx_sub = 'data fetching';
-// ignore: non_constant_identifier_names
+  // ignore: non_constant_identifier_names
   List<String> dropdownItems_storeEx = ['data fetching'];
 
+  String? foodType = '';
+  String? viewType = '';
   String? storeType = '';
 
   @override
@@ -2366,6 +2507,16 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
 
   Future<void> _searchAndSave() async {
     try {
+      foodType = await _getFoodTypeFromFirestore();
+      if (foodType == null) {
+        return;
+      }
+
+      viewType = await _getViewTypeFromFirestore();
+      if (viewType == null) {
+        return;
+      }
+
       storeType = await _getStoreTypeFromFirestore();
       if (storeType == null) {
         return;
@@ -2399,6 +2550,46 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
       print('Error in _searchAndSave: $e');
       // エラーが発生した場合の処理を追加
       // 例: エラーダイアログを表示するなど
+    }
+  }
+
+  Future<String?> _getFoodTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 3foodTypeの値を取得して返す
+        return snapshot.get('3foodType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getViewTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
     }
   }
 
@@ -2445,10 +2636,27 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
+      if (index - 1 >= 0 &&
+          visitLocations[index - 1] != '$foodTypeを食べる' &&
+          visitLocations[index - 1] != '$viewTypeを見る') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、foodTypeでない&&viewTypeでない
+      else if (index - 2 >= 0 &&
+          visitLocations[index - 2] != '$foodTypeを食べる' &&
+          visitLocations[index - 2] != '$viewTypeを見る') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、foodTypeでない&&viewTypeでない
+      else if (index - 3 >= 0 &&
+          visitLocations[index - 3] != '$foodTypeを食べる' &&
+          visitLocations[index - 3] != '$viewTypeを見る') {
+        return visitLocations[index - 3];
+      }
     } else {
       return null;
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -2471,7 +2679,7 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '8storeLocation': selectedValue_store,
+      '8storeLocation': selectedValue_storeEx,
     });
   }
 
@@ -2896,26 +3104,86 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   }
 
   Future<void> fetchVisitLocations() async {
+    String? foodType;
+    String? foodStore;
+    String? viewType;
+    String? viewLocation;
+    String? storeType;
+    String? storeLocation;
+
     try {
       User? user = _auth.currentUser;
+
+      // Firestoreから、3foodType、4foodStore、5viewType、6viewLocation、7storeType、8storeLocationを取得
+      foodType = await _getFromFirestore('3foodType');
+      foodStore = await _getFromFirestore('4foodStore');
+      viewType = await _getFromFirestore('5viewType');
+      viewLocation = await _getFromFirestore('6viewLocation');
+      storeType = await _getFromFirestore('7storeType');
+      storeLocation = await _getFromFirestore('8storeLocation');
+
       // FirestoreからVisitLocationのデータを取得
       DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
-              .collection('user_data')
-              .doc(user?.uid) // ユーザーIDに置き換える
-              .get();
+          await _firestore.collection('user_data').doc(user?.uid).get();
 
       // VisitLocationのデータが存在する場合、visitLocationsリストに格納
       if (snapshot.exists && snapshot.data() != null) {
         List<dynamic>? visitLocationData = snapshot.data()?['VisitLocation'];
         if (visitLocationData != null && visitLocationData.isNotEmpty) {
           visitLocations = visitLocationData.cast<String>().toList();
+
+          // VisitLocationの更新
+          updateVisitLocation(foodType, viewType, storeType, foodStore,
+              viewLocation, storeLocation);
         }
       }
 
       setState(() {});
     } catch (e) {
-      Text('Error fetching data: $e');
+      print('Error fetching data: $e');
+    }
+  }
+
+  // VisitLocationを更新するメソッド
+  void updateVisitLocation(
+      String? foodType,
+      String? viewType,
+      String? storeType,
+      String? foodStore,
+      String? viewLocation,
+      String? storeLocation) {
+    for (int i = 0; i < visitLocations.length; i++) {
+      if (visitLocations[i] == '$foodTypeを食べる') {
+        visitLocations[i] = foodStore!; // foodTypeが一致した場合、foodStoreを更新
+      } else if (visitLocations[i] == '$viewTypeを見る') {
+        visitLocations[i] = viewLocation!; // viewTypeが一致した場合、viewLocationを更新
+      } else if (visitLocations[i] == '$storeTypeに行く') {
+        visitLocations[i] = storeLocation!; // storeTypeが一致した場合、storeLocationを更新
+      }
+    }
+
+    // FirestoreにVisitLocationのデータを更新
+    User? user = _auth.currentUser;
+    _firestore.collection('user_data').doc(user?.uid).update({
+      'VisitLocation': visitLocations,
+    });
+  }
+
+  // _getFromFirestoreメソッドを共通化して利用
+  Future<String?> _getFromFirestore(String field) async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        return snapshot.get(field);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFromFirestore: $e');
+      return null;
     }
   }
 
@@ -2983,7 +3251,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  width: 200,
+                  width: 300,
                   decoration: BoxDecoration(
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
@@ -3012,6 +3280,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               const Icon(Icons.arrow_downward),
                               Text(
                                 visitLocations[i],
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold),
                               ),
@@ -3019,9 +3288,8 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           ),
 
                         // ゴール
-                        const Icon(Icons.arrow_downward),
                         const Text(
-                          'ゴール',
+                          '（ゴール）',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
