@@ -3319,7 +3319,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                       shadowColor: Colors.black,
                     ),
                     child: const Text(
-                      'もどる',
+                      'もどるa',
                       style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
