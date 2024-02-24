@@ -2,11 +2,15 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 bool action1Checked = false;
 bool action2Checked = false;
@@ -3119,10 +3123,18 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
 
+  // 新たに追加したコントローラーと変数
+  GoogleMapController? _googleMapController;
+  final Set<Marker> _markers = {};
+  final Set<Polyline> _polylines = {};
+
+  // 新しいマップの表示位置を設定
+  LatLng _initialCameraPosition = const LatLng(35.6895, 139.6917); // 東京タワーの座標
+
   @override
   void initState() {
     super.initState();
-    fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+    _fetchRoute(); // fetchVisitLocations()はここで呼び出す
   }
 
   Future<void> fetchVisitLocations() async {
@@ -3157,6 +3169,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           // VisitLocationの更新
           updateVisitLocation(foodType, viewType, storeType, foodStore,
               viewLocation, storeLocation);
+
+          // Firestoreからデータを取得した後にshowRouteOnMapメソッドを呼び出す
+          // showRouteOnMap();
         }
       }
 
@@ -3209,6 +3224,133 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     }
   }
 
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _initialCameraPosition = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
+  }
+
+  String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
+  // Google Maps Directions APIを使用してルート座標を取得するメソッド（経由地あり）
+  Future<List<LatLng>> getRouteCoordinatesWithWaypoints(
+    LatLng origin,
+    LatLng destination,
+    List<String> waypoints,
+  ) async {
+    List<LatLng> routeCoordinates = [];
+    try {
+      // ウェイポイントの座標を取得
+      String waypointsString = waypoints.join('|');
+
+      // Google Maps Directions APIを使用してルート情報を取得
+      final response = await http.get(Uri.parse(
+        'https://maps.googleapis.com/maps/api/directions/json'
+        '?origin=${origin.latitude},${origin.longitude}'
+        '&destination=${destination.latitude},${destination.longitude}'
+        '&waypoints=$waypointsString'
+        '&key=$apiKey',
+      ));
+
+      print('Origin: ${origin.latitude},${origin.longitude}');
+      print('Destination: ${destination.latitude},${destination.longitude}');
+      print('Waypoints: $waypointsString');
+
+      if (response.statusCode == 200) {
+        // レスポンスからルート座標を抽出
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> routes = responseData['routes'];
+
+        if (routes.isNotEmpty) {
+          final List<dynamic> legs = routes[0]['legs'];
+          for (var leg in legs) {
+            final List<dynamic> steps = leg['steps'];
+            for (var step in steps) {
+              final Map<String, dynamic> startLocation = step['start_location'];
+              final double startLat = startLocation['lat'];
+              final double startLng = startLocation['lng'];
+              routeCoordinates.add(LatLng(startLat, startLng));
+
+              // ポリラインのエンコードされた座標を復元し、リストに追加
+              String encodedPolyline = step['polyline']['points'];
+              List<LatLng> decodedPolyline = _decodePolyline(encodedPolyline);
+              routeCoordinates.addAll(decodedPolyline);
+
+              final Map<String, dynamic> endLocation = step['end_location'];
+              final double endLat = endLocation['lat'];
+              final double endLng = endLocation['lng'];
+              routeCoordinates.add(LatLng(endLat, endLng));
+            }
+          }
+        } else {
+          print(
+              'Failed to fetch route coordinates. Status Code: ${response.statusCode}');
+          print('Response Body: ${response.body}');
+          throw Exception('Failed to fetch route coordinates');
+        }
+      } else {
+        print(
+            'Failed to fetch route coordinates. Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        throw Exception('Failed to fetch route coordinates');
+      }
+    } catch (e) {
+      print('Error in getRouteCoordinatesWithWaypoints: $e');
+    }
+    return routeCoordinates;
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> points = [];
+
+    int index = 0;
+    int len = encoded.length;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < len) {
+      int b;
+      int shift = 0;
+      int result = 0;
+
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      double latitude = lat / 1E5;
+      double longitude = lng / 1E5;
+
+      points.add(LatLng(latitude, longitude));
+    }
+
+    return points;
+  }
+
+  bool _isMapTapped = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3321,6 +3463,47 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 500,
+                  child: GestureDetector(
+                    onTapDown: (_) {
+                      // マップがタップされたときにフラグを有効にする
+                      setState(() {
+                        _isMapTapped = true;
+                      });
+                    },
+                    onTapUp: (_) {
+                      // マップがタップ解除されたときにフラグを無効にする
+                      setState(() {
+                        _isMapTapped = false;
+                      });
+                    },
+                    child: GoogleMap(
+                      mapType: MapType.normal,
+                      markers: _markers,
+                      polylines: _polylines,
+                      onMapCreated: (controller) {
+                        _googleMapController = controller;
+                        _fetchRoute();
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: _initialCameraPosition,
+                        zoom: 12.0,
+                      ),
+                      gestureRecognizers: _isMapTapped
+                          ? <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
+                              ),
+                            }
+                          : <Factory<OneSequenceGestureRecognizer>>{},
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(
                 height: 110,
               ),
@@ -3377,5 +3560,107 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
         ),
       ),
     );
+  }
+
+  // 住所から座標を取得するメソッド
+  Future<LatLng> getCoordinatesFromAddress(String address) async {
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        Location location = locations.first;
+        return LatLng(location.latitude, location.longitude);
+      } else {
+        throw Exception('No coordinates found for the address: $address');
+      }
+    } catch (e) {
+      print('Error in getCoordinatesFromAddress: $e');
+      rethrow;
+    }
+  }
+
+  // ルート全体の境界を取得するメソッド
+  LatLngBounds getBounds(List<LatLng> routeCoordinates) {
+    double minLat = double.infinity;
+    double minLng = double.infinity;
+    double maxLat = -double.infinity;
+    double maxLng = -double.infinity;
+
+    for (LatLng coordinate in routeCoordinates) {
+      if (coordinate.latitude < minLat) minLat = coordinate.latitude;
+      if (coordinate.longitude < minLng) minLng = coordinate.longitude;
+      if (coordinate.latitude > maxLat) maxLat = coordinate.latitude;
+      if (coordinate.longitude > maxLng) maxLng = coordinate.longitude;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+  }
+
+  Future<void> _fetchRoute() async {
+    await _getCurrentLocation(); // 現在地を取得して初期位置に設定
+    await fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+
+    // 経由地点やルートの座標を取得
+    List<String> waypoints =
+        visitLocations.sublist(0, visitLocations.length - 1);
+    List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
+      _initialCameraPosition,
+      await getCoordinatesFromAddress(visitLocations.last),
+      waypoints,
+    );
+
+    // ポリラインを描画
+    await _drawRoutePolyline(routeCoordinates);
+
+    // マーカーを設定
+    _markers.clear();
+    // 現在地のマーカーを追加
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('current_location'),
+        position: _initialCameraPosition,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+    );
+
+    // VisitLocationsの各要素に対してマーカーを追加
+    for (int i = 0; i < visitLocations.length; i++) {
+      String location = visitLocations[i];
+      LatLng coordinates = await getCoordinatesFromAddress(location);
+      _markers.add(
+        Marker(
+          markerId: MarkerId(location),
+          position: coordinates,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      );
+    }
+
+    // Google Map コントローラーを使用してカメラを移動
+    if (_googleMapController != null) {
+      LatLngBounds bounds = getBounds(routeCoordinates);
+      _googleMapController
+          ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    }
+
+    setState(() {});
+  }
+
+  Future<void> _drawRoutePolyline(List<LatLng> routeCoordinates) async {
+    // ポリラインをセット
+    _polylines.clear();
+    Polyline newPolyline = Polyline(
+      polylineId: const PolylineId('route'),
+      color: Colors.blue,
+      points: routeCoordinates,
+      width: 5,
+    );
+
+    _polylines.add(newPolyline);
+
+    // ポリラインを描画
+    setState(() {});
   }
 }
