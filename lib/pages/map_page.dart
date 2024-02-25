@@ -7,63 +7,92 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' as geoCoding;
 import 'package:geocoding_platform_interface/geocoding_platform_interface.dart';
 
-List<double> pos = [0,0];
-List<String> marks = ['', '', ''];
-final upL = [27.200, 127.400];
-final upR = [27.200, 128.600];
-final downL = [26.000, 127.400];
-const mapWidth = 1200;
+class MapPage extends StatefulWidget {
+  const MapPage({Key? key}) : super(key: key);
 
-Future<void> _determinePosition() async{
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-  if(!serviceEnabled){
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await Geolocator.checkPermission();
-
-  if(permission == LocationPermission.denied){
-    permission = await Geolocator.requestPermission();
-    if(permission == LocationPermission.denied){
-      return Future.error('Location permissions are denied.');
-    }
-  }
-
-  if(permission == LocationPermission.deniedForever){
-    return Future.error(
-      'Location permissions are permanently denied, we cannot request permissions.'
-    );
-  }
-
-  Position position =  await Geolocator.getCurrentPosition();
-  pos = [position.latitude, position.longitude];
-  List<Placemark> placeMarks = await geoCoding.placemarkFromCoordinates(pos[0], pos[1], localeIdentifier: "JP"); 
-  marks = [placeMarks[0].country.toString(), placeMarks[0].administrativeArea.toString(),placeMarks[0].locality.toString()];
-  return;
-  }
-
-List<double> _positionFormat(){
-  double DLR = Geolocator.distanceBetween(upL[0], upL[1], upR[0], upR[1]);
-  double DL = Geolocator.distanceBetween(upL[0], upL[1], downL[0], downL[1]); 
-  double DupL = Geolocator.distanceBetween(upL[0], upL[1], pos[0], pos[1]);
-  double DupR = Geolocator.distanceBetween(upR[0], upR[1], pos[0], pos[1]);
-  double DdownL = Geolocator.distanceBetween(downL[0], downL[1], pos[0], pos[1]);
-
-  double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
-  double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
-
-  return([mapWidth * x, mapWidth * y]);
+  @override
+  // ignore: library_private_types_in_public_api
+  _MapPageState createState() => _MapPageState();
 }
 
+class _MapPageState extends State<MapPage> {
+  List<double> pos = [0, 0];
+  List<String> marks = ['', '', ''];
+  final upL = [27.200, 127.400];
+  final upR = [27.200, 128.600];
+  final downL = [26.000, 127.400];
+  static const mapWidth = 1200;
 
+  @override
+  void initState() {
+    super.initState();
+    _initLocation();
+  }
 
-class MapPage extends StatelessWidget {
-  const MapPage({super.key});
-  
+  Future<void> _initLocation() async {
+    await _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+    pos = [position.latitude, position.longitude];
+    List<Placemark> placeMarks = await geoCoding
+        .placemarkFromCoordinates(pos[0], pos[1], localeIdentifier: "JP");
+    marks = [
+      placeMarks[0].country.toString(),
+      placeMarks[0].administrativeArea.toString(),
+      placeMarks[0].locality.toString()
+    ];
+
+    setState(() {
+      pos = [position.latitude, position.longitude];
+      marks = [
+        placeMarks[0].country.toString(),
+        placeMarks[0].administrativeArea.toString(),
+        placeMarks[0].locality.toString()
+      ];
+    });
+    
+    return;
+  }
+
+  List<double> _positionFormat() {
+    double DLR = Geolocator.distanceBetween(upL[0], upL[1], upR[0], upR[1]);
+    double DL = Geolocator.distanceBetween(upL[0], upL[1], downL[0], downL[1]);
+    double DupL = Geolocator.distanceBetween(upL[0], upL[1], pos[0], pos[1]);
+    double DupR = Geolocator.distanceBetween(upR[0], upR[1], pos[0], pos[1]);
+    double DdownL =
+        Geolocator.distanceBetween(downL[0], downL[1], pos[0], pos[1]);
+
+    double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
+    double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
+
+    return ([mapWidth * x, mapWidth * y]);
+  }
+
   @override
   Widget build(BuildContext context) {
     _determinePosition();
@@ -126,25 +155,28 @@ class MapPage extends StatelessWidget {
                       'lib/images/map_okinawa_white.png',
                     ),
                     Text(
-                      //'${placeMarks[0].country}.${placeMarks[0].administrativeArea}.${placeMarks[0].locality}'
-                      '$pos.$marks'
-                    ),
+                        //'${placeMarks[0].country}.${placeMarks[0].administrativeArea}.${placeMarks[0].locality}'
+                        '$pos.$marks'),
                     Positioned(
-                      left: _positionFormat()[0] * MediaQuery.of(context).size.width / mapWidth,
-                      top: _positionFormat()[1] * MediaQuery.of(context).size.width / mapWidth,
+                      left: _positionFormat()[0] *
+                          MediaQuery.of(context).size.width /
+                          mapWidth,
+                      top: _positionFormat()[1] *
+                          MediaQuery.of(context).size.width /
+                          mapWidth,
                       child: Image.asset(
                         'lib/images/pin_current.png',
                         height: 25,
                         width: 25,
-                      )
-                    )
-                  ]
-                )
-              )
-            )
-          )
-        )
-      )
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
