@@ -31,39 +31,42 @@ class HomePage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: Row(
-            children: [
-              Image.asset(
-                'lib/images/napi.png',
-                height: 45,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_think.png',
-                height: 45,
-              ),
-              const Spacer(),
-              const Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
+          title: FractionallySizedBox(
+            widthFactor: 1.0,
+            child: Row(
+              children: [
+                Image.asset(
+                  'lib/images/napi.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_think.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                const Center(
+                  child: Text(
+                    'Navinator',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      letterSpacing: 2.0,
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_guruguru.png',
-                height: 45,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_kirakira.png',
-                height: 45,
-              ),
-            ],
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_guruguru.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_kirakira.png',
+                  height: 45,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -72,21 +75,24 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                height: 2,
-                color: Colors.black,
+                height: MediaQuery.of(context).size.height * 0.0025,
+                color: Colors.grey,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Column(children: [
-                    const SizedBox(height: 120),
-                    const SpeechBalloon(
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.05,
+                    ),
+                    SpeechBalloon(
                       nipLocation: NipLocation.bottom,
-                      borderColor: Color.fromARGB(255, 255, 255, 255),
+                      borderColor: const Color.fromARGB(255, 255, 255, 255),
                       color: Colors.white,
-                      height: 50,
-                      width: 250,
-                      child: Center(
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      borderRadius: 8.0,
+                      child: const Center(
                         child: Text(
                           '遊びに行きますか？',
                           style: TextStyle(
@@ -99,7 +105,7 @@ class HomePage extends StatelessWidget {
                     Center(
                       child: Image.asset(
                         'lib/images/napi.png',
-                        height: 400,
+                        height: MediaQuery.of(context).size.height * 0.5,
                       ),
                     ),
                     ElevatedButton.icon(
@@ -177,11 +183,6 @@ class HomePage extends StatelessWidget {
                   ])
                 ],
               ),
-              const Spacer(),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
             ],
           ),
         ),
@@ -215,189 +216,204 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // ソフトキーボード表示時に画面をリサイズする
       backgroundColor: const Color(0xffaaccff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    'どこに行きますか？',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi.png',
-                  height: 300,
-                ),
-              ),
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _textFieldController1,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter text',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: _textFieldController2,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter text',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: _textFieldController3,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter text',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: _textFieldController4,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter text',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffd32929),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                        ),
-                        shadowColor: Colors.black),
-                    child: const Text(
-                      'やめる',
-                      style: TextStyle(color: Color(0xffffffff)),
-                    ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        //入力した文字列を格納
-                        _inputText1 = _textFieldController1.text;
-                        _inputText2 = _textFieldController2.text;
-                        _inputText3 = _textFieldController3.text;
-                        _inputText4 = _textFieldController4.text;
-                      });
-                      await _writeToFirestore(); //firestoreに目的地保存
-                      Navigator.push(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const BeforeGoPage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.01,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        'どこに行きますか？',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi.png',
+                      height: MediaQuery.of(context).size.height *
+                          0.35, // 画面サイズに合わせて調整
+                    ),
+                  ),
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.width *
+                        0.04), // 画面サイズに合わせて調整
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _textFieldController1,
+                              decoration: InputDecoration(
+                                hintText: 'Enter text',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.width * 0.025),
+                            TextField(
+                              controller: _textFieldController2,
+                              decoration: InputDecoration(
+                                hintText: 'Enter text',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.width * 0.025),
+                            TextField(
+                              controller: _textFieldController3,
+                              decoration: InputDecoration(
+                                hintText: 'Enter text',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.width * 0.025),
+                            TextField(
+                              controller: _textFieldController4,
+                              decoration: InputDecoration(
+                                hintText: 'Enter text',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xffd32929),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(8.0), // 縁を丸くする半径
+                            ),
+                            shadowColor: Colors.black),
+                        child: const Text(
+                          'やめる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            //入力した文字列を格納
+                            _inputText1 = _textFieldController1.text;
+                            _inputText2 = _textFieldController2.text;
+                            _inputText3 = _textFieldController3.text;
+                            _inputText4 = _textFieldController4.text;
+                          });
+                          await _writeToFirestore(); //firestoreに目的地保存
+                          Navigator.push(
+                            // ignore: use_build_context_synchronously
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const BeforeGoPage(),
+                              transitionDuration: const Duration(
+                                  milliseconds: 0), // アニメーションの速度を0にする
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 2,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -448,210 +464,211 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    '目的地までにしたいことは？',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 300,
-                ),
-              ),
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        CheckboxListTile(
-                          title: const Text('食事'),
-                          value: action1Checked,
-                          onChanged: (value) {
-                            setState(() {
-                              action1Checked = value!;
-                            });
-                          },
-                        ),
-                        CheckboxListTile(
-                          title: const Text('景色を見る'),
-                          value: action2Checked,
-                          onChanged: (value) {
-                            setState(() {
-                              action2Checked = value!;
-                            });
-                          },
-                        ),
-                        CheckboxListTile(
-                          title: const Text('買い物'),
-                          value: action3Checked,
-                          onChanged: (value) {
-                            setState(() {
-                              action3Checked = value!;
-                            });
-                          },
-                        ),
-                        CheckboxListTile(
-                          title: const Text('ない'),
-                          value: action4Checked,
-                          onChanged: (value) {
-                            setState(() {
-                              action4Checked = value!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.01,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        '目的地までにしたいことは？',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // ボタンが押された時にFirestoreにデータを書き込む処理
-                      await _writeToFirestore();
-                      if (action1Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectFoodPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action2Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectViewPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStorePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                      if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_guruguru.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.0235),
+                        child: Column(
+                          children: [
+                            CheckboxListTile(
+                              title: const Text('食事'),
+                              value: action1Checked,
+                              onChanged: (value) {
+                                setState(() {
+                                  action1Checked = value!;
+                                });
+                              },
+                            ),
+                            CheckboxListTile(
+                              title: const Text('景色を見る'),
+                              value: action2Checked,
+                              onChanged: (value) {
+                                setState(() {
+                                  action2Checked = value!;
+                                });
+                              },
+                            ),
+                            CheckboxListTile(
+                              title: const Text('買い物'),
+                              value: action3Checked,
+                              onChanged: (value) {
+                                setState(() {
+                                  action3Checked = value!;
+                                });
+                              },
+                            ),
+                            CheckboxListTile(
+                              title: const Text('ない'),
+                              value: action4Checked,
+                              onChanged: (value) {
+                                setState(() {
+                                  action4Checked = value!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // ボタンが押された時にFirestoreにデータを書き込む処理
+                          await _writeToFirestore();
+                          if (action1Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectFoodPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action2Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectViewPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStorePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                          if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -700,190 +717,193 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    'ご飯は何が食べたい？',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_kirakira.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _textFieldController,
-                          decoration: const InputDecoration(
-                            hintText: '例：お寿司',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 131,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        'ご飯は何が食べたい？',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        _inputText = _textFieldController.text;
-                      });
-                      await _writeToFirestore(); //firestoreに食べたいもの保存
-                      if (action2Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectViewPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStorePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_kirakira.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _textFieldController,
+                              decoration: InputDecoration(
+                                hintText: '例：お寿司',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0725,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            _inputText = _textFieldController.text;
+                          });
+                          await _writeToFirestore(); //firestoreに食べたいもの保存
+                          if (action2Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectViewPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStorePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -943,193 +963,200 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    'ご飯を食べるお店を選んでね',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi.png',
-                  height: 300,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        DropdownButton<String>(
-                          value: selectedValue_foodEx,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_foodEx = newValue!;
-                            });
-                          },
-                          items: dropdownItems_foodEx
-                              .toSet() // 重複を排除
-                              .toList() // リストに戻す
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
-                          isExpanded: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 110,
-              ),
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        'ご飯を食べるお店を選んでね',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Google Maps APIを使用して検索し、結果を保存
-                      await _writeToFirestore();
-                      if (action2Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectViewExPage(),
-                            transitionDuration: const Duration(milliseconds: 0),
-                          ),
-                        );
-                      } else if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStoreExPage(),
-                            transitionDuration: const Duration(milliseconds: 0),
-                          ),
-                        );
-                      } else if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(milliseconds: 0),
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(milliseconds: 0),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            DropdownButton<String>(
+                              value: selectedValue_foodEx,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValue_foodEx = newValue!;
+                                });
+                              },
+                              items: dropdownItems_foodEx
+                                  .toSet() // 重複を排除
+                                  .toList() // リストに戻す
+                                  .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              isExpanded: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Google Maps APIを使用して検索し、結果を保存
+                          await _writeToFirestore();
+                          if (action2Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectViewExPage(),
+                                transitionDuration:
+                                    const Duration(milliseconds: 0),
+                              ),
+                            );
+                          } else if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStoreExPage(),
+                                transitionDuration:
+                                    const Duration(milliseconds: 0),
+                              ),
+                            );
+                          } else if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration:
+                                    const Duration(milliseconds: 0),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration:
+                                    const Duration(milliseconds: 0),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 110,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -1431,179 +1458,182 @@ class _SelectViewPageState extends State<SelectViewPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    'どんな景色を見たい？',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _textFieldController,
-                          decoration: const InputDecoration(
-                            hintText: '例：ビーチ',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 131,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        'どんな景色を見たい？',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        //入力した文字列を格納
-                        _inputText = _textFieldController.text;
-                      });
-                      await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
-                      if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStorePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_guruguru.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _textFieldController,
+                              decoration: InputDecoration(
+                                hintText: '例：ビーチ',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0725,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            //入力した文字列を格納
+                            _inputText = _textFieldController.text;
+                          });
+                          await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
+                          if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStorePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -1665,187 +1695,191 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    '景色を見る場所を選んでね',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_think.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        DropdownButton<String>(
-                          value: selectedValue_viewEx,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_viewEx = newValue!;
-                            });
-                          },
-                          items: dropdownItems_viewEx
-                              .toSet() // 重複を排除
-                              .toList() // リストに戻す
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
-                          isExpanded: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 131,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ホーム画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        '景色を見る場所を選んでね',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _writeToFirestore();
-                      if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStoreExPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_think.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            DropdownButton<String>(
+                              value: selectedValue_viewEx,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValue_viewEx = newValue!;
+                                });
+                              },
+                              items: dropdownItems_viewEx
+                                  .toSet() // 重複を排除
+                                  .toList() // リストに戻す
+                                  .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              isExpanded: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // ホーム画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _writeToFirestore();
+                          if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStoreExPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -2142,152 +2176,155 @@ class _SelectStorePageState extends State<SelectStorePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    '買い物はどこに行く？',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _textFieldController,
-                          decoration: const InputDecoration(
-                            hintText: '例：コンビニ',
-                            contentPadding: EdgeInsets.all(10), // パディングの調整
-                            border: OutlineInputBorder(),
-                          ),
-                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 131,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // 1つ前の画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
-                    ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        _inputText = _textFieldController.text;
-                      });
-                      await _writeToFirestore();
-                      Navigator.push(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const SelectRoutePage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        '買い物はどこに行く？',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
+                    ),
+                  ),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _textFieldController,
+                              decoration: InputDecoration(
+                                hintText: '例：コンビニ',
+                                contentPadding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width *
+                                        0.025), // パディングの調整
+                                border: const OutlineInputBorder(),
+                              ),
+                              style:
+                                  const TextStyle(fontSize: 14), // フォントサイズの指定
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0725,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // 1つ前の画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            _inputText = _textFieldController.text;
+                          });
+                          await _writeToFirestore();
+                          Navigator.push(
+                            // ignore: use_build_context_synchronously
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                              transitionDuration: const Duration(
+                                  milliseconds: 0), // アニメーションの速度を0にする
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -2348,161 +2385,165 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    '買い物するお店を選んでね',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        DropdownButton<String>(
-                          value: selectedValue_storeEx,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_storeEx = newValue!;
-                            });
-                          },
-                          items: dropdownItems_storeEx
-                              .toSet() // 重複を排除
-                              .toList() // リストに戻す
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
-                          isExpanded: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 131,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // 1つ前の画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
-                    ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _writeToFirestore();
-                      Navigator.push(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const ShowRoutePage(),
-                          transitionDuration: const Duration(
-                              milliseconds: 0), // アニメーションの速度を0にする
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        '買い物するお店を選んでね',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_guruguru.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
+                    ),
+                  ),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            DropdownButton<String>(
+                              value: selectedValue_storeEx,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValue_storeEx = newValue!;
+                                });
+                              },
+                              items: dropdownItems_storeEx
+                                  .toSet() // 重複を排除
+                                  .toList() // リストに戻す
+                                  .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              isExpanded: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // 1つ前の画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _writeToFirestore();
+                          Navigator.push(
+                            // ignore: use_build_context_synchronously
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const ShowRoutePage(),
+                              transitionDuration: const Duration(
+                                  milliseconds: 0), // アニメーションの速度を0にする
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -2853,222 +2894,225 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    '行く順番を選択してね',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        const Text(
-                          '現在地',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        // ドロップダウンリストを作成
-                        for (int i = 0; i < dropdownItems_route.length; i++)
-                          DropdownButton<String>(
-                            value: selectedItemsList[i].isNotEmpty
-                                ? selectedItemsList[i].last
-                                : null,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                if (newValue != null) {
-                                  selectedItemsList[i].add(newValue);
-                                }
-                              });
-                            },
-                            items: dropdownItems_route
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        const Text(
-                          'ゴール',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 110),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // 1つ前の画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        '行く順番を選択してね',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Firestoreに選択されたアイテムを保存
-                      await _writeToFirestore();
-                      if (action1Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectFoodExPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action2Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectViewExPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action3Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SelectStoreExPage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else if (action4Checked) {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const ShowRoutePage(),
-                            transitionDuration: const Duration(
-                                milliseconds: 0), // アニメーションの速度を0にする
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
-                      ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'つぎへ',
-                      style: TextStyle(color: Color(0xffffffff)),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_guruguru.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
                     ),
                   ),
-                  const Spacer(),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            const Text(
+                              '現在地',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            // ドロップダウンリストを作成
+                            for (int i = 0; i < dropdownItems_route.length; i++)
+                              DropdownButton<String>(
+                                value: selectedItemsList[i].isNotEmpty
+                                    ? selectedItemsList[i].last
+                                    : null,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    if (newValue != null) {
+                                      selectedItemsList[i].add(newValue);
+                                    }
+                                  });
+                                },
+                                items: dropdownItems_route
+                                    .map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                            const Text(
+                              'ゴール',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // 1つ前の画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Firestoreに選択されたアイテムを保存
+                          await _writeToFirestore();
+                          if (action1Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectFoodExPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action2Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectViewExPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action3Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectStoreExPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else if (action4Checked) {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ShowRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'つぎへ',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 50,
-              ),
-              Container(
-                height: 2,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -3099,7 +3143,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
-  bool isSaved = false;// ルートが保存されたかどうかを示す状態フラグ
+  bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -3336,288 +3380,303 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const SpeechBalloon(
-                nipLocation: NipLocation.bottom,
-                borderColor: Color.fromARGB(255, 255, 255, 255),
-                color: Colors.white,
-                height: 50,
-                width: 250,
-                child: Center(
-                  child: Text(
-                    'なぴの考えたルートです！',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Image.asset(
-                  'lib/images/napi_kirakira.png',
-                  height: 300,
-                ),
-              ),
-
-              // 目的地の入力フォームなどを配置
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color: const Color(0xffc5e1ff),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        // 現在地
-                        const Text(
-                          '現在地',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Icon(Icons.arrow_downward),
-                        Text(
-                          visitLocations.isNotEmpty ? visitLocations.first : '',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                        // VisitLocationリストの表示
-                        for (int i = 1; i < visitLocations.length; i++)
-                          Column(
-                            children: [
-                              const Icon(Icons.arrow_downward),
-                              Text(
-                                visitLocations[i],
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-
-                        // ゴール
-                        const Text(
-                          '（ゴール）',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: 500,
-                  child: GestureDetector(
-                    onTapDown: (_) {
-                      // マップがタップされたときにフラグを有効にする
-                      setState(() {
-                        _isMapTapped = true;
-                      });
-                    },
-                    onTapUp: (_) {
-                      // マップがタップ解除されたときにフラグを無効にする
-                      setState(() {
-                        _isMapTapped = false;
-                      });
-                    },
-                    child: GoogleMap(
-                      mapType: MapType.normal,
-                      markers: _markers,
-                      polylines: _polylines,
-                      onMapCreated: (controller) {
-                        _googleMapController = controller;
-                        _fetchRoute();
-                      },
-                      initialCameraPosition: CameraPosition(
-                        target: _initialCameraPosition,
-                        zoom: 12.0,
-                      ),
-                      gestureRecognizers: _isMapTapped
-                          ? <Factory<OneSequenceGestureRecognizer>>{
-                              Factory<OneSequenceGestureRecognizer>(
-                                () => EagerGestureRecognizer(),
-                              ),
-                            }
-                          : <Factory<OneSequenceGestureRecognizer>>{},
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(
-                height: 110,
-              ),
-
-              Row(
+      body: SafeArea(
+        child: FractionallySizedBox(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // 1つ前の画面に戻る
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffd32929),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.0025,
+                    color: Colors.grey,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                  ),
+                  SpeechBalloon(
+                    nipLocation: NipLocation.bottom,
+                    borderColor: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
+                    height: MediaQuery.of(context).size.height *
+                        0.06, // ディスプレイの高さの比率で指定
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // ディスプレイの幅の比率で指定
+                    borderRadius: 8.0,
+                    child: const Center(
+                      child: Text(
+                        'なぴの考えたルートです！',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'もどる',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () async{
-                      if (isSaved) {
-                        // すでに保存されている場合はダイアログを表示して処理を終了
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('保存済み'),
-                            content: const Text('すでにルートが保存されています！'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('OK'),
+                  Center(
+                    child: Image.asset(
+                      'lib/images/napi_kirakira.png',
+                      height: MediaQuery.of(context).size.height * 0.35,
+                    ),
+                  ),
+
+                  // 目的地の入力フォームなどを配置
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc5e1ff),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.025),
+                        child: Column(
+                          children: [
+                            // 現在地
+                            const Text(
+                              '現在地',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
-                          ),
-                        );
-                        return; // ここで処理を終了する
-                      }
-                      User? user = _auth.currentUser;
-                      //ここからuser_old_dataにルート保存する処理
-                      List<dynamic> oldData = [];
-                      DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-                          await _firestore.collection('user_data').doc(user?.uid).get();
-                      if (userDataDoc.exists) {
-                        oldData = userDataDoc.get('VisitLocation');
-                      }
+                            ),
+                            const Icon(Icons.arrow_downward),
+                            Text(
+                              visitLocations.isNotEmpty
+                                  ? visitLocations.first
+                                  : '',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
 
-                      DocumentSnapshot<Map<String, dynamic>> userData01Doc =
-                          await _firestore.collection('user_old_data').doc(user?.uid).get();
-                      // ドキュメントが存在しない場合のみ新しいドキュメントを作成
-                      if (!userData01Doc.exists) {
-                        await _firestore.collection('user_old_data').doc(user?.uid).set({
-                          'NumberofData': 1, //直近で追加されたデータの添え字
-                          'VisitLocation1': oldData,
+                            // VisitLocationリストの表示
+                            for (int i = 1; i < visitLocations.length; i++)
+                              Column(
+                                children: [
+                                  const Icon(Icons.arrow_downward),
+                                  Text(
+                                    visitLocations[i],
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
 
-                          'day1': FieldValue.serverTimestamp(),
-
-                        });
-                      } else {
-                        int a = userData01Doc.get('NumberofData') + 1;
-                        await _firestore.collection('user_old_data').doc(user?.uid).update({
-                          'NumberofData': a,
-                          'VisitLocation$a': oldData,
-                         'day$a': FieldValue.serverTimestamp(),
-
-                        });
-                      }
-
-                      // ルートが保存されたことをフラグで示す
-                      isSaved = true;
-                      
-                      showDialog(
-                        // ignore: use_build_context_synchronously
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('保存完了'),
-                          content: const Text('ルートの保存が完了しました！'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
+                            // ゴール
+                            const Text(
+                              '（ゴール）',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      '保存',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff1a69c6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                  Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.025),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: GestureDetector(
+                        onTapDown: (_) {
+                          // マップがタップされたときにフラグを有効にする
+                          setState(() {
+                            _isMapTapped = true;
+                          });
+                        },
+                        onTapUp: (_) {
+                          // マップがタップ解除されたときにフラグを無効にする
+                          setState(() {
+                            _isMapTapped = false;
+                          });
+                        },
+                        child: GoogleMap(
+                          mapType: MapType.normal,
+                          markers: _markers,
+                          polylines: _polylines,
+                          onMapCreated: (controller) {
+                            _googleMapController = controller;
+                            _fetchRoute();
+                          },
+                          initialCameraPosition: CameraPosition(
+                            target: _initialCameraPosition,
+                            zoom: 12.0,
+                          ),
+                          gestureRecognizers: _isMapTapped
+                              ? <Factory<OneSequenceGestureRecognizer>>{
+                                  Factory<OneSequenceGestureRecognizer>(
+                                    () => EagerGestureRecognizer(),
+                                  ),
+                                }
+                              : <Factory<OneSequenceGestureRecognizer>>{},
+                        ),
                       ),
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'ホーム',
-                      style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
-                  const Spacer(),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // 1つ前の画面に戻る
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffd32929),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'もどる',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (isSaved) {
+                            // すでに保存されている場合はダイアログを表示して処理を終了
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('保存済み'),
+                                content: const Text('すでにルートが保存されています！'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return; // ここで処理を終了する
+                          }
+                          User? user = _auth.currentUser;
+                          //ここからuser_old_dataにルート保存する処理
+                          List<dynamic> oldData = [];
+                          DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+                              await _firestore
+                                  .collection('user_data')
+                                  .doc(user?.uid)
+                                  .get();
+                          if (userDataDoc.exists) {
+                            oldData = userDataDoc.get('VisitLocation');
+                          }
+
+                          DocumentSnapshot<Map<String, dynamic>> userData01Doc =
+                              await _firestore
+                                  .collection('user_old_data')
+                                  .doc(user?.uid)
+                                  .get();
+                          // ドキュメントが存在しない場合のみ新しいドキュメントを作成
+                          if (!userData01Doc.exists) {
+                            await _firestore
+                                .collection('user_old_data')
+                                .doc(user?.uid)
+                                .set({
+                              'NumberofData': 1, //直近で追加されたデータの添え字
+                              'VisitLocation1': oldData,
+
+                              'day1': FieldValue.serverTimestamp(),
+                            });
+                          } else {
+                            int a = userData01Doc.get('NumberofData') + 1;
+                            await _firestore
+                                .collection('user_old_data')
+                                .doc(user?.uid)
+                                .update({
+                              'NumberofData': a,
+                              'VisitLocation$a': oldData,
+                              'day$a': FieldValue.serverTimestamp(),
+                            });
+                          }
+
+                          // ルートが保存されたことをフラグで示す
+                          isSaved = true;
+
+                          showDialog(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('保存完了'),
+                              content: const Text('ルートの保存が完了しました！'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          '保存',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .popUntil((route) => route.isFirst);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1a69c6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8.0), // 縁を丸くする半径
+                          ),
+                          shadowColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'ホーム',
+                          style: TextStyle(color: Color(0xffffffff)),
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                height: 2.5,
-                color: Colors.black,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -3725,5 +3784,4 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     // ポリラインを描画
     setState(() {});
   }
-
 }

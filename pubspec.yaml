@@ -50,7 +50,7 @@ dependencies:
   google_maps_flutter: ^2.5.3
   google_polyline_algorithm: ^3.1.0
   flutter_animate: ^4.5.0
-fd73bd994f2ff8a33484dc7c952d18fe94588
+# fd73bd994f2ff8a33484dc7c952d18fe94588
   
 
 dev_dependencies:
@@ -77,15 +77,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - lib/images/napi.png
-    - lib/images/napi_think.png
-    - lib/images/napi_guruguru.png
-    - lib/images/napi_kirakira.png
+    - lib/images/
+    #- lib/images/napi.png
+    #- lib/images/napi_think.png
+    #- lib/images/napi_guruguru.png
+    #- lib/images/napi_kirakira.png
 
     - lib/images/book.png
     - lib/images/loading.png
 
-    - lib/images/map.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
