@@ -48,7 +48,7 @@ class _KeepMapState extends State<KeepMap> {
         'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
       });
 
-      // 削除したドキュメントの分詰める処理a
+      // 削除したドキュメントの分詰める処理
       // ignore: non_constant_identifier_names
       List<dynamic> Data = [];
       DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc = await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
