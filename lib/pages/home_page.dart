@@ -3544,7 +3544,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         await _firestore.collection('user_old_data').doc(user?.uid).set({
                           'NumberofData': 1, //直近で追加されたデータの添え字
                           'VisitLocation1': oldData,
+
                           'day1': FieldValue.serverTimestamp(),
+
                         });
                       } else {
                         int a = userData01Doc.get('NumberofData') + 1;
@@ -3552,6 +3554,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           'NumberofData': a,
                           'VisitLocation$a': oldData,
                          'day$a': FieldValue.serverTimestamp(),
+
                         });
                       }
 
@@ -3722,4 +3725,5 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     // ポリラインを描画
     setState(() {});
   }
+
 }
