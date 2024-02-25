@@ -58,6 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
+
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -95,11 +96,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       const Icon(Icons.account_circle),
                       Text(
+
                         email ?? 'No email',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
+
                       ),
                     ],
                   );
@@ -223,8 +226,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ],
-        ),
       ),
+      )
     );
   }
 
