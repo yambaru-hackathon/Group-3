@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:yanbaru_hackathon/login/login_page.dart';
 import 'firebase_options.dart';
 // ignore: unused_import
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +15,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(
+    const MaterialApp(
+      home: LoginPage(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -36,6 +41,11 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  // 追加: GlobalKeyの定義
+  // ignore: library_private_types_in_public_api
+  static final GlobalKey<_MyHomePageState> homeKey =
+      GlobalKey<_MyHomePageState>();
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -75,10 +85,10 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       controller: PersistentTabController(initialIndex: _currentIndex),
       items: _navBarsItems(),
-      screens: const [
+      screens:  [
         HomePage(),
-        MapPage(),
-        ProfilePage(),
+        const MapPage(),
+        const ProfilePage(),
       ],
       onItemSelected: (index) {
         setState(() {
@@ -86,5 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       },
     );
+  }
+
+  void executeAfterLogin() {
+    // ログイン後に実行したい処理をここに追加
+    // 特定のタブに切り替えるなど
+    // HomePageにする
+    setState(() {
+      _currentIndex = 1; // Mapタブに切り替える例
+    });
   }
 }

@@ -1,10 +1,19 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 // ignore: library_prefixes
 import 'package:geocoding/geocoding.dart' as geoCoding;
+import 'package:geocoding_platform_interface/geocoding_platform_interface.dart';
 
-// ignore: unused_element
-Future<String?> _determinePosition() async{
+List<double> pos = [0,0];
+List<String> marks = ['', '', ''];
+final upL = [27.200, 127.400];
+final upR = [27.200, 128.600];
+final downL = [26.000, 127.400];
+const mapWidth = 1200;
+
+Future<void> _determinePosition() async{
   bool serviceEnabled;
   LocationPermission permission;
 
@@ -29,17 +38,34 @@ Future<String?> _determinePosition() async{
     );
   }
 
-  final position =  await Geolocator.getCurrentPosition();
-  final placeMarks = await geoCoding.placemarkFromCoordinates(position.latitude, position.longitude, localeIdentifier: "JP");
-  final placeMark = [placeMarks[0].country, placeMarks[0].administrativeArea, placeMarks[0].locality];
-  return placeMark[0];
+  Position position =  await Geolocator.getCurrentPosition();
+  pos = [position.latitude, position.longitude];
+  List<Placemark> placeMarks = await geoCoding.placemarkFromCoordinates(pos[0], pos[1], localeIdentifier: "JP"); 
+  marks = [placeMarks[0].country.toString(), placeMarks[0].administrativeArea.toString(),placeMarks[0].locality.toString()];
+  return;
   }
+
+List<double> _positionFormat(){
+  double DLR = Geolocator.distanceBetween(upL[0], upL[1], upR[0], upR[1]);
+  double DL = Geolocator.distanceBetween(upL[0], upL[1], downL[0], downL[1]); 
+  double DupL = Geolocator.distanceBetween(upL[0], upL[1], pos[0], pos[1]);
+  double DupR = Geolocator.distanceBetween(upR[0], upR[1], pos[0], pos[1]);
+  double DdownL = Geolocator.distanceBetween(downL[0], downL[1], pos[0], pos[1]);
+
+  double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
+  double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
+
+  return([mapWidth * x, mapWidth * y]);
+}
+
+
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
+    _determinePosition();
     return Scaffold(
       backgroundColor: const Color(0xffbbccff),
       appBar: PreferredSize(
@@ -82,21 +108,40 @@ class MapPage extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Center(
-              child: InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 2.0,
-                scaleEnabled: true,
-                panEnabled: true,
-                constrained: false,
-                child: Image.asset(
-                  'lib/images/map.png',
-                ),
+        child: Center(
+          child: SizedBox(
+            height: 800,
+            width: 600,
+            child: InteractiveViewer(
+              minScale: 1.0,
+              maxScale: 60.0,
+              scaleEnabled: true,
+              panEnabled: true,
+              constrained: true,
+              child: Center(
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      'lib/images/map_okinawa_white.png',
+                    ),
+                    Text(
+                      //'${placeMarks[0].country}.${placeMarks[0].administrativeArea}.${placeMarks[0].locality}'
+                      '$pos.$marks'
+                    ),
+                    Positioned(
+                      left: _positionFormat()[0] * MediaQuery.of(context).size.width / mapWidth,
+                      top: _positionFormat()[1] * MediaQuery.of(context).size.width / mapWidth,
+                      child: Image.asset(
+                        'lib/images/pin_current.png',
+                        height: 25,
+                        width: 25,
+                      )
+                    )
+                  ]
+                )
               )
-            ),
-          ],
+            )
+          )
         )
       )
     );
