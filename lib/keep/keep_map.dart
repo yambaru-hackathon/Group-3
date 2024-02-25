@@ -51,9 +51,8 @@ class _KeepMapState extends State<KeepMap> {
       setState(() {
         _data = _fetchDataFromFirestore();
       });
+    // ignore: empty_catches
     } catch (e) {
-      // ignore: avoid_print
-      print('Error deleting visit location data: $e');
     }
   }
 
