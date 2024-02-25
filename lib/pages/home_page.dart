@@ -31,39 +31,42 @@ class HomePage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: Row(
-            children: [
-              Image.asset(
-                'lib/images/napi.png',
-                height: 45,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_think.png',
-                height: 45,
-              ),
-              const Spacer(),
-              const Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
+          title: FractionallySizedBox(
+            widthFactor: 1.0,
+            child: Row(
+              children: [
+                Image.asset(
+                  'lib/images/napi.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_think.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                const Center(
+                  child: Text(
+                    'Navinator',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      letterSpacing: 2.0,
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_guruguru.png',
-                height: 45,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_kirakira.png',
-                height: 45,
-              ),
-            ],
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_guruguru.png',
+                  height: 45,
+                ),
+                const Spacer(),
+                Image.asset(
+                  'lib/images/napi_kirakira.png',
+                  height: 45,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -73,7 +76,7 @@ class HomePage extends StatelessWidget {
             children: [
               Container(
                 height: 2,
-                color: Colors.black,
+                color: Colors.grey,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -219,22 +222,14 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -448,22 +443,14 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -700,22 +687,14 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -943,22 +922,14 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -1431,22 +1402,14 @@ class _SelectViewPageState extends State<SelectViewPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -1665,22 +1628,14 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -2142,22 +2097,14 @@ class _SelectStorePageState extends State<SelectStorePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -2348,22 +2295,14 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -2853,22 +2792,14 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -3099,7 +3030,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
-  bool isSaved = false;// ルートが保存されたかどうかを示す状態フラグ
+  bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -3336,22 +3267,14 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: const Row(
-            children: [
-              SizedBox(
-                width: 72.4,
-              ),
-              Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
@@ -3508,7 +3431,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       if (isSaved) {
                         // すでに保存されている場合はダイアログを表示して処理を終了
                         showDialog(
@@ -3532,35 +3455,45 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                       //ここからuser_old_dataにルート保存する処理
                       List<dynamic> oldData = [];
                       DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-                          await _firestore.collection('user_data').doc(user?.uid).get();
+                          await _firestore
+                              .collection('user_data')
+                              .doc(user?.uid)
+                              .get();
                       if (userDataDoc.exists) {
                         oldData = userDataDoc.get('VisitLocation');
                       }
 
                       DocumentSnapshot<Map<String, dynamic>> userData01Doc =
-                          await _firestore.collection('user_old_data').doc(user?.uid).get();
+                          await _firestore
+                              .collection('user_old_data')
+                              .doc(user?.uid)
+                              .get();
                       // ドキュメントが存在しない場合のみ新しいドキュメントを作成
                       if (!userData01Doc.exists) {
-                        await _firestore.collection('user_old_data').doc(user?.uid).set({
+                        await _firestore
+                            .collection('user_old_data')
+                            .doc(user?.uid)
+                            .set({
                           'NumberofData': 1, //直近で追加されたデータの添え字
                           'VisitLocation1': oldData,
 
                           'day1': FieldValue.serverTimestamp(),
-
                         });
                       } else {
                         int a = userData01Doc.get('NumberofData') + 1;
-                        await _firestore.collection('user_old_data').doc(user?.uid).update({
+                        await _firestore
+                            .collection('user_old_data')
+                            .doc(user?.uid)
+                            .update({
                           'NumberofData': a,
                           'VisitLocation$a': oldData,
-                         'day$a': FieldValue.serverTimestamp(),
-
+                          'day$a': FieldValue.serverTimestamp(),
                         });
                       }
 
                       // ルートが保存されたことをフラグで示す
                       isSaved = true;
-                      
+
                       showDialog(
                         // ignore: use_build_context_synchronously
                         context: context,
@@ -3725,5 +3658,4 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     // ポリラインを描画
     setState(() {});
   }
-
 }
