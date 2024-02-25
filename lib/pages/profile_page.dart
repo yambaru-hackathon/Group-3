@@ -180,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         child: Container(
                                           width: double.infinity,
                                           height: 100,
-                                          color: Color.fromARGB(255, 104, 125, 189),
+                                          color: const Color.fromARGB(255, 104, 125, 189),
                                           child: Stack(
                                             alignment: Alignment.centerLeft,
                                             children: [
