@@ -47,6 +47,9 @@ dependencies:
   geocoding: ^2.1.1
   geocoding_platform_interface: ^3.2.0
   http: ^1.2.0
+  google_maps_flutter: ^2.5.3
+  google_polyline_algorithm: ^3.1.0
+  flutter_animate: ^4.5.0
   
 
 dev_dependencies:
@@ -77,6 +80,9 @@ flutter:
     - lib/images/napi_think.png
     - lib/images/napi_guruguru.png
     - lib/images/napi_kirakira.png
+
+    - lib/images/book.png
+    - lib/images/loading.png
 
     - lib/images/map.png
   #   - images/a_dot_ham.jpeg

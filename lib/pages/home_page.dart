@@ -2,39 +2,20 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 bool action1Checked = false;
 bool action2Checked = false;
 bool action3Checked = false;
 bool action4Checked = false;
-
-// ignore: non_constant_identifier_names
-String selectedValue_food = 'お米/丼';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_food = [
-  'お米/丼',
-  '麺',
-  'パン',
-  'お肉',
-  'お寿司',
-  'ピザ',
-  'ファストフード'
-];
-
-// ignore: non_constant_identifier_names
-String selectedValue_view = 'ビーチ';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_view = ['ビーチ', '山/岳'];
-
-// ignore: non_constant_identifier_names
-String selectedValue_store = 'コンビニ';
-// ignore: non_constant_identifier_names
-List<String> dropdownItems_store = ['コンビニ', 'デパート', '家具屋', 'スポーツ店', '車', '服'];
 
 //homeページ
 class HomePage extends StatelessWidget {
@@ -703,8 +684,14 @@ class SelectFoodPage extends StatefulWidget {
 }
 
 class _SelectFoodPageState extends State<SelectFoodPage> {
+  //firestoreのユーザー情報の取得
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  //テキストボックスのコントローラー
+  final TextEditingController _textFieldController = TextEditingController();
+  //入力したものを格納する
+  String _inputText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -770,29 +757,23 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  width: 200,
+                  width: 300,
                   decoration: BoxDecoration(
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_food,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_food = newValue!;
-                            });
-                          },
-                          items: dropdownItems_food
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：お寿司',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -826,6 +807,9 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore(); //firestoreに食べたいもの保存
                       if (action2Checked) {
                         Navigator.push(
@@ -912,8 +896,14 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
 
     // ユーザーごとにデータをFirestoreに更新
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '3foodType': selectedValue_food,
+      '3foodType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -936,6 +926,8 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   // ignore: non_constant_identifier_names
   List<String> dropdownItems_foodEx = ['data fetching'];
   String? foodType = '';
+  String? viewType = '';
+  String? storeType = '';
 
   @override
   void initState() {
@@ -1151,6 +1143,16 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
         return;
       }
 
+      viewType = await _getViewTypeFromFirestore();
+      if (viewType == null) {
+        return;
+      }
+
+      storeType = await _getStoreTypeFromFirestore();
+      if (storeType == null) {
+        return;
+      }
+
       List<String> visitLocations = await _getVisitLocationsFromFirestore();
       String location = _getLocationForSearch(visitLocations);
 
@@ -1202,6 +1204,46 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
     }
   }
 
+  Future<String?> _getViewTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getStoreTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('7storeType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
   Future<List<String>> _getVisitLocationsFromFirestore() async {
     try {
       User? user = _auth.currentUser;
@@ -1225,10 +1267,28 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
-    } else {
-      return null;
+      // その前の要素が、viewTypeでない&&storeTypeでない
+      if (index - 1 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 1] != '$viewTypeを見る' &&
+          visitLocations[index - 1] != '$storeTypeに行く') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、viewTypeでない&&storeTypeでない
+      else if (index - 2 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 2] != '$viewTypeを見る' &&
+          visitLocations[index - 2] != '$storeTypeに行く') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、viewTypeでない&&storeTypeでない
+      else if (index - 3 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 3] != '$viewTypeを見る' &&
+          visitLocations[index - 3] != '$storeTypeに行く') {
+        return visitLocations[index - 3];
+      } else {
+        return null;
+      }
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -1361,6 +1421,9 @@ class _SelectViewPageState extends State<SelectViewPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final TextEditingController _textFieldController = TextEditingController();
+  String _inputText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1434,20 +1497,14 @@ class _SelectViewPageState extends State<SelectViewPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_view,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_view = newValue!;
-                            });
-                          },
-                          items: dropdownItems_view
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：ビーチ',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -1481,6 +1538,10 @@ class _SelectViewPageState extends State<SelectViewPage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        //入力した文字列を格納
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
                       if (action3Checked) {
                         Navigator.push(
@@ -1555,8 +1616,14 @@ class _SelectViewPageState extends State<SelectViewPage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '5viewType': selectedValue_view,
+      '5viewType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -1581,7 +1648,9 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
 // ignore: non_constant_identifier_names
   List<String> dropdownItems_viewEx = ['data fetching'];
 
+  String? foodType = '';
   String? viewType = '';
+  String? storeType = '';
 
   @override
   void initState() {
@@ -1785,15 +1854,25 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
 
   Future<void> _searchAndSave() async {
     try {
+      foodType = await _getFoodTypeFromFirestore();
+      if (foodType == null) {
+        return;
+      }
+
       viewType = await _getViewTypeFromFirestore();
       if (viewType == null) {
+        return;
+      }
+
+      storeType = await _getStoreTypeFromFirestore();
+      if (storeType == null) {
         return;
       }
 
       List<String> visitLocations = await _getVisitLocationsFromFirestore();
       String location = _getLocationForSearch(visitLocations);
 
-      // VisitLocationからfoodTypeを含む文字列を検索
+      // VisitLocationからviewTypeを含む文字列を検索
       String? selectedValuePrevious = visitLocations.firstWhere(
         (element) => element.contains(viewType!),
         orElse: () => '',
@@ -1821,6 +1900,26 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
     }
   }
 
+  Future<String?> _getFoodTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 3foodTypeの値を取得して返す
+        return snapshot.get('3foodType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
   Future<String?> _getViewTypeFromFirestore() async {
     try {
       User? user = _auth.currentUser;
@@ -1830,6 +1929,26 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
       if (snapshot.exists) {
         // 5viewTypeの値を取得して返す
         return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getStoreTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 7storeTypeの値を取得して返す
+        return snapshot.get('7storeType');
       } else {
         return null;
       }
@@ -1864,10 +1983,28 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
+      // その前の要素が、foodTypeでない&&storeTypeでない
+      if (index - 1 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 1] != '$foodTypeを食べる' &&
+          visitLocations[index - 1] != '$storeTypeに行く') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、foodTypeでない&&storeTypeでない
+      else if (index - 2 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 2] != '$foodTypeを食べる' &&
+          visitLocations[index - 2] != '$storeTypeに行く') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、foodTypeでない&&storeTypeでない
+      else if (index - 3 >= 0 && // インデックスがマイナスにならないようにチェック
+          visitLocations[index - 3] != '$foodTypeを見る' &&
+          visitLocations[index - 3] != '$storeTypeに行く') {
+        return visitLocations[index - 3];
+      }
     } else {
       return null;
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -1995,6 +2132,9 @@ class _SelectStorePageState extends State<SelectStorePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final TextEditingController _textFieldController = TextEditingController();
+  String _inputText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2068,20 +2208,14 @@ class _SelectStorePageState extends State<SelectStorePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        DropdownButton<String>(
-                          value: selectedValue_store,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue_store = newValue!;
-                            });
-                          },
-                          items: dropdownItems_store
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        TextField(
+                          controller: _textFieldController,
+                          decoration: const InputDecoration(
+                            hintText: '例：コンビニ',
+                            contentPadding: EdgeInsets.all(10), // パディングの調整
+                            border: OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(fontSize: 14), // フォントサイズの指定
                         ),
                       ],
                     ),
@@ -2115,6 +2249,9 @@ class _SelectStorePageState extends State<SelectStorePage> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {
+                      setState(() {
+                        _inputText = _textFieldController.text;
+                      });
                       await _writeToFirestore();
                       Navigator.push(
                         // ignore: use_build_context_synchronously
@@ -2163,8 +2300,14 @@ class _SelectStorePageState extends State<SelectStorePage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '7storeType': selectedValue_store,
+      '7storeType': _inputText,
     });
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose(); // ウィジェットが破棄されるときにコントローラも破棄
+    super.dispose();
   }
 }
 
@@ -2185,9 +2328,11 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   String selectedValue_storeEx = 'data fetching';
   // ignore: non_constant_identifier_names
   String selectedValue_storeEx_sub = 'data fetching';
-// ignore: non_constant_identifier_names
+  // ignore: non_constant_identifier_names
   List<String> dropdownItems_storeEx = ['data fetching'];
 
+  String? foodType = '';
+  String? viewType = '';
   String? storeType = '';
 
   @override
@@ -2366,6 +2511,16 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
 
   Future<void> _searchAndSave() async {
     try {
+      foodType = await _getFoodTypeFromFirestore();
+      if (foodType == null) {
+        return;
+      }
+
+      viewType = await _getViewTypeFromFirestore();
+      if (viewType == null) {
+        return;
+      }
+
       storeType = await _getStoreTypeFromFirestore();
       if (storeType == null) {
         return;
@@ -2399,6 +2554,46 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
       print('Error in _searchAndSave: $e');
       // エラーが発生した場合の処理を追加
       // 例: エラーダイアログを表示するなど
+    }
+  }
+
+  Future<String?> _getFoodTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 3foodTypeの値を取得して返す
+        return snapshot.get('3foodType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
+    }
+  }
+
+  Future<String?> _getViewTypeFromFirestore() async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        // 5viewTypeの値を取得して返す
+        return snapshot.get('5viewType');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFoodTypeFromFirestore: $e');
+      // エラーが発生した場合の処理を追加
+      // 例: エラーダイアログを表示するなど
+      return null;
     }
   }
 
@@ -2445,10 +2640,27 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   String? _getPreviousElement(String location, List<String> visitLocations) {
     int index = visitLocations.indexOf(location);
     if (index >= 1) {
-      return visitLocations[index - 1];
+      if (index - 1 >= 0 &&
+          visitLocations[index - 1] != '$foodTypeを食べる' &&
+          visitLocations[index - 1] != '$viewTypeを見る') {
+        return visitLocations[index - 1];
+      }
+      // その前の前の要素が、foodTypeでない&&viewTypeでない
+      else if (index - 2 >= 0 &&
+          visitLocations[index - 2] != '$foodTypeを食べる' &&
+          visitLocations[index - 2] != '$viewTypeを見る') {
+        return visitLocations[index - 2];
+      }
+      // その前の前の前の要素が、foodTypeでない&&viewTypeでない
+      else if (index - 3 >= 0 &&
+          visitLocations[index - 3] != '$foodTypeを食べる' &&
+          visitLocations[index - 3] != '$viewTypeを見る') {
+        return visitLocations[index - 3];
+      }
     } else {
       return null;
     }
+    return null;
   }
 
   String _getLocationForSearch(List<String> visitLocations) {
@@ -2471,7 +2683,7 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
 
     // ユーザーごとにデータをFirestoreに書き込む
     await _firestore.collection('user_data').doc(user?.uid).update({
-      '8storeLocation': selectedValue_store,
+      '8storeLocation': selectedValue_storeEx,
     });
   }
 
@@ -2870,29 +3082,6 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
       await _firestore.collection('user_data').doc(user.uid).update({
         'VisitLocation': selectedItemsList.map((list) => list.last).toList(),
       });
-      //ここからuser_old_dataにルートのデータ入れる処理
-      List<dynamic> oldData = [];
-      DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-          await _firestore.collection('user_data').doc(user.uid).get();
-      if (userDataDoc.exists) {
-        oldData = userDataDoc.get('VisitLocation');
-      }
-
-      DocumentSnapshot<Map<String, dynamic>> userData01Doc =
-          await _firestore.collection('user_old_data').doc(user.uid).get();
-      // ドキュメントが存在しない場合のみ新しいドキュメントを作成
-      if (!userData01Doc.exists) {
-        await _firestore.collection('user_old_data').doc(user.uid).set({
-          'NumberofData': 1, //直近で追加されたデータの添え字
-          'VisitLocation1': oldData,
-        });
-      } else {
-        int a = userData01Doc.get('NumberofData') + 1;
-        await _firestore.collection('user_old_data').doc(user.uid).update({
-          'NumberofData': a,
-          'VisitLocation$a': oldData,
-        });
-      }
     }
   }
 }
@@ -2908,38 +3097,238 @@ class ShowRoutePage extends StatefulWidget {
 
 class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
+  bool isSaved = false;// ルートが保存されたかどうかを示す状態フラグ
+
+  // 新たに追加したコントローラーと変数
+  GoogleMapController? _googleMapController;
+  final Set<Marker> _markers = {};
+  final Set<Polyline> _polylines = {};
+
+  // 新しいマップの表示位置を設定
+  LatLng _initialCameraPosition = const LatLng(35.6895, 139.6917); // 東京タワーの座標
 
   @override
   void initState() {
     super.initState();
-    fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+    _fetchRoute(); // fetchVisitLocations()はここで呼び出す
   }
 
   Future<void> fetchVisitLocations() async {
+    String? foodType;
+    String? foodStore;
+    String? viewType;
+    String? viewLocation;
+    String? storeType;
+    String? storeLocation;
+
     try {
       User? user = _auth.currentUser;
+
+      // Firestoreから、3foodType、4foodStore、5viewType、6viewLocation、7storeType、8storeLocationを取得
+      foodType = await _getFromFirestore('3foodType');
+      foodStore = await _getFromFirestore('4foodStore');
+      viewType = await _getFromFirestore('5viewType');
+      viewLocation = await _getFromFirestore('6viewLocation');
+      storeType = await _getFromFirestore('7storeType');
+      storeLocation = await _getFromFirestore('8storeLocation');
+
       // FirestoreからVisitLocationのデータを取得
       DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
-              .collection('user_data')
-              .doc(user?.uid) // ユーザーIDに置き換える
-              .get();
+          await _firestore.collection('user_data').doc(user?.uid).get();
 
       // VisitLocationのデータが存在する場合、visitLocationsリストに格納
       if (snapshot.exists && snapshot.data() != null) {
         List<dynamic>? visitLocationData = snapshot.data()?['VisitLocation'];
         if (visitLocationData != null && visitLocationData.isNotEmpty) {
           visitLocations = visitLocationData.cast<String>().toList();
+
+          // VisitLocationの更新
+          updateVisitLocation(foodType, viewType, storeType, foodStore,
+              viewLocation, storeLocation);
+
+          // Firestoreからデータを取得した後にshowRouteOnMapメソッドを呼び出す
+          // showRouteOnMap();
         }
       }
 
       setState(() {});
     } catch (e) {
-      Text('Error fetching data: $e');
+      print('Error fetching data: $e');
     }
   }
 
+  // VisitLocationを更新するメソッド
+  void updateVisitLocation(
+      String? foodType,
+      String? viewType,
+      String? storeType,
+      String? foodStore,
+      String? viewLocation,
+      String? storeLocation) {
+    for (int i = 0; i < visitLocations.length; i++) {
+      if (visitLocations[i] == '$foodTypeを食べる') {
+        visitLocations[i] = foodStore!; // foodTypeが一致した場合、foodStoreを更新
+      } else if (visitLocations[i] == '$viewTypeを見る') {
+        visitLocations[i] = viewLocation!; // viewTypeが一致した場合、viewLocationを更新
+      } else if (visitLocations[i] == '$storeTypeに行く') {
+        visitLocations[i] = storeLocation!; // storeTypeが一致した場合、storeLocationを更新
+      }
+    }
+
+    // FirestoreにVisitLocationのデータを更新
+    User? user = _auth.currentUser;
+    _firestore.collection('user_data').doc(user?.uid).update({
+      'VisitLocation': visitLocations,
+    });
+  }
+
+  // _getFromFirestoreメソッドを共通化して利用
+  Future<String?> _getFromFirestore(String field) async {
+    try {
+      User? user = _auth.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('user_data').doc(user?.uid).get();
+
+      if (snapshot.exists) {
+        return snapshot.get(field);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error in _getFromFirestore: $e');
+      return null;
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _initialCameraPosition = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
+  }
+
+  String apiKey = 'AIzaSyCH1MLd-YWxGGFtErrfEYGHEytm1VJUEJM';
+  // Google Maps Directions APIを使用してルート座標を取得するメソッド（経由地あり）
+  Future<List<LatLng>> getRouteCoordinatesWithWaypoints(
+    LatLng origin,
+    LatLng destination,
+    List<String> waypoints,
+  ) async {
+    List<LatLng> routeCoordinates = [];
+    try {
+      // ウェイポイントの座標を取得
+      String waypointsString = waypoints.join('|');
+
+      // Google Maps Directions APIを使用してルート情報を取得
+      final response = await http.get(Uri.parse(
+        'https://maps.googleapis.com/maps/api/directions/json'
+        '?origin=${origin.latitude},${origin.longitude}'
+        '&destination=${destination.latitude},${destination.longitude}'
+        '&waypoints=$waypointsString'
+        '&key=$apiKey',
+      ));
+
+      print('Origin: ${origin.latitude},${origin.longitude}');
+      print('Destination: ${destination.latitude},${destination.longitude}');
+      print('Waypoints: $waypointsString');
+
+      if (response.statusCode == 200) {
+        // レスポンスからルート座標を抽出
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> routes = responseData['routes'];
+
+        if (routes.isNotEmpty) {
+          final List<dynamic> legs = routes[0]['legs'];
+          for (var leg in legs) {
+            final List<dynamic> steps = leg['steps'];
+            for (var step in steps) {
+              final Map<String, dynamic> startLocation = step['start_location'];
+              final double startLat = startLocation['lat'];
+              final double startLng = startLocation['lng'];
+              routeCoordinates.add(LatLng(startLat, startLng));
+
+              // ポリラインのエンコードされた座標を復元し、リストに追加
+              String encodedPolyline = step['polyline']['points'];
+              List<LatLng> decodedPolyline = _decodePolyline(encodedPolyline);
+              routeCoordinates.addAll(decodedPolyline);
+
+              final Map<String, dynamic> endLocation = step['end_location'];
+              final double endLat = endLocation['lat'];
+              final double endLng = endLocation['lng'];
+              routeCoordinates.add(LatLng(endLat, endLng));
+            }
+          }
+        } else {
+          print(
+              'Failed to fetch route coordinates. Status Code: ${response.statusCode}');
+          print('Response Body: ${response.body}');
+          throw Exception('Failed to fetch route coordinates');
+        }
+      } else {
+        print(
+            'Failed to fetch route coordinates. Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        throw Exception('Failed to fetch route coordinates');
+      }
+    } catch (e) {
+      print('Error in getRouteCoordinatesWithWaypoints: $e');
+    }
+    return routeCoordinates;
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> points = [];
+
+    int index = 0;
+    int len = encoded.length;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < len) {
+      int b;
+      int shift = 0;
+      int result = 0;
+
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      double latitude = lat / 1E5;
+      double longitude = lng / 1E5;
+
+      points.add(LatLng(latitude, longitude));
+    }
+
+    return points;
+  }
+
+  bool _isMapTapped = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3004,7 +3393,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  width: 200,
+                  width: 300,
                   decoration: BoxDecoration(
                     color: const Color(0xffc5e1ff),
                     borderRadius: BorderRadius.circular(8),
@@ -3033,6 +3422,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               const Icon(Icons.arrow_downward),
                               Text(
                                 visitLocations[i],
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold),
                               ),
@@ -3040,9 +3430,8 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           ),
 
                         // ゴール
-                        const Icon(Icons.arrow_downward),
                         const Text(
-                          'ゴール',
+                          '（ゴール）',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -3052,6 +3441,47 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 500,
+                  child: GestureDetector(
+                    onTapDown: (_) {
+                      // マップがタップされたときにフラグを有効にする
+                      setState(() {
+                        _isMapTapped = true;
+                      });
+                    },
+                    onTapUp: (_) {
+                      // マップがタップ解除されたときにフラグを無効にする
+                      setState(() {
+                        _isMapTapped = false;
+                      });
+                    },
+                    child: GoogleMap(
+                      mapType: MapType.normal,
+                      markers: _markers,
+                      polylines: _polylines,
+                      onMapCreated: (controller) {
+                        _googleMapController = controller;
+                        _fetchRoute();
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: _initialCameraPosition,
+                        zoom: 12.0,
+                      ),
+                      gestureRecognizers: _isMapTapped
+                          ? <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
+                              ),
+                            }
+                          : <Factory<OneSequenceGestureRecognizer>>{},
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(
                 height: 110,
               ),
@@ -3073,6 +3503,87 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                     ),
                     child: const Text(
                       'もどる',
+                      style: TextStyle(color: Color(0xffffffff)),
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () async{
+                      if (isSaved) {
+                        // すでに保存されている場合はダイアログを表示して処理を終了
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('保存済み'),
+                            content: const Text('すでにルートが保存されています！'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return; // ここで処理を終了する
+                      }
+                      User? user = _auth.currentUser;
+                      //ここからuser_old_dataにルート保存する処理
+                      List<dynamic> oldData = [];
+                      DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+                          await _firestore.collection('user_data').doc(user?.uid).get();
+                      if (userDataDoc.exists) {
+                        oldData = userDataDoc.get('VisitLocation');
+                      }
+
+                      DocumentSnapshot<Map<String, dynamic>> userData01Doc =
+                          await _firestore.collection('user_old_data').doc(user?.uid).get();
+                      // ドキュメントが存在しない場合のみ新しいドキュメントを作成
+                      if (!userData01Doc.exists) {
+                        await _firestore.collection('user_old_data').doc(user?.uid).set({
+                          'NumberofData': 1, //直近で追加されたデータの添え字
+                          'VisitLocation1': oldData,
+                          'day1': FieldValue.serverTimestamp(),
+                        });
+                      } else {
+                        int a = userData01Doc.get('NumberofData') + 1;
+                        await _firestore.collection('user_old_data').doc(user?.uid).update({
+                          'NumberofData': a,
+                          'VisitLocation$a': oldData,
+                         'day$a': FieldValue.serverTimestamp(),
+                        });
+                      }
+
+                      // ルートが保存されたことをフラグで示す
+                      isSaved = true;
+                      
+                      showDialog(
+                        // ignore: use_build_context_synchronously
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('保存完了'),
+                          content: const Text('ルートの保存が完了しました！'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1a69c6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // 縁を丸くする半径
+                      ),
+                      shadowColor: Colors.black,
+                    ),
+                    child: const Text(
+                      '保存',
                       style: TextStyle(color: Color(0xffffffff)),
                     ),
                   ),
@@ -3108,5 +3619,107 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
         ),
       ),
     );
+  }
+
+  // 住所から座標を取得するメソッド
+  Future<LatLng> getCoordinatesFromAddress(String address) async {
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        Location location = locations.first;
+        return LatLng(location.latitude, location.longitude);
+      } else {
+        throw Exception('No coordinates found for the address: $address');
+      }
+    } catch (e) {
+      print('Error in getCoordinatesFromAddress: $e');
+      rethrow;
+    }
+  }
+
+  // ルート全体の境界を取得するメソッド
+  LatLngBounds getBounds(List<LatLng> routeCoordinates) {
+    double minLat = double.infinity;
+    double minLng = double.infinity;
+    double maxLat = -double.infinity;
+    double maxLng = -double.infinity;
+
+    for (LatLng coordinate in routeCoordinates) {
+      if (coordinate.latitude < minLat) minLat = coordinate.latitude;
+      if (coordinate.longitude < minLng) minLng = coordinate.longitude;
+      if (coordinate.latitude > maxLat) maxLat = coordinate.latitude;
+      if (coordinate.longitude > maxLng) maxLng = coordinate.longitude;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+  }
+
+  Future<void> _fetchRoute() async {
+    await _getCurrentLocation(); // 現在地を取得して初期位置に設定
+    await fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+
+    // 経由地点やルートの座標を取得
+    List<String> waypoints =
+        visitLocations.sublist(0, visitLocations.length - 1);
+    List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
+      _initialCameraPosition,
+      await getCoordinatesFromAddress(visitLocations.last),
+      waypoints,
+    );
+
+    // ポリラインを描画
+    await _drawRoutePolyline(routeCoordinates);
+
+    // マーカーを設定
+    _markers.clear();
+    // 現在地のマーカーを追加
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('current_location'),
+        position: _initialCameraPosition,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+    );
+
+    // VisitLocationsの各要素に対してマーカーを追加
+    for (int i = 0; i < visitLocations.length; i++) {
+      String location = visitLocations[i];
+      LatLng coordinates = await getCoordinatesFromAddress(location);
+      _markers.add(
+        Marker(
+          markerId: MarkerId(location),
+          position: coordinates,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      );
+    }
+
+    // Google Map コントローラーを使用してカメラを移動
+    if (_googleMapController != null) {
+      LatLngBounds bounds = getBounds(routeCoordinates);
+      _googleMapController
+          ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    }
+
+    setState(() {});
+  }
+
+  Future<void> _drawRoutePolyline(List<LatLng> routeCoordinates) async {
+    // ポリラインをセット
+    _polylines.clear();
+    Polyline newPolyline = Polyline(
+      polylineId: const PolylineId('route'),
+      color: Colors.blue,
+      points: routeCoordinates,
+      width: 5,
+    );
+
+    _polylines.add(newPolyline);
+
+    // ポリラインを描画
+    setState(() {});
   }
 }
