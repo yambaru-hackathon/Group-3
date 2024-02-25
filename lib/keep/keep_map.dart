@@ -44,7 +44,6 @@ class _KeepMapState extends State<KeepMap> {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      // VisitLocationが格納されているドキュメントを削除
       await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
         'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
       });
@@ -95,7 +94,16 @@ class _KeepMapState extends State<KeepMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('行ったとこ表示'),
+        title: const Center(
+          child: Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
@@ -103,27 +111,83 @@ class _KeepMapState extends State<KeepMap> {
           ),
         ],
       ),
-      body: FutureBuilder<List<String>>(
-        future: _data,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    snapshot.data![index],
-                    textAlign: TextAlign.center,
-                  ),
-                );
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xffaabbff),
+              ),
+              child: Text(
+                'VisitLocation',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            FutureBuilder<List<String>>(
+              future: _data,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const ListTile(
+                    title: Text('Loading...'),
+                  );
+                } else if (snapshot.hasError) {
+                  return ListTile(
+                    title: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data!.length + 2, // 現在地とゴールを含めるために+2
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return const ListTile(
+                          title: Text(
+                            '出発地点',
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                          subtitle: Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: Icon(Icons.arrow_downward),
+                            ),
+                          ),
+                        );
+                      } else if (index == snapshot.data!.length + 1) {
+                        return const ListTile(
+                          title: Text(
+                            'ゴール',
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      } else {
+                        return ListTile(
+                          title: Text(
+                            snapshot.data![index - 1],
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                          subtitle: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: Icon(Icons.arrow_downward),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
