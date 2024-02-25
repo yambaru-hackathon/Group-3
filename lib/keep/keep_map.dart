@@ -93,9 +93,11 @@ class _KeepMapState extends State<KeepMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40),
+        child: AppBar(
+          centerTitle: true,
+          title: const Text(
             'Navinator',
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -103,13 +105,13 @@ class _KeepMapState extends State<KeepMap> {
               letterSpacing: 2.0,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: _deleteVisitLocationData,
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteVisitLocationData,
-          ),
-        ],
       ),
       drawer: Drawer(
         child: ListView(

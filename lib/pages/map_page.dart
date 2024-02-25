@@ -105,12 +105,12 @@ class _MapPageState extends State<MapPage> {
             children: [
               Image.asset(
                 'lib/images/napi.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               Image.asset(
                 'lib/images/napi_think.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               const Center(
@@ -126,12 +126,12 @@ class _MapPageState extends State<MapPage> {
               const Spacer(),
               Image.asset(
                 'lib/images/napi_guruguru.png',
-                height: 50,
+                height: 45,
               ),
               const Spacer(),
               Image.asset(
                 'lib/images/napi_kirakira.png',
-                height: 50,
+                height: 45,
               ),
             ],
           ),
