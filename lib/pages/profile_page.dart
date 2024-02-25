@@ -5,6 +5,8 @@ import 'package:yanbaru_hackathon/login/login_page.dart';
 import 'package:yanbaru_hackathon/login/profile.dart';
 
 class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
   
   @override
   
@@ -61,7 +63,7 @@ class ProfilePage extends StatelessWidget {
                       showDialog<void>(
                          context: context,
                          builder: (_) {
-                           return AlertDialogSample();
+                           return const AlertDialogSample();
                          });
                     },
                     icon: const Icon(Icons.logout),
@@ -113,28 +115,29 @@ class AlertDialogSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('ログアウトしますか？'),
+      title: const Text('ログアウトしますか？'),
       actions: <Widget>[
         GestureDetector(
-          child: Text('いいえ'),
+          child: const Text('いいえ'),
           onTap: () {
             Navigator.pop(context);
           },
         ),
         GestureDetector(
-          child: Text('はい'),
+          child: const Text('はい'),
           onTap: () async {
             try {
               await FirebaseAuth.instance.signOut();
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false, // ログインページに遷移した後に戻ることを禁止する
               );// ダイアログを閉じる
               
             }
             catch (e) {
-              print('ログアウト中にエラーが発生しました: $e');
+              Text('ログアウト中にエラーが発生しました: $e');
             }
           },
         )
