@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // 使用しているライブラリに応じてライブラリをインポートする
 
 class AnimationPage extends StatelessWidget {
+  const AnimationPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ローディング'),
+        title: const Text('ローディング'),
       ),
       body: Center(
         child: Stack(
@@ -16,23 +18,23 @@ class AnimationPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: Transform.translate(
-                  offset: Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
+                  offset: const Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
                   child: Image.asset(
                     'lib/images/book.png',
                     width: 300,
                   )
                     .animate(onPlay: (controller) => controller.repeat())
                     .shimmer(
-                      delay: Duration(milliseconds: 400),
-                      duration: Duration(milliseconds: 800),
+                      delay: const Duration(milliseconds: 400),
+                      duration: const Duration(milliseconds: 800),
                     )
                     .shake(hz: 4, curve: Curves.easeInOutCubic)
                     .scale(
                       begin: const Offset(1, 1),
                       end: const Offset(1.1, 1.1),
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                     )
-                    .then(delay: Duration(milliseconds: 300))
+                    .then(delay: const Duration(milliseconds: 300))
                     .scale(
                       begin: const Offset(1, 1),
                       end: const Offset(1 / 1.1, 1 / 1.1),

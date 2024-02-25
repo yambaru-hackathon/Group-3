@@ -10,6 +10,7 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
@@ -106,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AnimationPage()),
+                    MaterialPageRoute(builder: (context) => const AnimationPage()),
                   );
                 },
                 child: const Text('プロフィールを編集'),
@@ -186,6 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       return FirebaseFirestore.instance.collection('user_old_data').doc(uid).snapshots();
     } catch (e) {
+      // ignore: use_rethrow_when_possible
       throw e;
     }
   }
@@ -211,6 +213,7 @@ class AlertDialogSample extends StatelessWidget {
             try {
               await FirebaseAuth.instance.signOut();
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,

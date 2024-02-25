@@ -8,6 +8,7 @@ class KeepMap extends StatefulWidget {
   const KeepMap({Key? key, required this.visitLocationIndex}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _KeepMapState createState() => _KeepMapState();
 }
 
@@ -51,6 +52,7 @@ class _KeepMapState extends State<KeepMap> {
         _data = _fetchDataFromFirestore();
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error deleting visit location data: $e');
     }
   }
@@ -80,11 +82,11 @@ class _KeepMapState extends State<KeepMap> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
-                color: const Color(0xffaabbff),
+                color: Color(0xffaabbff),
               ),
-              child: const Text(
+              child: Text(
                 'VisitLocation',
                 style: TextStyle(
                   color: Colors.white,
@@ -110,7 +112,7 @@ class _KeepMapState extends State<KeepMap> {
                     itemCount: snapshot.data!.length + 2, // 現在地とゴールを含めるために+2
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        return ListTile(
+                        return const ListTile(
                           title: Text(
                             '出発地点',
                             overflow: TextOverflow.ellipsis,
@@ -118,14 +120,13 @@ class _KeepMapState extends State<KeepMap> {
                           ),
                           subtitle: Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: const 
-                              Icon(Icons.arrow_downward),
+                              padding: EdgeInsets.all(12.0),
+                              child: Icon(Icons.arrow_downward),
                             ),
                           ),
                         );
                       } else if (index == snapshot.data!.length + 1) {
-                        return ListTile(
+                        return const ListTile(
                           title: Text(
                             'ゴール',
                             overflow: TextOverflow.ellipsis,
@@ -139,11 +140,10 @@ class _KeepMapState extends State<KeepMap> {
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
                           ),
-                          subtitle: Center(
+                          subtitle: const Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: const 
-                              Icon(Icons.arrow_downward),
+                              padding: EdgeInsets.all(12.0),
+                              child: Icon(Icons.arrow_downward),
                             ),
                           ),
                         );
