@@ -49,6 +49,39 @@ class _KeepMapState extends State<KeepMap> {
         'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
       });
 
+      // 削除したドキュメントの分詰める処理
+      // ignore: non_constant_identifier_names
+      List<dynamic> Data = [];
+      DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc = await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
+      int number = pickupDataDoc.get('NumberofData');
+      int i = widget.visitLocationIndex + 1;
+
+      while(i!= number){
+        DocumentSnapshot<Map<String, dynamic>>? userDataDoc = await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
+
+        //消したデータの添え字+1のデータをピックアップ
+        Data = userDataDoc.get('VisitLocation${i + 1}');
+
+        //ピックアップしたデータの添え字-1した場所に保存
+        await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+        'VisitLocation$i': Data,
+        });
+
+        i++;
+
+      }
+
+        // 不要になった一番最後のVisitLocationを削除
+        await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+        'VisitLocation$i': FieldValue.delete(),
+        });
+
+        //最新の添え字の値を更新
+        await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+        'NumberofData': (i-1),
+        });
+
+
       // データ再取得
       setState(() {
         _data = _fetchDataFromFirestore();
