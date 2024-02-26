@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 class KeepMap extends StatefulWidget {
   final int visitLocationIndex;
-  final String lastLocation; // 最後の場所を受け取る
 
-  const KeepMap({Key? key, required this.visitLocationIndex, required this.lastLocation}) : super(key: key);
+  const KeepMap({Key? key, required this.visitLocationIndex, required String lastLocation}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _KeepMapState createState() => _KeepMapState();
 }
 
@@ -54,9 +53,10 @@ class _KeepMapState extends State<KeepMap> {
 
       // タイムスタンプからDateTimeオブジェクトに変換
       DateTime date = timeStamp.toDate();
+      
 
       // 日付を適切な書式の文字列に変換
-      String formattedDate = '${date.year}年${date.month}月${date.day}日${date.hour}時${date.minute}分';
+      String formattedDate = '${date.year}年${date.month}月${date.day}日${date.hour+9}時${date.minute}分';
 
       return formattedDate;
     } catch (e) {
@@ -106,13 +106,11 @@ class _KeepMapState extends State<KeepMap> {
       setState(() {
         _data = _fetchDataFromFirestore();
       });
+
+   
+      Navigator.pop(context); // プロフィールページに戻る
     } catch (e) {
-      // エラーハンドリング
-      // エラーが発生してもダイアログを閉じる
-      // ignore: use_build_context_synchronously
       Navigator.pop(context);
-      // 必要に応じて、ユーザーにエラーメッセージを表示する
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("経路を削除する際にエラーが発生しました。"),
@@ -263,7 +261,7 @@ class _KeepMapState extends State<KeepMap> {
 }
 
 class RouteDeletion extends StatelessWidget {
-  final onDelete;
+  final Function onDelete;
 
   const RouteDeletion({Key? key, required this.onDelete}) : super(key: key);
 
@@ -279,10 +277,16 @@ class RouteDeletion extends StatelessWidget {
           child: const Text('キャンセル'),
         ),
         TextButton(
-          onPressed: onDelete,
+          onPressed: () {
+            onDelete(); // 経路を削除
+            Navigator.pop(context);
+          },
           child: const Text('削除'),
         ),
       ],
     );
   }
 }
+
+
+
