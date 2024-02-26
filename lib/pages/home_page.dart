@@ -3340,6 +3340,21 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
   }
 }
 
+//経路のデータを格納する構造体
+class MapData {
+  final List<LatLng> routeCoordinates;
+  final List<Marker> markers;
+  final List<Polyline> polylines;
+
+  MapData({
+    required this.routeCoordinates,
+    required this.markers,
+    required this.polylines,
+  });
+}
+
+List<MapData> mapDataList = [];
+
 //経路の表示
 class ShowRoutePage extends StatefulWidget {
   const ShowRoutePage({Key? key}) : super(key: key);
@@ -3353,12 +3368,11 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
+  List<String> saveMap = [];
   bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
-  final Set<Marker> _markers = {};
-  final Set<Polyline> _polylines = {};
 
   // 新しいマップの表示位置を設定
   LatLng _initialCameraPosition = const LatLng(35.6895, 139.6917); // 東京タワーの座標
@@ -3719,8 +3733,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         },
                         child: GoogleMap(
                           mapType: MapType.normal,
-                          markers: _markers,
-                          polylines: _polylines,
+                          markers: mapDataList.isNotEmpty
+                              ? Set.from(mapDataList.last.markers)
+                              : <Marker>{},
+                          polylines: mapDataList.isNotEmpty ? Set.from(mapDataList.last.polylines) : <Polyline>{},
                           onMapCreated: (controller) {
                             _googleMapController = controller;
                             _fetchRoute();
@@ -3928,10 +3944,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   }
 
   Future<void> _fetchRoute() async {
-    await _getCurrentLocation(); // 現在地を取得して初期位置に設定
-    await fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+    await _getCurrentLocation();
+    await fetchVisitLocations();
 
-    // 経由地点やルートの座標を取得
     List<String> waypoints =
         visitLocations.sublist(0, visitLocations.length - 1);
     List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
@@ -3940,25 +3955,18 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       waypoints,
     );
 
-    // ポリラインを描画
-    await _drawRoutePolyline(routeCoordinates);
-
-    // マーカーを設定
-    _markers.clear();
-    // 現在地のマーカーを追加
-    _markers.add(
+    List<Marker> markers = [
       Marker(
         markerId: const MarkerId('current_location'),
         position: _initialCameraPosition,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ),
-    );
+    ];
 
-    // VisitLocationsの各要素に対してマーカーを追加
     for (int i = 0; i < visitLocations.length; i++) {
       String location = visitLocations[i];
       LatLng coordinates = await getCoordinatesFromAddress(location);
-      _markers.add(
+      markers.add(
         Marker(
           markerId: MarkerId(location),
           position: coordinates,
@@ -3967,6 +3975,15 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       );
     }
 
+    List<Polyline> polylines = [
+      Polyline(
+        polylineId: const PolylineId('route'),
+        color: Colors.blue,
+        points: routeCoordinates,
+        width: 5,
+      ),
+    ];
+
     // Google Map コントローラーを使用してカメラを移動
     if (_googleMapController != null) {
       LatLngBounds bounds = getBounds(routeCoordinates);
@@ -3974,22 +3991,13 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     }
 
-    setState(() {});
-  }
+    // MapData インスタンスを作成してリストに追加
+    mapDataList.add(MapData(
+      routeCoordinates: routeCoordinates,
+      markers: markers,
+      polylines: polylines,
+    ));
 
-  Future<void> _drawRoutePolyline(List<LatLng> routeCoordinates) async {
-    // ポリラインをセット
-    _polylines.clear();
-    Polyline newPolyline = Polyline(
-      polylineId: const PolylineId('route'),
-      color: Colors.blue,
-      points: routeCoordinates,
-      width: 5,
-    );
-
-    _polylines.add(newPolyline);
-
-    // ポリラインを描画
     setState(() {});
   }
 }
