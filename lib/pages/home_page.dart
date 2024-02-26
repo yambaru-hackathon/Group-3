@@ -31,41 +31,13 @@ class HomePage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: FractionallySizedBox(
-            widthFactor: 1.0,
-            child: Row(
-              children: [
-                Image.asset(
-                  'lib/images/napi.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_think.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                const Center(
-                  child: Text(
-                    'Navinator',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_kirakira.png',
-                  height: 45,
-                ),
-              ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
             ),
           ),
         ),
@@ -75,8 +47,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.0025,
-                color: Colors.grey,
+                height: MediaQuery.of(context).size.height * 0.05,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -243,11 +214,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.01,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   SpeechBalloon(
                     nipLocation: NipLocation.bottom,
@@ -486,11 +453,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.01,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   SpeechBalloon(
                     nipLocation: NipLocation.bottom,
@@ -739,10 +702,6 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   SpeechBalloon(
@@ -985,10 +944,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   SpeechBalloon(
@@ -1060,7 +1015,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                   Container(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1480,10 +1434,6 @@ class _SelectViewPageState extends State<SelectViewPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   SpeechBalloon(
@@ -1716,10 +1666,6 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -2198,10 +2144,6 @@ class _SelectStorePageState extends State<SelectStorePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   SpeechBalloon(
@@ -2406,10 +2348,6 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -2916,10 +2854,6 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   SpeechBalloon(
@@ -3401,10 +3335,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
