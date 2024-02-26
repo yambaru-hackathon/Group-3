@@ -589,7 +589,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                   // 目的地の入力フォームなどを配置
                   Padding(
                     padding: EdgeInsets.all(
-                        MediaQuery.of(context).size.width * 0.04),
+                        MediaQuery.of(context).size.width * 0.0352),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.blue[50],
