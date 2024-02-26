@@ -147,7 +147,25 @@ class HomePage extends StatelessWidget {
                         } else {
                           // 権限が拒否された場合の処理
                           // ユーザーに権限が必要である旨を通知するなどの処理を追加
-                          print('error');
+                          showDialog(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('警告'),
+                                content:
+                                    const Text('サービスを利用するには位置情報の取得を許可してください。'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -650,57 +668,81 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          // ボタンが押された時にFirestoreにデータを書き込む処理
-                          await _writeToFirestore();
-                          if (action1Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectFoodPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (action1Checked == false &&
+                              action2Checked == false &&
+                              action3Checked == false &&
+                              action4Checked == false) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text(
+                                      '目的地へ移動中にすることを最低でも1つ入力してください。\nすることがないときは「ない」を選択してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
-                          } else if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          }
-                          if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                          } else {
+                            // ボタンが押された時にFirestoreにデータを書き込む処理
+                            await _writeToFirestore();
+                            if (action1Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectFoodPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
+                            if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -895,58 +937,78 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore(); //firestoreに食べたいもの保存
-                          if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('食べたい食べ物の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            setState(() {
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore(); //firestoreに食べたいもの保存
+                            if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -1644,47 +1706,67 @@ class _SelectViewPageState extends State<SelectViewPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            //入力した文字列を格納
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
-                          if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('見たい景色の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            setState(() {
+                              //入力した文字列を格納
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
+                            if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -2371,21 +2453,42 @@ class _SelectStorePageState extends State<SelectStorePage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore();
-                          Navigator.push(
-                            // ignore: use_build_context_synchronously
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const SelectRoutePage(),
-                              transitionDuration: const Duration(
-                                  milliseconds: 0), // アニメーションの速度を0にする
-                            ),
-                          );
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content:
+                                      const Text('買い物をしたいお店の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            setState(() {
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore();
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff1a69c6),
@@ -2966,6 +3069,16 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
     selectedItemsList = List.generate(originalItems.length, (index) => []);
   }
 
+  bool checkDropdownSelection() {
+    // ドロップダウンが1つでも選択されていないかを確認
+    for (int i = 0; i < dropdownItems_route.length; i++) {
+      if (selectedItemsList[i].isEmpty) {
+        return true; // 選択されていないドロップダウンがある場合
+      }
+    }
+    return false; // すべてのドロップダウンが選択されている場合
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3104,68 +3217,88 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          // Firestoreに選択されたアイテムを保存
-                          await _writeToFirestore();
-                          if (action1Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectFoodExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStoreExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const ShowRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (checkDropdownSelection()) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('ロケーションを回る順番を選択してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const ShowRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            // Firestoreに選択されたアイテムを保存
+                            await _writeToFirestore();
+                            if (action1Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectFoodExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStoreExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const ShowRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const ShowRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
