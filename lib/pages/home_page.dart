@@ -3351,6 +3351,44 @@ class MapData {
     required this.markers,
     required this.polylines,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'routeCoordinates': routeCoordinates
+          .map((coord) => {
+                'latitude': coord.latitude,
+                'longitude': coord.longitude,
+              })
+          .toList(),
+      'markers': markers
+          .map((marker) => {
+                'position': {
+                  'latitude': marker.position.latitude,
+                  'longitude': marker.position.longitude,
+                },
+                // ignore: unnecessary_null_comparison
+                'info': marker.infoWindow == null
+                    ? null
+                    : {
+                        'title': marker.infoWindow.title,
+                        'snippet': marker.infoWindow.snippet,
+                      },
+              })
+          .toList(),
+      'polylines': polylines
+          .map((polyline) => {
+                'points': polyline.points
+                    .map((coord) => {
+                          'latitude': coord.latitude,
+                          'longitude': coord.longitude,
+                        })
+                    .toList(),
+                'color': polyline.color.value,
+                'width': polyline.width,
+              })
+          .toList(),
+    };
+  }
 }
 
 List<MapData> mapDataList = [];
@@ -3368,7 +3406,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
-  List<String> saveMap = [];
   bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
 
   // 新たに追加したコントローラーと変数
@@ -3383,6 +3420,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     _fetchRoute(); // fetchVisitLocations()はここで呼び出す
   }
 
+  //firestoreから、visitLocationと、更新に必要なデータを取得
   Future<void> fetchVisitLocations() async {
     String? foodType;
     String? foodStore;
@@ -3470,6 +3508,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     }
   }
 
+  //ユーザーの現在地取得
   Future<void> _getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -3553,6 +3592,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     return routeCoordinates;
   }
 
+  // APIのレスポンスで得た実際の道の座標をデコードしてポリラインで使えるように
   List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> points = [];
 
@@ -3736,7 +3776,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           markers: mapDataList.isNotEmpty
                               ? Set.from(mapDataList.last.markers)
                               : <Marker>{},
-                          polylines: mapDataList.isNotEmpty ? Set.from(mapDataList.last.polylines) : <Polyline>{},
+                          polylines: mapDataList.isNotEmpty
+                              ? Set.from(mapDataList.last.polylines)
+                              : <Polyline>{},
                           onMapCreated: (controller) {
                             _googleMapController = controller;
                             _fetchRoute();
@@ -3800,6 +3842,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             );
                             return; // ここで処理を終了する
                           }
+
                           User? user = _auth.currentUser;
                           //ここからuser_old_dataにルート保存する処理
                           List<dynamic> oldData = [];
@@ -3819,16 +3862,21 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                                   .get();
                           // ドキュメントが存在しない場合のみ新しいドキュメントを作成
                           if (!userData01Doc.exists) {
+                            print(mapDataList);
                             await _firestore
                                 .collection('user_old_data')
                                 .doc(user?.uid)
                                 .set({
                               'NumberofData': 1, //直近で追加されたデータの添え字
                               'VisitLocation1': oldData,
-
                               'day1': FieldValue.serverTimestamp(),
+                              // mapDataListをFirestoreがサポートする形式に変換
+                              'mapData1': mapDataList
+                                  .map((data) => data.toJson())
+                                  .toList(),
                             });
                           } else {
+                            print(mapDataList);
                             int a = userData01Doc.get('NumberofData') + 1;
                             await _firestore
                                 .collection('user_old_data')
@@ -3837,6 +3885,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               'NumberofData': a,
                               'VisitLocation$a': oldData,
                               'day$a': FieldValue.serverTimestamp(),
+                              // mapDataListをFirestoreがサポートする形式に変換
+                              'mapData$a': mapDataList
+                                  .map((data) => data.toJson())
+                                  .toList(),
                             });
                           }
 
@@ -3943,6 +3995,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     );
   }
 
+  //マップ生成に必要なデータを集め、変換して格納するメソッド
   Future<void> _fetchRoute() async {
     await _getCurrentLocation();
     await fetchVisitLocations();
