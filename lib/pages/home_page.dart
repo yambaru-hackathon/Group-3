@@ -3714,4 +3714,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     // ポリラインを描画
     setState(() {});
   }
+
 }
+
