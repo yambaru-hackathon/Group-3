@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -188,7 +188,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true, // ソフトキーボード表示時に画面をリサイズする
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -248,7 +248,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                         0.04), // 画面サイズに合わせて調整
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        // color: const Color(0xffaaccff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -259,7 +259,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController1,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地1を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -274,7 +290,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController2,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地2を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -289,7 +321,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController3,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地3を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -304,7 +352,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController4,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地4を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -342,25 +406,49 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            //入力した文字列を格納
-                            _inputText1 = _textFieldController1.text;
-                            _inputText2 = _textFieldController2.text;
-                            _inputText3 = _textFieldController3.text;
-                            _inputText4 = _textFieldController4.text;
-                          });
-                          await _writeToFirestore(); //firestoreに目的地保存
-                          Navigator.push(
-                            // ignore: use_build_context_synchronously
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const BeforeGoPage(),
-                              transitionDuration: const Duration(
-                                  milliseconds: 0), // アニメーションの速度を0にする
-                            ),
-                          );
+                          if (_textFieldController1.text == '' &&
+                              _textFieldController2.text == '' &&
+                              _textFieldController3.text == '' &&
+                              _textFieldController4.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('目的地を最低でも1つ入力してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            setState(() {
+                              //入力した文字列を格納
+                              _inputText1 = _textFieldController1.text;
+                              _inputText2 = _textFieldController2.text;
+                              _inputText3 = _textFieldController3.text;
+                              _inputText4 = _textFieldController4.text;
+                            });
+
+                            await _writeToFirestore(); //firestoreに目的地保存
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const BeforeGoPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff1a69c6),
@@ -427,7 +515,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -486,7 +574,9 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -676,7 +766,7 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -735,9 +825,8 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -749,6 +838,22 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：お寿司',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -918,7 +1023,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -977,7 +1082,9 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -1408,7 +1515,7 @@ class _SelectViewPageState extends State<SelectViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -1467,9 +1574,8 @@ class _SelectViewPageState extends State<SelectViewPage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -1481,6 +1587,22 @@ class _SelectViewPageState extends State<SelectViewPage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：ビーチ',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -1641,7 +1763,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -1702,7 +1824,9 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2118,7 +2242,7 @@ class _SelectStorePageState extends State<SelectStorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2177,9 +2301,8 @@ class _SelectStorePageState extends State<SelectStorePage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2191,6 +2314,22 @@ class _SelectStorePageState extends State<SelectStorePage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：コンビニ',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -2323,7 +2462,7 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2384,7 +2523,9 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2828,7 +2969,7 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2889,7 +3030,9 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -3310,7 +3453,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -3371,7 +3514,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -3714,6 +3859,4 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     // ポリラインを描画
     setState(() {});
   }
-
 }
-

@@ -102,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
         colorBehindNavBar: Colors.white, // タブバーの背後の色
       ),
       popAllScreensOnTapOfSelectedTab: true, // タブ選択時にスタック内のすべてのページをポップ
-      popActionScreens: PopActionScreensType.once, // ポップするアクションを指定
       itemAnimationProperties: const ItemAnimationProperties(
         duration: Duration(milliseconds: 100), // アイテムアニメーションのデュレーション
         curve: Curves.easeInOut, // アイテムアニメーションのカーブ
@@ -126,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // 特定のタブに切り替えるなど
     // HomePageにする
     setState(() {
-      _currentIndex = 1; // Mapタブに切り替える例
+      _currentIndex = 0; // Homeタブに切り替える例
     });
   }
 }
