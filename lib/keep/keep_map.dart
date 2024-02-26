@@ -215,7 +215,7 @@ class _KeepMapState extends State<KeepMap> {
                                   ),
                                 ),
                               const SizedBox(height: 8),
-                              ListTile(
+                              const ListTile(
                                 title: Text(
                                   'ゴール',
                                   overflow: TextOverflow.ellipsis,
@@ -227,7 +227,7 @@ class _KeepMapState extends State<KeepMap> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                     ],
                   );
                 }
@@ -247,11 +247,11 @@ class _KeepMapState extends State<KeepMap> {
                   },
                 );
               },
-              child: const Text('経路を削除'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.red, // テキストの色
               ),
+              child: const Text('経路を削除'),
             ),
           ),
         ],
@@ -262,6 +262,7 @@ class _KeepMapState extends State<KeepMap> {
 
 class RouteDeletion extends StatelessWidget {
   final Function onDelete;
+
 
   const RouteDeletion({Key? key, required this.onDelete}) : super(key: key);
 

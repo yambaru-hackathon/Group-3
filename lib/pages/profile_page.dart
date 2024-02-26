@@ -44,10 +44,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 140, 198, 248),
+      backgroundColor: const Color(0xFF8CC6F8),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
-        child:AppBar(
+        child: AppBar(
           title: FractionallySizedBox(
             widthFactor: 1.0,
             child: Row(
@@ -93,55 +93,55 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-           FutureBuilder<DocumentSnapshot>(
-  future: _fetchUserData(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const CircularProgressIndicator();
-    } else if (snapshot.hasError) {
-      return Text('Error: ${snapshot.error}');
-    } else {
-      var email = snapshot.data!['email'];
-      var emailParts = email.split('@'); // ＠でメールアドレスを分割する
-      var displayEmail = emailParts.isNotEmpty ? emailParts[0] : 'No email'; // ＠の前の部分を表示する
-      return Column(
-        children: [
-          const Icon(Icons.account_circle, size: 80, color: Color.fromARGB(255, 250, 250, 250)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                displayEmail, // ＠の前の部分を表示する
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (_) {
-                      return const AlertDialogSample();
-                    },
+            FutureBuilder<DocumentSnapshot>(
+              future: _fetchUserData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  var email = snapshot.data!['email'];
+                  var emailParts = email.split('@'); // ＠でメールアドレスを分割する
+                  var displayEmail = emailParts.isNotEmpty ? emailParts[0] : 'No email'; // ＠の前の部分を表示する
+                  return Column(
+                    children: [
+                      const Icon(Icons.account_circle, size: 80, color: Colors.white),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            displayEmail, // ＠の前の部分を表示する
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: () {
+                              showDialog<void>(
+                                context: context,
+                                builder: (_) {
+                                  return const AlertDialogSample();
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.logout),
+                          ),
+                        ],
+                      ),
+                    ],
                   );
-                },
-                icon: const Icon(Icons.logout),
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-  },
-),
+                }
+              },
+            ),
             Column(
               children: [
                 SizedBox(
                   height: 50,
                   child: Container(
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
                     child: Center(
                       child: Text(
                         '保存した経路',
@@ -177,118 +177,120 @@ class _ProfilePageState extends State<ProfilePage> {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 1,
-    crossAxisSpacing: 10,
-    mainAxisSpacing: 10,
-    childAspectRatio: 3.0,
-  ),
-  itemCount: numberOfData,
-  itemBuilder: (context, index) {
-    final visitLocationData = snapshot.data!['VisitLocation${numberOfData - index}'];
-    final visitLocationText = visitLocationData != null ? visitLocationData.join(", ") : 'No visit location';
-    final lastLocation = visitLocationText.split(',').last.trim(); 
-    final timeStamp = snapshot.data!['day${numberOfData - index}'] as Timestamp;
-    final dateTime = timeStamp.toDate();
-    final formattedDate = '${dateTime.year}/${dateTime.month}/${dateTime.day}'; 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => KeepMap(visitLocationIndex: (numberOfData - 1) - index, lastLocation: ''),
-          ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        height: 100,
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 78, 138, 201),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(149, 148, 148, 0.5),
-              spreadRadius: 5,
-              blurRadius: 4,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    formattedDate,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    lastLocation,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: _isDeleting
-                  ? const CircularProgressIndicator()
-                  : IconButton(
-                      onPressed: () {
-                        _confirmDeleteDialog(context, numberOfData - index);
-                      },
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-            ),
-            Positioned(
-  bottom: 0,
-  right: 50, // 画像を左側に配置する場合
-  child: FutureBuilder<List<String>>(
-    future: fetchImages('42571096-8e282fb7693d928411cb5d713',lastLocation), // 画像を取得する関数を呼び出す
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const CircularProgressIndicator();
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else {
-        // 画像を表示する
-        return Image.network(
-          snapshot.data![index], // 画像のURL
-          width: 200,
-          height: 150,
-          fit: BoxFit.cover,
-        );
-      }
-    },
-  ),
-),
-          ],
-        ),
-      ),
-    );
-  },
-),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1,
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                    childAspectRatio: 3.0,
+                                  ),
+                                  itemCount: numberOfData,
+                                  itemBuilder: (context, index) {
+                                    final visitLocationData = snapshot.data!['VisitLocation${numberOfData - index}'];
+                                    final visitLocationText = visitLocationData != null ? visitLocationData.join(", ") : 'No visit location';
+                                    final lastLocation = visitLocationText.split(',').last.trim(); 
+                                    final timeStamp = snapshot.data!['day${numberOfData - index}'] as Timestamp;
+                                    final dateTime = timeStamp.toDate();
+                                    final formattedDate = '${dateTime.year}/${dateTime.month}/${dateTime.day}'; 
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => KeepMap(visitLocationIndex: (numberOfData - 1) - index, lastLocation: ''),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF4E8AC9),
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0xFF95949480),
+                                              spreadRadius: 5,
+                                              blurRadius: 4,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    formattedDate,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    lastLocation,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 24,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: _isDeleting
+                                                  ? const CircularProgressIndicator()
+                                                  : IconButton(
+                                                      onPressed: () {
+                                                        _confirmDeleteDialog(context, numberOfData - index);
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.delete,
+                                                        color: Colors.white,
+                                                        size: 30,
+                                                      ),
+                                                    ),
+                                            ),
+                                            Positioned(
+                                              bottom: 0,
+                                              right: 50, // 画像を左側に配置する場合
+                                              child: FutureBuilder<List<String>>(
+                                                future: fetchImages('42571096-8e282fb7693d928411cb5d713',lastLocation), // 画像を取得する関数を呼び出す
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                    return const CircularProgressIndicator();
+                                                  } else if (snapshot.hasError) {
+                                                    return Text('Error: ${snapshot.error}');
+                                                  } else {
+                                                    // 画像を表示する
+                                                    return Image.network(
+                                                      snapshot.data![index], // 画像のURL
+                                                      width: 200,
+                                                      height: 150,
+                                                      fit: BoxFit.cover,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               );
                             } else {
+
                               return const Center(
                                 child: Text('No item'),
                               );
+
                             }
                           }
                         },
@@ -399,7 +401,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               child: const Text(
                 '削除',
-                style: TextStyle(color: Color(0xFFE57373)),
+                style: TextStyle(color: const Color(0xFFE57373)),
               ),
               onPressed: () {
                 _deleteVisitLocationData(context, index);

@@ -27,45 +27,17 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: FractionallySizedBox(
-            widthFactor: 1.0,
-            child: Row(
-              children: [
-                Image.asset(
-                  'lib/images/napi.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_think.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                const Center(
-                  child: Text(
-                    'Navinator',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_guruguru.png',
-                  height: 45,
-                ),
-                const Spacer(),
-                Image.asset(
-                  'lib/images/napi_kirakira.png',
-                  height: 45,
-                ),
-              ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
             ),
           ),
         ),
@@ -75,8 +47,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.0025,
-                color: Colors.grey,
+                height: MediaQuery.of(context).size.height * 0.05,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -176,7 +147,25 @@ class HomePage extends StatelessWidget {
                         } else {
                           // 権限が拒否された場合の処理
                           // ユーザーに権限が必要である旨を通知するなどの処理を追加
-                          print('error');
+                          showDialog(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('警告'),
+                                content:
+                                    const Text('サービスを利用するには位置情報の取得を許可してください。'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -217,7 +206,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true, // ソフトキーボード表示時に画面をリサイズする
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -243,11 +232,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.01,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   SpeechBalloon(
                     nipLocation: NipLocation.bottom,
@@ -281,7 +266,7 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                         0.04), // 画面サイズに合わせて調整
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        // color: const Color(0xffaaccff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -292,7 +277,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController1,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地1を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -307,7 +308,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController2,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地2を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -322,7 +339,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController3,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地3を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -337,7 +370,23 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                             TextField(
                               controller: _textFieldController4,
                               decoration: InputDecoration(
-                                hintText: 'Enter text',
+                                hintText: '目的地4を入力',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -375,25 +424,49 @@ class _SelectLocationPageState extends State<SelectLocationPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            //入力した文字列を格納
-                            _inputText1 = _textFieldController1.text;
-                            _inputText2 = _textFieldController2.text;
-                            _inputText3 = _textFieldController3.text;
-                            _inputText4 = _textFieldController4.text;
-                          });
-                          await _writeToFirestore(); //firestoreに目的地保存
-                          Navigator.push(
-                            // ignore: use_build_context_synchronously
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const BeforeGoPage(),
-                              transitionDuration: const Duration(
-                                  milliseconds: 0), // アニメーションの速度を0にする
-                            ),
-                          );
+                          if (_textFieldController1.text == '' &&
+                              _textFieldController2.text == '' &&
+                              _textFieldController3.text == '' &&
+                              _textFieldController4.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('目的地を最低でも1つ入力してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            setState(() {
+                              //入力した文字列を格納
+                              _inputText1 = _textFieldController1.text;
+                              _inputText2 = _textFieldController2.text;
+                              _inputText3 = _textFieldController3.text;
+                              _inputText4 = _textFieldController4.text;
+                            });
+
+                            await _writeToFirestore(); //firestoreに目的地保存
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const BeforeGoPage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff1a69c6),
@@ -460,7 +533,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -486,11 +559,7 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.01,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   SpeechBalloon(
                     nipLocation: NipLocation.bottom,
@@ -520,10 +589,12 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                   // 目的地の入力フォームなどを配置
                   Padding(
                     padding: EdgeInsets.all(
-                        MediaQuery.of(context).size.width * 0.04),
+                        MediaQuery.of(context).size.width * 0.0352),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -597,57 +668,81 @@ class _BeforeGoPageState extends State<BeforeGoPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          // ボタンが押された時にFirestoreにデータを書き込む処理
-                          await _writeToFirestore();
-                          if (action1Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectFoodPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (action1Checked == false &&
+                              action2Checked == false &&
+                              action3Checked == false &&
+                              action4Checked == false) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text(
+                                      '目的地へ移動中にすることを最低でも1つ入力してください。\nすることがないときは「ない」を選択してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
-                          } else if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          }
-                          if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                          } else {
+                            // ボタンが押された時にFirestoreにデータを書き込む処理
+                            await _writeToFirestore();
+                            if (action1Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectFoodPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
+                            if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -713,7 +808,7 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -738,10 +833,6 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -776,9 +867,8 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -790,6 +880,22 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：お寿司',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -831,58 +937,78 @@ class _SelectFoodPageState extends State<SelectFoodPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore(); //firestoreに食べたいもの保存
-                          if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('食べたい食べ物の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            setState(() {
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore(); //firestoreに食べたいもの保存
+                            if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -959,7 +1085,7 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -984,10 +1110,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -1022,7 +1144,9 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -1060,7 +1184,6 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
                   Container(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1454,7 +1577,7 @@ class _SelectViewPageState extends State<SelectViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -1479,10 +1602,6 @@ class _SelectViewPageState extends State<SelectViewPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -1517,9 +1636,8 @@ class _SelectViewPageState extends State<SelectViewPage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -1531,6 +1649,22 @@ class _SelectViewPageState extends State<SelectViewPage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：ビーチ',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -1572,47 +1706,67 @@ class _SelectViewPageState extends State<SelectViewPage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            //入力した文字列を格納
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
-                          if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStorePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('見たい景色の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            setState(() {
+                              //入力した文字列を格納
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore(); //firestoreに見る景色の種類を書き込み
+                            if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStorePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -1691,7 +1845,7 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -1716,10 +1870,6 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -1756,7 +1906,9 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2172,7 +2324,7 @@ class _SelectStorePageState extends State<SelectStorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2197,10 +2349,6 @@ class _SelectStorePageState extends State<SelectStorePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -2235,9 +2383,8 @@ class _SelectStorePageState extends State<SelectStorePage> {
                     padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width * 0.04),
                     child: Container(
-                      width: 300,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2249,6 +2396,22 @@ class _SelectStorePageState extends State<SelectStorePage> {
                               controller: _textFieldController,
                               decoration: InputDecoration(
                                 hintText: '例：コンビニ',
+                                fillColor: Colors.blue[50],
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue[300]!,
+                                    width: 2.0,
+                                  ),
+                                ),
                                 contentPadding: EdgeInsets.all(
                                     MediaQuery.of(context).size.width *
                                         0.025), // パディングの調整
@@ -2290,21 +2453,42 @@ class _SelectStorePageState extends State<SelectStorePage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          setState(() {
-                            _inputText = _textFieldController.text;
-                          });
-                          await _writeToFirestore();
-                          Navigator.push(
-                            // ignore: use_build_context_synchronously
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const SelectRoutePage(),
-                              transitionDuration: const Duration(
-                                  milliseconds: 0), // アニメーションの速度を0にする
-                            ),
-                          );
+                          if (_textFieldController.text == '') {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content:
+                                      const Text('買い物をしたいお店の種類を打ち込んでください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            setState(() {
+                              _inputText = _textFieldController.text;
+                            });
+                            await _writeToFirestore();
+                            Navigator.push(
+                              // ignore: use_build_context_synchronously
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SelectRoutePage(),
+                                transitionDuration: const Duration(
+                                    milliseconds: 0), // アニメーションの速度を0にする
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff1a69c6),
@@ -2381,7 +2565,7 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2406,10 +2590,6 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -2446,7 +2626,9 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -2887,10 +3069,20 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
     selectedItemsList = List.generate(originalItems.length, (index) => []);
   }
 
+  bool checkDropdownSelection() {
+    // ドロップダウンが1つでも選択されていないかを確認
+    for (int i = 0; i < dropdownItems_route.length; i++) {
+      if (selectedItemsList[i].isEmpty) {
+        return true; // 選択されていないドロップダウンがある場合
+      }
+    }
+    return false; // すべてのドロップダウンが選択されている場合
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -2915,10 +3107,6 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -2955,7 +3143,9 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -3027,68 +3217,88 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          // Firestoreに選択されたアイテムを保存
-                          await _writeToFirestore();
-                          if (action1Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectFoodExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action2Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectViewExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action3Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SelectStoreExPage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
-                          } else if (action4Checked) {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const ShowRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
+                          if (checkDropdownSelection()) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('警告'),
+                                  content: const Text('ロケーションを回る順番を選択してください。'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           } else {
-                            Navigator.push(
-                              // ignore: use_build_context_synchronously
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const ShowRoutePage(),
-                                transitionDuration: const Duration(
-                                    milliseconds: 0), // アニメーションの速度を0にする
-                              ),
-                            );
+                            // Firestoreに選択されたアイテムを保存
+                            await _writeToFirestore();
+                            if (action1Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectFoodExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action2Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectViewExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action3Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const SelectStoreExPage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else if (action4Checked) {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const ShowRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const ShowRoutePage(),
+                                  transitionDuration: const Duration(
+                                      milliseconds: 0), // アニメーションの速度を0にする
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -3130,6 +3340,59 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
   }
 }
 
+//経路のデータを格納する構造体
+class MapData {
+  final List<LatLng> routeCoordinates;
+  final List<Marker> markers;
+  final List<Polyline> polylines;
+
+  MapData({
+    required this.routeCoordinates,
+    required this.markers,
+    required this.polylines,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'routeCoordinates': routeCoordinates
+          .map((coord) => {
+                'latitude': coord.latitude,
+                'longitude': coord.longitude,
+              })
+          .toList(),
+      'markers': markers
+          .map((marker) => {
+                'position': {
+                  'latitude': marker.position.latitude,
+                  'longitude': marker.position.longitude,
+                },
+                // ignore: unnecessary_null_comparison
+                'info': marker.infoWindow == null
+                    ? null
+                    : {
+                        'title': marker.infoWindow.title,
+                        'snippet': marker.infoWindow.snippet,
+                      },
+              })
+          .toList(),
+      'polylines': polylines
+          .map((polyline) => {
+                'points': polyline.points
+                    .map((coord) => {
+                          'latitude': coord.latitude,
+                          'longitude': coord.longitude,
+                        })
+                    .toList(),
+                'color': polyline.color.value,
+                'width': polyline.width,
+              })
+          .toList(),
+    };
+  }
+}
+
+List<MapData> mapDataList = [];
+
 //経路の表示
 class ShowRoutePage extends StatefulWidget {
   const ShowRoutePage({Key? key}) : super(key: key);
@@ -3147,8 +3410,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
-  final Set<Marker> _markers = {};
-  final Set<Polyline> _polylines = {};
 
   // 新しいマップの表示位置を設定
   LatLng _initialCameraPosition = const LatLng(35.6895, 139.6917); // 東京タワーの座標
@@ -3159,6 +3420,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     _fetchRoute(); // fetchVisitLocations()はここで呼び出す
   }
 
+  //firestoreから、visitLocationと、更新に必要なデータを取得
   Future<void> fetchVisitLocations() async {
     String? foodType;
     String? foodStore;
@@ -3246,6 +3508,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     }
   }
 
+  //ユーザーの現在地取得
   Future<void> _getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -3329,6 +3592,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     return routeCoordinates;
   }
 
+  // APIのレスポンスで得た実際の道の座標をデコードしてポリラインで使えるように
   List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> points = [];
 
@@ -3376,7 +3640,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffaaccff),
+      backgroundColor: const Color(0xffbbddff),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
@@ -3401,10 +3665,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.0025,
-                    color: Colors.grey,
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -3441,7 +3701,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0xffc5e1ff),
+                        color: Colors.blue[50],
+                        border:
+                            Border.all(color: Colors.blue[300]!, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -3511,8 +3773,12 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         },
                         child: GoogleMap(
                           mapType: MapType.normal,
-                          markers: _markers,
-                          polylines: _polylines,
+                          markers: mapDataList.isNotEmpty
+                              ? Set.from(mapDataList.last.markers)
+                              : <Marker>{},
+                          polylines: mapDataList.isNotEmpty
+                              ? Set.from(mapDataList.last.polylines)
+                              : <Polyline>{},
                           onMapCreated: (controller) {
                             _googleMapController = controller;
                             _fetchRoute();
@@ -3576,6 +3842,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             );
                             return; // ここで処理を終了する
                           }
+
                           User? user = _auth.currentUser;
                           //ここからuser_old_dataにルート保存する処理
                           List<dynamic> oldData = [];
@@ -3595,16 +3862,21 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                                   .get();
                           // ドキュメントが存在しない場合のみ新しいドキュメントを作成
                           if (!userData01Doc.exists) {
+                            print(mapDataList);
                             await _firestore
                                 .collection('user_old_data')
                                 .doc(user?.uid)
                                 .set({
                               'NumberofData': 1, //直近で追加されたデータの添え字
                               'VisitLocation1': oldData,
-
                               'day1': FieldValue.serverTimestamp(),
+                              // mapDataListをFirestoreがサポートする形式に変換
+                              'mapData1': mapDataList
+                                  .map((data) => data.toJson())
+                                  .toList(),
                             });
                           } else {
+                            print(mapDataList);
                             int a = userData01Doc.get('NumberofData') + 1;
                             await _firestore
                                 .collection('user_old_data')
@@ -3613,6 +3885,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               'NumberofData': a,
                               'VisitLocation$a': oldData,
                               'day$a': FieldValue.serverTimestamp(),
+                              // mapDataListをFirestoreがサポートする形式に変換
+                              'mapData$a': mapDataList
+                                  .map((data) => data.toJson())
+                                  .toList(),
                             });
                           }
 
@@ -3719,11 +3995,11 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     );
   }
 
+  //マップ生成に必要なデータを集め、変換して格納するメソッド
   Future<void> _fetchRoute() async {
-    await _getCurrentLocation(); // 現在地を取得して初期位置に設定
-    await fetchVisitLocations(); // VisitLocationデータをFirestoreから取得
+    await _getCurrentLocation();
+    await fetchVisitLocations();
 
-    // 経由地点やルートの座標を取得
     List<String> waypoints =
         visitLocations.sublist(0, visitLocations.length - 1);
     List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
@@ -3732,25 +4008,18 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       waypoints,
     );
 
-    // ポリラインを描画
-    await _drawRoutePolyline(routeCoordinates);
-
-    // マーカーを設定
-    _markers.clear();
-    // 現在地のマーカーを追加
-    _markers.add(
+    List<Marker> markers = [
       Marker(
         markerId: const MarkerId('current_location'),
         position: _initialCameraPosition,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ),
-    );
+    ];
 
-    // VisitLocationsの各要素に対してマーカーを追加
     for (int i = 0; i < visitLocations.length; i++) {
       String location = visitLocations[i];
       LatLng coordinates = await getCoordinatesFromAddress(location);
-      _markers.add(
+      markers.add(
         Marker(
           markerId: MarkerId(location),
           position: coordinates,
@@ -3759,6 +4028,15 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       );
     }
 
+    List<Polyline> polylines = [
+      Polyline(
+        polylineId: const PolylineId('route'),
+        color: Colors.blue,
+        points: routeCoordinates,
+        width: 5,
+      ),
+    ];
+
     // Google Map コントローラーを使用してカメラを移動
     if (_googleMapController != null) {
       LatLngBounds bounds = getBounds(routeCoordinates);
@@ -3766,24 +4044,13 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     }
 
+    // MapData インスタンスを作成してリストに追加
+    mapDataList.add(MapData(
+      routeCoordinates: routeCoordinates,
+      markers: markers,
+      polylines: polylines,
+    ));
+
     setState(() {});
   }
-
-  Future<void> _drawRoutePolyline(List<LatLng> routeCoordinates) async {
-    // ポリラインをセット
-    _polylines.clear();
-    Polyline newPolyline = Polyline(
-      polylineId: const PolylineId('route'),
-      color: Colors.blue,
-      points: routeCoordinates,
-      width: 5,
-    );
-
-    _polylines.add(newPolyline);
-
-    // ポリラインを描画
-    setState(() {});
-  }
-
 }
-
