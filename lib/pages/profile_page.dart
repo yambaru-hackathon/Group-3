@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +12,7 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
@@ -142,10 +145,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 50,
                   child: Container(
                     color: Colors.white,
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         '保存した経路',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -208,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           borderRadius: BorderRadius.circular(10),
                                           boxShadow: const [
                                             BoxShadow(
-                                              color: Color(0xFF95949480),
+                                              color: Color(0x95949480), //0xff95949480
                                               spreadRadius: 5,
                                               blurRadius: 4,
                                               offset: Offset(0, 3),
@@ -337,6 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'day$index': FieldValue.delete(),
       });
 
+      // ignore: non_constant_identifier_names
       List<dynamic> Data = [];
       DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc =
           await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
@@ -370,12 +374,15 @@ class _ProfilePageState extends State<ProfilePage> {
         _isDeleting = false;
       });
 
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     } catch (e) {
       setState(() {
         _isDeleting = false;
       });
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("経路を削除する際にエラーが発生しました。"),
@@ -401,7 +408,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               child: const Text(
                 '削除',
-                style: TextStyle(color: const Color(0xFFE57373)),
+                style: TextStyle(color: Color(0xFFE57373)),
               ),
               onPressed: () {
                 _deleteVisitLocationData(context, index);
@@ -434,6 +441,7 @@ class AlertDialogSample extends StatelessWidget {
             try {
               await FirebaseAuth.instance.signOut();
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
