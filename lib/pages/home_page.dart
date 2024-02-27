@@ -3846,7 +3846,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           User? user = _auth.currentUser;
                           List<dynamic> oldData = [];
 
-// 既存のデータを取得
+                          // 既存のデータを取得
                           DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
                               await _firestore
                                   .collection('user_data')
@@ -3856,11 +3856,11 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             oldData = userDataDoc.get('VisitLocation');
                           }
 
-// 新しいデータを作成
+                          // 新しいデータを作成
                           List<Map<String, dynamic>> newMapDataList =
                               mapDataList.map((data) => data.toJson()).toList();
 
-// 既存のデータと新しいデータが一致するか確認
+                          // 既存のデータと新しいデータが一致するか確認
                           bool isDuplicate =
                               oldData.length == newMapDataList.length &&
                                   List.generate(oldData.length, (index) {

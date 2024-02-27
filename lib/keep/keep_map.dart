@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,7 +73,8 @@ class _KeepMapState extends State<KeepMap> {
 
     if (userDataDoc.exists) {
       // Firestoreから取得したJSONデータをデコード
-      var mapDataListJson = userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
+      var mapDataListJson =
+          userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
 
       // JSONデータが正しく取得できていることを確認
       if (mapDataListJson != null && mapDataListJson is List<dynamic>) {
@@ -95,6 +98,12 @@ class _KeepMapState extends State<KeepMap> {
         }
       } else {
         print("mapData${widget.visitLocationIndex + 1} is not a List<dynamic>");
+      }
+
+      if (_googleMapController != null) {
+        LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
+        _googleMapController
+            ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
       }
 
       setState(() {});
@@ -218,6 +227,7 @@ class _KeepMapState extends State<KeepMap> {
     }
   }
 
+  bool _isMapTapped = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -371,26 +381,43 @@ class _KeepMapState extends State<KeepMap> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SizedBox(
-                  height: 300, // GoogleMapの高さを指定
-                  child: GoogleMap(
-                    mapType: MapType.normal,
-                    markers: mapDataList.isNotEmpty
-                        ? Set.from(mapDataList.first.markers)
-                        : <Marker>{},
-                    polylines: mapDataList.isNotEmpty
-                        ? Set.from(mapDataList.first.polylines)
-                        : <Polyline>{},
-                    onMapCreated: (controller) {
-                      _googleMapController = controller;
-                      if (_googleMapController != null) {
-                        LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
-                        _googleMapController?.animateCamera(
-                            CameraUpdate.newLatLngBounds(bounds, 50));
-                      }
+                  height: MediaQuery.of(context).size.height *
+                      0.5, // GoogleMapの高さを指定
+                  child: GestureDetector(
+                    onTapDown: (_) {
+                      // マップがタップされたときにフラグを有効にする
+                      setState(() {
+                        _isMapTapped = true;
+                      });
                     },
-                    initialCameraPosition: CameraPosition(
-                      target: _initialCameraPosition,
-                      zoom: 12.0,
+                    onTapUp: (_) {
+                      // マップがタップ解除されたときにフラグを無効にする
+                      setState(() {
+                        _isMapTapped = false;
+                      });
+                    },
+                    child: GoogleMap(
+                      mapType: MapType.normal,
+                      markers: mapDataList.isNotEmpty
+                          ? Set.from(mapDataList.first.markers)
+                          : <Marker>{},
+                      polylines: mapDataList.isNotEmpty
+                          ? Set.from(mapDataList.first.polylines)
+                          : <Polyline>{},
+                      onMapCreated: (controller) {
+                        _googleMapController = controller;
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: _initialCameraPosition,
+                        zoom: 12.0,
+                      ),
+                      gestureRecognizers: _isMapTapped
+                          ? <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
+                              ),
+                            }
+                          : <Factory<OneSequenceGestureRecognizer>>{},
                     ),
                   ),
                 ),
