@@ -106,10 +106,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 } else {
                   var email = snapshot.data!['email'];
                   var emailParts = email.split('@'); // ＠でメールアドレスを分割する
-                  var displayEmail = emailParts.isNotEmpty ? emailParts[0] : 'No email'; // ＠の前の部分を表示する
+                  var displayEmail = emailParts.isNotEmpty
+                      ? emailParts[0]
+                      : 'No email'; // ＠の前の部分を表示する
                   return Column(
                     children: [
-                      const Icon(Icons.account_circle, size: 80, color: Colors.white),
+                      const Icon(Icons.account_circle,
+                          size: 80, color: Colors.white),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -170,7 +173,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: StreamBuilder<DocumentSnapshot>(
                         stream: _fetchUserOldData(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
@@ -180,7 +184,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 1,
                                     crossAxisSpacing: 10,
                                     mainAxisSpacing: 10,
@@ -188,18 +193,31 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   itemCount: numberOfData,
                                   itemBuilder: (context, index) {
-                                    final visitLocationData = snapshot.data!['VisitLocation${numberOfData - index}'];
-                                    final visitLocationText = visitLocationData != null ? visitLocationData.join(", ") : 'No visit location';
-                                    final lastLocation = visitLocationText.split(',').last.trim(); 
-                                    final timeStamp = snapshot.data!['day${numberOfData - index}'] as Timestamp;
+                                    final visitLocationData = snapshot.data![
+                                        'VisitLocation${numberOfData - index}'];
+                                    final visitLocationText =
+                                        visitLocationData != null
+                                            ? visitLocationData.join(", ")
+                                            : 'No visit location';
+                                    final lastLocation = visitLocationText
+                                        .split(',')
+                                        .last
+                                        .trim();
+                                    final timeStamp = snapshot
+                                            .data!['day${numberOfData - index}']
+                                        as Timestamp;
                                     final dateTime = timeStamp.toDate();
-                                    final formattedDate = '${dateTime.year}/${dateTime.month}/${dateTime.day}'; 
+                                    final formattedDate =
+                                        '${dateTime.year}/${dateTime.month}/${dateTime.day}';
                                     return GestureDetector(
                                       onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => KeepMap(visitLocationIndex: (numberOfData - 1) - index, lastLocation: ''),
+                                            builder: (context) => KeepMap(
+                                                visitLocationIndex:
+                                                    (numberOfData - 1) - index,
+                                                lastLocation: ''),
                                           ),
                                         );
                                       },
@@ -208,10 +226,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                         height: 100,
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF4E8AC9),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           boxShadow: const [
                                             BoxShadow(
-                                              color: Color(0x95949480), //0xff95949480
+                                              color: Color(
+                                                  0x95949480), //0xff95949480
                                               spreadRadius: 5,
                                               blurRadius: 4,
                                               offset: Offset(0, 3),
@@ -221,9 +241,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                         child: Stack(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     formattedDate,
@@ -250,7 +272,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   ? const CircularProgressIndicator()
                                                   : IconButton(
                                                       onPressed: () {
-                                                        _confirmDeleteDialog(context, numberOfData - index);
+                                                        _confirmDeleteDialog(
+                                                            context,
+                                                            numberOfData -
+                                                                index);
                                                       },
                                                       icon: const Icon(
                                                         Icons.delete,
@@ -262,17 +287,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                             Positioned(
                                               bottom: 0,
                                               right: 50, // 画像を左側に配置する場合
-                                              child: FutureBuilder<List<String>>(
-                                                future: fetchImages('42571096-8e282fb7693d928411cb5d713',lastLocation), // 画像を取得する関数を呼び出す
+                                              child:
+                                                  FutureBuilder<List<String>>(
+                                                future: fetchImages(
+                                                    '42571096-8e282fb7693d928411cb5d713',
+                                                    lastLocation), // 画像を取得する関数を呼び出す
                                                 builder: (context, snapshot) {
-                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
                                                     return const CircularProgressIndicator();
-                                                  } else if (snapshot.hasError) {
-                                                    return Text('Error: ${snapshot.error}');
+                                                  } else if (snapshot
+                                                      .hasError) {
+                                                    return Text(
+                                                        'Error: ${snapshot.error}');
                                                   } else {
                                                     // 画像を表示する
                                                     return Image.network(
-                                                      snapshot.data![index], // 画像のURL
+                                                      snapshot.data![
+                                                          index], // 画像のURL
                                                       width: 200,
                                                       height: 150,
                                                       fit: BoxFit.cover,
@@ -289,11 +322,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               );
                             } else {
-
                               return const Center(
                                 child: Text('No item'),
                               );
-
                             }
                           }
                         },
@@ -312,7 +343,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<DocumentSnapshot> _fetchUserData() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      return await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      return await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
     } catch (e) {
       rethrow;
     }
@@ -321,7 +355,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Stream<DocumentSnapshot> _fetchUserOldData() {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      return FirebaseFirestore.instance.collection('user_old_data').doc(uid).snapshots();
+      return FirebaseFirestore.instance
+          .collection('user_old_data')
+          .doc(uid)
+          .snapshots();
     } catch (e) {
       rethrow;
     }
@@ -335,25 +372,38 @@ class _ProfilePageState extends State<ProfilePage> {
 
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+      await FirebaseFirestore.instance
+          .collection('user_old_data')
+          .doc(uid)
+          .update({
         'VisitLocation$index': FieldValue.delete(),
+        'mapData$index': FieldValue.delete(),
         'day$index': FieldValue.delete(),
       });
 
       // ignore: non_constant_identifier_names
       List<dynamic> Data = [];
       DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc =
-          await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
+          await FirebaseFirestore.instance
+              .collection('user_old_data')
+              .doc(uid)
+              .get();
       int number = pickupDataDoc.get('NumberofData');
       int i = index;
 
       while (i != number) {
         DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-            await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
+            await FirebaseFirestore.instance
+                .collection('user_old_data')
+                .doc(uid)
+                .get();
 
         Data = userDataDoc.get('VisitLocation${i + 1}');
 
-        await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+        await FirebaseFirestore.instance
+            .collection('user_old_data')
+            .doc(uid)
+            .update({
           'VisitLocation$i': Data,
           'day$i': userDataDoc.get('day${i + 1}'),
         });
@@ -361,12 +411,18 @@ class _ProfilePageState extends State<ProfilePage> {
         i++;
       }
 
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+      await FirebaseFirestore.instance
+          .collection('user_old_data')
+          .doc(uid)
+          .update({
         'VisitLocation$i': FieldValue.delete(),
         'day$i': FieldValue.delete(),
       });
 
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
+      await FirebaseFirestore.instance
+          .collection('user_old_data')
+          .doc(uid)
+          .update({
         'NumberofData': (i - 1),
       });
 

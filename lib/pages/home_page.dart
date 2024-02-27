@@ -3844,8 +3844,9 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           }
 
                           User? user = _auth.currentUser;
-                          //ここからuser_old_dataにルート保存する処理
                           List<dynamic> oldData = [];
+
+// 既存のデータを取得
                           DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
                               await _firestore
                                   .collection('user_data')
@@ -3855,41 +3856,52 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             oldData = userDataDoc.get('VisitLocation');
                           }
 
-                          DocumentSnapshot<Map<String, dynamic>> userData01Doc =
+// 新しいデータを作成
+                          List<Map<String, dynamic>> newMapDataList =
+                              mapDataList.map((data) => data.toJson()).toList();
+
+// 既存のデータと新しいデータが一致するか確認
+                          bool isDuplicate =
+                              oldData.length == newMapDataList.length &&
+                                  List.generate(oldData.length, (index) {
+                                    return oldData[index].toString() ==
+                                        newMapDataList[index].toString();
+                                  }).every((element) => element);
+
+                          if (!isDuplicate) {
+                            // 新しいデータが一致しない場合
+
+                            // user_old_data ドキュメントを取得
+                            DocumentSnapshot<Map<String, dynamic>>
+                                userData01Doc = await _firestore
+                                    .collection('user_old_data')
+                                    .doc(user?.uid)
+                                    .get();
+
+                            if (!userData01Doc.exists) {
+                              // ドキュメントが存在しない場合
                               await _firestore
                                   .collection('user_old_data')
                                   .doc(user?.uid)
-                                  .get();
-                          // ドキュメントが存在しない場合のみ新しいドキュメントを作成
-                          if (!userData01Doc.exists) {
-                            print(mapDataList);
-                            await _firestore
-                                .collection('user_old_data')
-                                .doc(user?.uid)
-                                .set({
-                              'NumberofData': 1, //直近で追加されたデータの添え字
-                              'VisitLocation1': oldData,
-                              'day1': FieldValue.serverTimestamp(),
-                              // mapDataListをFirestoreがサポートする形式に変換
-                              'mapData1': mapDataList
-                                  .map((data) => data.toJson())
-                                  .toList(),
-                            });
-                          } else {
-                            print(mapDataList);
-                            int a = userData01Doc.get('NumberofData') + 1;
-                            await _firestore
-                                .collection('user_old_data')
-                                .doc(user?.uid)
-                                .update({
-                              'NumberofData': a,
-                              'VisitLocation$a': oldData,
-                              'day$a': FieldValue.serverTimestamp(),
-                              // mapDataListをFirestoreがサポートする形式に変換
-                              'mapData$a': mapDataList
-                                  .map((data) => data.toJson())
-                                  .toList(),
-                            });
+                                  .set({
+                                'NumberofData': 1,
+                                'VisitLocation1': oldData,
+                                'day1': FieldValue.serverTimestamp(),
+                                'mapData1': newMapDataList,
+                              });
+                            } else {
+                              // ドキュメントが存在する場合
+                              int a = userData01Doc.get('NumberofData') + 1;
+                              await _firestore
+                                  .collection('user_old_data')
+                                  .doc(user?.uid)
+                                  .update({
+                                'NumberofData': a,
+                                'VisitLocation$a': oldData,
+                                'day$a': FieldValue.serverTimestamp(),
+                                'mapData$a': newMapDataList,
+                              });
+                            }
                           }
 
                           // ルートが保存されたことをフラグで示す
@@ -4013,6 +4025,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
         markerId: const MarkerId('current_location'),
         position: _initialCameraPosition,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        infoWindow: const InfoWindow(
+          title: 'Current Location', // タイトル
+          snippet: 'Your current location', // スニペット
+        ),
       ),
     ];
 
@@ -4024,6 +4040,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           markerId: MarkerId(location),
           position: coordinates,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(
+            title: location, // タイトル
+            snippet: 'Description for $location', // スニペット
+          ),
         ),
       );
     }
