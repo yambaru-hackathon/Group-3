@@ -106,11 +106,16 @@ class _MapPageState extends State<MapPage> {
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
     }
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
 
+    permission = await Geolocator.checkPermission();
     permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -119,7 +124,17 @@ class _MapPageState extends State<MapPage> {
         return Future.error('Location permissions are denied.');
       }
     }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
 
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
@@ -163,6 +178,8 @@ class _MapPageState extends State<MapPage> {
     double DdownL =
         Geolocator.distanceBetween(downL[0], downL[1], position[0], position[1]);
 
+    double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
+    double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
     double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
     double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
 
@@ -241,39 +258,14 @@ class _MapPageState extends State<MapPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: Row(
-            children: [
-              Image.asset(
-                'lib/images/napi.png',
-                height: 50,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_think.png',
-                height: 50,
-              ),
-              const Spacer(),
-              const Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_guruguru.png',
-                height: 50,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_kirakira.png',
-                height: 50,
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
