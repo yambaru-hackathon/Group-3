@@ -180,8 +180,6 @@ class _MapPageState extends State<MapPage> {
 
     double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
     double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
-    double x = (DLR * DLR + DupL * DupL - DupR * DupR) / (2 * DLR * DLR);
-    double y = (DL * DL + DupL * DupL - DdownL * DdownL) / (2 * DL * DL);
 
     return ([mapWidth * x, mapWidth * y]);
   }
