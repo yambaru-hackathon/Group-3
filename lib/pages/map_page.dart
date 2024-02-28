@@ -2,7 +2,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:provider/provider.dart';
 import 'dart:async';
 // ignore: library_prefixes
 import 'package:geocoding/geocoding.dart' as geoCoding;
@@ -15,25 +14,6 @@ class MapPage extends StatefulWidget {
   // ignore: library_private_types_in_public_api
   _MapPageState createState() => _MapPageState();
 }
-
-class ScaleFixer extends StatelessWidget {
-  const ScaleFixer({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = context.watch<TransformationController>();
-    // Transforn.scaleでchildをscale倍に拡大する
-    return Transform.scale(
-      scale: 1 / controller.value.getMaxScaleOnAxis(),
-      child: child,
-    );
-  }
-}
-
 
 class _MapPageState extends State<MapPage> {
   
