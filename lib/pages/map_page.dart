@@ -75,7 +75,7 @@ class _MapPageState extends State<MapPage> {
         placeMarks[0].locality.toString()
       ];
     });
-    
+
     return;
   }
 
@@ -101,39 +101,14 @@ class _MapPageState extends State<MapPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: AppBar(
-          title: Row(
-            children: [
-              Image.asset(
-                'lib/images/napi.png',
-                height: 50,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_think.png',
-                height: 50,
-              ),
-              const Spacer(),
-              const Center(
-                child: Text(
-                  'Navinator',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_guruguru.png',
-                height: 50,
-              ),
-              const Spacer(),
-              Image.asset(
-                'lib/images/napi_kirakira.png',
-                height: 50,
-              ),
-            ],
+          centerTitle: true,
+          title: const Text(
+            'Navinator',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              letterSpacing: 2.0,
+            ),
           ),
         ),
       ),
