@@ -173,7 +173,7 @@ class _MapPageState extends State<MapPage> {
         await _determinePosition();
         await increment_data(1);
         await getDataFromFirestore();
-        print('f');
+        print('if');
     }
     else{
       print('else');
