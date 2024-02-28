@@ -4064,7 +4064,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
           ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     }
 
-    // MapData インスタンスを作成してリストに追加a
+    // MapData インスタンスを作成してリストに追加
     mapDataList.add(MapData(
       routeCoordinates: routeCoordinates,
       markers: markers,
