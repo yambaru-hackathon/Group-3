@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yanbaru_hackathon/keep/keep_map.dart';
 import 'dart:convert';
 
@@ -18,8 +19,25 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late int numberOfData;
+  late int numberOfData = 0;
   bool _isDeleting = false;
+
+  late SharedPreferences _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPreferences();
+  }
+
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    // ローカルに保存してあるcounterの値をnumberOfDataに代入
+    setState(() {
+      numberOfData = _prefs.getInt('counter') ?? 0;
+      print(numberOfData);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +101,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 } else {
                   var email = snapshot.data!['email'];
                   var emailParts = email.split('@');
-                  var displayEmail = emailParts.isNotEmpty ? emailParts[0] : 'No email';
+                  var displayEmail =
+                      emailParts.isNotEmpty ? emailParts[0] : 'No email';
                   return Column(
                     children: [
-                      const Icon(Icons.account_circle, size: 80, color: Colors.white),
+                      const Icon(Icons.account_circle,
+                          size: 80, color: Colors.white),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -144,132 +164,148 @@ class _ProfilePageState extends State<ProfilePage> {
                       decoration: const BoxDecoration(
                         color: Colors.white,
                       ),
-                      child: StreamBuilder<DocumentSnapshot>(
-                        stream: _fetchUserOldData(),
+                      child: StreamBuilder<List<List<String>>>(
+                        // 2. Firestoreからのデータ取得から変更
+                        stream: _fetchDataFromSharedPreferencesStream(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           } else {
-                            if (snapshot.data!.exists) {
-                              numberOfData = snapshot.data!['NumberofData'];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 1,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                    childAspectRatio: 3.0,
-                                  ),
-                                  itemCount: numberOfData,
-                                  itemBuilder: (context, index) {
-                                    final visitLocationData = snapshot.data!['VisitLocation${numberOfData - index}'];
-                                    final visitLocationText = visitLocationData != null ? visitLocationData.join(", ") : 'No visit location';
-                                    final lastLocation = visitLocationText.split(',').last.trim(); 
-                                    final timeStamp = snapshot.data!['day${numberOfData - index}'] as Timestamp;
-                                    final dateTime = timeStamp.toDate();
-                                    final formattedDate = '${dateTime.year}/${dateTime.month}/${dateTime.day}'; 
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => KeepMap(visitLocationIndex: (numberOfData - 1) - index, lastLocation: ''),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 100,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF4E8AC9),
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Color(0x95949480),
-                                              spreadRadius: 5,
-                                              blurRadius: 4,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    formattedDate,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    lastLocation,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 24,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: _isDeleting
-                                                  ? const CircularProgressIndicator()
-                                                  : IconButton(
-                                                      onPressed: () {
-                                                        _confirmDeleteDialog(context, numberOfData - index);
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.delete,
-                                                        color: Colors.white,
-                                                        size: 30,
-                                                      ),
-                                                    ),
-                                            ),
-                                            Positioned(
-                                              bottom: 0,
-                                              right: 50,
-                                              child: FutureBuilder<String>(
-                                                future: fetchImageUrlFromFirestore(lastLocation),
-                                                builder: (context, snapshot) {
-                                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                                    return const CircularProgressIndicator();
-                                                  } else if (snapshot.hasError || snapshot.data!.isEmpty) {
-                                                    // Firestoreから画像のURLを取得できない場合やエラーが発生した場合は代替の画像を表示
-                                                    return Image.asset('lib/images/book3.png', width: 100, height: 100, fit: BoxFit.cover);
-                                                  } else {
-                                                    return Image.network(
-                                                      snapshot.data!,
-                                                      width: 150,
-                                                      height: 150,
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                            List<List<String>> visitLocationDataList =
+                                snapshot.data ?? [];
+                            numberOfData = visitLocationDataList.length;
+
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 1,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                  childAspectRatio: 3.0,
                                 ),
-                              );
-                            } else {
-                              return const Center(
-                                child: Text('No item'),
-                              );
-                            }
+                                itemCount: numberOfData,
+                                itemBuilder: (context, index) {
+                                  final visitLocationData =
+                                      visitLocationDataList[index];
+                                  final visitLocationText =
+                                      visitLocationData.join(", ");
+                                  final lastLocation =
+                                      visitLocationText.split(',').last.trim();
+                                  final timeStamp = DateTime
+                                      .now(); // Change to your desired DateTime
+                                  final formattedDate =
+                                      '${timeStamp.year}/${timeStamp.month}/${timeStamp.day}';
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => KeepMap(
+                                              visitLocationIndex: index,
+                                              lastLocation: ''),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF4E8AC9),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x95949480),
+                                            spreadRadius: 5,
+                                            blurRadius: 4,
+                                            offset: Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  formattedDate,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  lastLocation,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 24,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: _isDeleting
+                                                ? const CircularProgressIndicator()
+                                                : IconButton(
+                                                    onPressed: () {
+                                                      _confirmDeleteDialog(
+                                                          context, index);
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.white,
+                                                      size: 30,
+                                                    ),
+                                                  ),
+                                          ),
+                                          Positioned(
+                                            bottom: 0,
+                                            right: 50,
+                                            child: FutureBuilder<String>(
+                                              future:
+                                                  fetchImageUrlFromFirestore(
+                                                      lastLocation),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const CircularProgressIndicator();
+                                                } else if (snapshot.hasError ||
+                                                    snapshot.data!.isEmpty) {
+                                                  return Image.asset(
+                                                      'lib/images/book3.png',
+                                                      width: 100,
+                                                      height: 100,
+                                                      fit: BoxFit.cover);
+                                                } else {
+                                                  return Image.network(
+                                                    snapshot.data!,
+                                                    width: 150,
+                                                    height: 150,
+                                                    fit: BoxFit.cover,
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
                           }
                         },
                       ),
@@ -287,16 +323,29 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<DocumentSnapshot> _fetchUserData() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      return await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      return await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
     } catch (e) {
       rethrow;
     }
   }
 
-  Stream<DocumentSnapshot> _fetchUserOldData() {
+  Stream<List<List<String>>> _fetchDataFromSharedPreferencesStream() async* {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      return FirebaseFirestore.instance.collection('user_old_data').doc(uid).snapshots();
+      int number = _prefs.getInt('counter') ?? 0;
+      List<List<String>> visitLocationDataList = [];
+
+      for (int i = 0; i < number; i++) {
+        String visitLocationKey = 'VisitLocation$i';
+
+        List<String> visitLocationData =
+            _prefs.getStringList(visitLocationKey) ?? [];
+        visitLocationDataList.add(visitLocationData);
+      }
+
+      yield visitLocationDataList;
     } catch (e) {
       rethrow;
     }
@@ -308,47 +357,34 @@ class _ProfilePageState extends State<ProfilePage> {
         _isDeleting = true;
       });
 
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      // ローカルのデータを削除
+      await _prefs.remove('VisitLocation$index');
+      await _prefs.remove('day$index');
+      await _prefs.remove('mapData$index');
 
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
-        'VisitLocation$index': FieldValue.delete(),
-        'day$index': FieldValue.delete(),
-      });
+      int number = numberOfData;
+      await _prefs.setInt('counter', number - 1);
 
-      // ignore: non_constant_identifier_names
-      List<dynamic> Data = [];
-      DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc =
-          await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
-      int number = pickupDataDoc.get('NumberofData');
-      int i = index;
+      // 削除するアイテム以外のアイテムをコピーし、ローカルのデータを更新
+      List<int> indicesToRemove = [index];
+      for (int i = 0; i < number; i++) {
+        if (!indicesToRemove.contains(i)) {
+          List<String> data =
+              _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
 
-      while (i != number) {
-        DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-            await FirebaseFirestore.instance.collection('user_old_data').doc(uid).get();
-
-        Data = userDataDoc.get('VisitLocation${i + 1}');
-
-        await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
-          'VisitLocation$i': Data,
-          'day$i': userDataDoc.get('day${i + 1}'),
-        });
-
-        i++;
+          // ローカルのデータを更新
+          _prefs.setStringList(
+              'VisitLocation${i - indicesToRemove.length}', data);
+          _prefs.setString('day${i - indicesToRemove.length}',
+              _prefs.getString('day$i') ?? '');
+          _prefs.setString('mapData${i - indicesToRemove.length}',
+              _prefs.getString('mapData$i') ?? '');
+        }
       }
-
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
-        'VisitLocation$i': FieldValue.delete(),
-        'day$i': FieldValue.delete(),
-      });
-
-      await FirebaseFirestore.instance.collection('user_old_data').doc(uid).update({
-        'NumberofData': (i - 1),
-      });
 
       setState(() {
         _isDeleting = false;
       });
-
       Navigator.pop(context);
     } catch (e) {
       setState(() {
@@ -398,7 +434,10 @@ class _ProfilePageState extends State<ProfilePage> {
       String imageUrl = await fetchImageUrlFromPlacesAPI(apiKey, lastLocation);
       if (imageUrl.isNotEmpty) {
         String uid = FirebaseAuth.instance.currentUser!.uid;
-        await FirebaseFirestore.instance.collection('picture_data').doc(uid).set({
+        await FirebaseFirestore.instance
+            .collection('picture_data')
+            .doc(uid)
+            .set({
           'imgURL': imageUrl,
         });
       }
@@ -409,8 +448,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<String> fetchImageUrlFromPlacesAPI(String apiKey, String lastLocation) async {
-    String baseUrl = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json';
+  Future<String> fetchImageUrlFromPlacesAPI(
+      String apiKey, String lastLocation) async {
+    String baseUrl =
+        'https://maps.googleapis.com/maps/api/place/findplacefromtext/json';
     String query = Uri.encodeComponent(lastLocation);
     String url = '$baseUrl?key=$apiKey&input=$query&inputtype=textquery';
 
@@ -443,7 +484,9 @@ class _ProfilePageState extends State<ProfilePage> {
       http.Response response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        if (data['result'] != null && data['result']['photos'] != null && data['result']['photos'].isNotEmpty) {
+        if (data['result'] != null &&
+            data['result']['photos'] != null &&
+            data['result']['photos'].isNotEmpty) {
           var photoReference = data['result']['photos'][0]['photo_reference'];
           return fetchPhotoUrl(apiKey, photoReference);
         } else {
@@ -462,7 +505,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<String> fetchPhotoUrl(String apiKey, String photoReference) async {
     String baseUrl = 'https://maps.googleapis.com/maps/api/place/photo';
-    String url = '$baseUrl?key=$apiKey&photoreference=$photoReference&maxheight=200';
+    String url =
+        '$baseUrl?key=$apiKey&photoreference=$photoReference&maxheight=200';
 
     return url;
   }

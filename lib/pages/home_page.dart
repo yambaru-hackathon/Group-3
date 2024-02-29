@@ -3438,7 +3438,11 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
   // カウンターのロード
   void _loadCounter() {
-    counter = _prefs.getInt('counter') ?? 1;
+    counter = _prefs.getInt('counter') ?? 0;
+    if (counter < 0) {
+      _prefs.setInt('counter', 0);
+    }
+    counter = _prefs.getInt('counter') ?? 0;
   }
 
   //firestoreから、visitLocationと、更新に必要なデータを取得
@@ -3936,28 +3940,8 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             _prefs.setInt('counter', counter);
 
                             // ルートが保存されたことをフラグで示す
-                            isSaved = true;
-
-                            showDialog(
-                              // ignore: use_build_context_synchronously
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('保存完了'),
-                                content: const Text('ルートの保存が完了しました！'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                            );
+                            isSaved = true; 
                           }
-
-                          // ルートが保存されたことをフラグで示す
-                          isSaved = true;
 
                           showDialog(
                             // ignore: use_build_context_synchronously
