@@ -79,6 +79,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/images/
+    - lib/images/pin_red.png
     #- lib/images/napi.png
     #- lib/images/napi_think.png
     #- lib/images/napi_guruguru.png
