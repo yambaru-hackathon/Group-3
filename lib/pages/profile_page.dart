@@ -19,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late int numberOfData = 0;
+  late int numberOfData = 1;
   bool _isDeleting = false;
 
   late SharedPreferences _prefs;
@@ -32,9 +32,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
+    // await _prefs.clear(); //shared preferences をすべてクリア
     // ローカルに保存してあるcounterの値をnumberOfDataに代入
     setState(() {
-      numberOfData = _prefs.getInt('counter') ?? 0;
+      numberOfData = _prefs.getInt('counter') ?? 1;
       print(numberOfData);
     });
   }
@@ -175,7 +176,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             return Text('Error: ${snapshot.error}');
                           } else {
                             List<List<String>> visitLocationDataList =
-                                snapshot.data ?? [];
+                                snapshot.data ?? <List<String>>[];
+
                             numberOfData = visitLocationDataList.length;
 
                             return Padding(
@@ -192,6 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 itemBuilder: (context, index) {
                                   final visitLocationData =
                                       visitLocationDataList[index];
+
                                   final visitLocationText =
                                       visitLocationData.join(", ");
                                   final lastLocation =
@@ -334,16 +337,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Stream<List<List<String>>> _fetchDataFromSharedPreferencesStream() async* {
     try {
+      int number = _prefs.getInt('counter') ?? 1;
       List<List<String>> visitLocationDataList = [];
-      int counter = _prefs.getInt('counter') ?? 0;
 
-      for (int i = 0; i < counter; i++) {
+      for (int i = 0; i < number; i++) {
         String visitLocationKey = 'VisitLocation$i';
-        String? visitLocationDataString = _prefs.getString(visitLocationKey);
-        List<String> visitLocationData =
-            (visitLocationDataString != null) ? [visitLocationDataString] : [];
 
-        visitLocationDataList.add(visitLocationData);
+        // ここで直接 String を取得するのではなく、List<String>? を取得するように変更
+        List<String>? visitLocationData =
+            _prefs.getStringList(visitLocationKey);
+
+        if (visitLocationData != null) {
+          visitLocationDataList.add(visitLocationData);
+        }
       }
 
       yield visitLocationDataList;
@@ -370,7 +376,7 @@ class _ProfilePageState extends State<ProfilePage> {
       List<int> indicesToRemove = [index];
       for (int i = 0; i < number; i++) {
         if (!indicesToRemove.contains(i)) {
-          List<String> data =
+          List<String>? data =
               _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
 
           // ローカルのデータを更新
@@ -386,7 +392,8 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _isDeleting = false;
       });
-      Navigator.pop(context);
+
+      
     } catch (e) {
       setState(() {
         _isDeleting = false;
@@ -420,6 +427,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(color: Color(0xFFE57373)),
               ),
               onPressed: () {
+                Navigator.pop(context);
                 _deleteVisitLocationData(context, index);
               },
             ),
