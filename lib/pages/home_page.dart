@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 bool action1Checked = false;
 bool action2Checked = false;
@@ -3408,6 +3409,15 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
   bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
+  int counter = 1; // カウンターの初期値
+
+  // SharedPreferencesのキー
+  static const String visitLocationKey = 'VisitLocation';
+  static const String dayKey = 'day';
+  static const String mapDataKey = 'mapData';
+
+  // SharedPreferencesのインスタンス
+  late SharedPreferences _prefs;
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -3418,7 +3428,22 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   @override
   void initState() {
     super.initState();
+    _initSharedPreferences();
     _fetchRoute(); // fetchVisitLocations()はここで呼び出す
+  }
+
+  // SharedPreferencesの初期化
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // カウンターのロード
+  void _loadCounter() {
+    counter = _prefs.getInt('counter') ?? 0;
+    if (counter < 0) {
+      _prefs.setInt('counter', 0);
+    }
+    counter = _prefs.getInt('counter') ?? 0;
   }
 
   //firestoreから、visitLocationと、更新に必要なデータを取得
@@ -3886,18 +3911,30 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             return; // ここで処理を終了する
                           }
 
-                          User? user = _auth.currentUser;
-                          List<dynamic> oldData = [];
-
                           // 既存のデータを取得
-                          DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+                          _loadCounter();
+
+                          User? user = _auth.currentUser;
+
+                          // FirestoreからVisitLocationのデータを取得
+                          DocumentSnapshot<Map<String, dynamic>> snapshot =
                               await _firestore
                                   .collection('user_data')
                                   .doc(user?.uid)
                                   .get();
-                          if (userDataDoc.exists) {
-                            oldData = userDataDoc.get('VisitLocation');
+
+                          // VisitLocationのデータが存在する場合、visitLocationsリストに格納
+                          if (snapshot.exists && snapshot.data() != null) {
+                            List<dynamic>? visitLocationData =
+                                snapshot.data()?['VisitLocation'];
+                            if (visitLocationData != null &&
+                                visitLocationData.isNotEmpty) {
+                              visitLocations =
+                                  visitLocationData.cast<String>().toList();
+                            }
                           }
+
+                          List<String>? oldDataList = visitLocations;
 
                           // 新しいデータを作成
                           List<Map<String, dynamic>> newMapDataList =
@@ -3905,50 +3942,49 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
                           // 既存のデータと新しいデータが一致するか確認
                           bool isDuplicate =
-                              oldData.length == newMapDataList.length &&
-                                  List.generate(oldData.length, (index) {
-                                    return oldData[index].toString() ==
-                                        newMapDataList[index].toString();
-                                  }).every((element) => element);
+                              // ignore: unrelated_type_equality_checks
+                              oldDataList == newMapDataList.toString();
 
                           if (!isDuplicate) {
                             // 新しいデータが一致しない場合
 
-                            // user_old_data ドキュメントを取得
-                            DocumentSnapshot<Map<String, dynamic>>
-                                userData01Doc = await _firestore
-                                    .collection('user_old_data')
-                                    .doc(user?.uid)
-                                    .get();
+                            // カウンターを使用してキーを増やす
+                            String currentVisitLocationKey =
+                                '$visitLocationKey$counter';
+                            String currentDayKey = '$dayKey$counter';
+                            String currentMapDataKey = '$mapDataKey$counter';
 
-                            if (!userData01Doc.exists) {
-                              // ドキュメントが存在しない場合
-                              await _firestore
-                                  .collection('user_old_data')
-                                  .doc(user?.uid)
-                                  .set({
-                                'NumberofData': 1,
-                                'VisitLocation1': oldData,
-                                'day1': FieldValue.serverTimestamp(),
-                                'mapData1': newMapDataList,
-                              });
-                            } else {
-                              // ドキュメントが存在する場合
-                              int a = userData01Doc.get('NumberofData') + 1;
-                              await _firestore
-                                  .collection('user_old_data')
-                                  .doc(user?.uid)
-                                  .update({
-                                'NumberofData': a,
-                                'VisitLocation$a': oldData,
-                                'day$a': FieldValue.serverTimestamp(),
-                                'mapData$a': newMapDataList,
-                              });
-                            }
+                            // FirestoreのタイムスタンプをStringに変換して保存
+                            String currentDayValue =
+                                DateTime.now().toUtc().toString();
+
+                            // データを保存
+
+                            await _prefs.setStringList(
+                                currentVisitLocationKey, oldDataList);
+                            await _prefs.setString(
+                                currentDayKey, currentDayValue);
+                            await _prefs.setStringList(
+                                currentMapDataKey,
+                                newMapDataList
+                                    .map((data) => json.encode(data))
+                                    .toList());
+
+                            // デバッグ用にSharedPreferencesの内容をログに表示
+                            print(
+                                'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
+                            print(
+                                'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
+                            print(
+                                'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
+
+                            // カウンターを増やして保存
+                            counter++;
+                            _prefs.setInt('counter', counter);
+
+                            // ルートが保存されたことをフラグで示す
+                            isSaved = true; 
                           }
-
-                          // ルートが保存されたことをフラグで示す
-                          isSaved = true;
 
                           showDialog(
                             // ignore: use_build_context_synchronously

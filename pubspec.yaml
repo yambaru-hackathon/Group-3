@@ -51,6 +51,7 @@ dependencies:
   google_polyline_algorithm: ^3.1.0
   flutter_animate: ^4.5.0
   collection: ^1.18.0
+  shared_preferences: ^2.2.2
 # fd73bd994f2ff8a33484dc7c952d18fe94588
   
 

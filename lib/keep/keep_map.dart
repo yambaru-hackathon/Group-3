@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KeepMap extends StatefulWidget {
   final int visitLocationIndex;
@@ -22,11 +24,13 @@ class KeepMap extends StatefulWidget {
 }
 
 class _KeepMapState extends State<KeepMap> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Future<List<String>> _data;
   late Future<String> _date;
   List<MapData> mapDataList = [];
+
+  late SharedPreferences _prefs;
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -38,67 +42,112 @@ class _KeepMapState extends State<KeepMap> {
   @override
   void initState() {
     super.initState();
-    _data = _fetchDataFromFirestore();
-    _date = _fetchDateFromFirestore();
-    _fetchMapDataFromFirestore();
+    _initSharedPreferences();
+    // _data = _fetchDataFromFirestore();
+    _data = _fetchDataFromSharedPreferences();
+    _date = _fetchDateFromSharedPreferences();
+    // _fetchMapDataFromFirestore();
+    _fetchMapDataFromSharedPreferences();
   }
 
-  Future<List<String>> _fetchDataFromFirestore() async {
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // Future<List<String>> _fetchDataFromFirestore() async {
+  //   try {
+  //     String uid = FirebaseAuth.instance.currentUser!.uid;
+
+  //     DocumentSnapshot<Map<String, dynamic>> querySnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('user_old_data')
+  //             .doc(uid)
+  //             .get();
+
+  //     List<String> dataList = [];
+  //     List<dynamic>? visitLocationData = querySnapshot
+  //         .data()!['VisitLocation${widget.visitLocationIndex + 1}'];
+  //     if (visitLocationData != null && visitLocationData.isNotEmpty) {
+  //       dataList.addAll(visitLocationData.cast<String>().reversed); // 逆順に取得
+  //     }
+  //     return dataList;
+  //   } catch (e) {
+  //     return [];
+  //   }
+  // }
+
+  Future<List<String>> _fetchDataFromSharedPreferences() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      // SharedPreferencesからデータを取得
+      List<String>? dataList =
+          _prefs.getStringList('VisitLocation${widget.visitLocationIndex + 1}');
 
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-
-      List<String> dataList = [];
-      List<dynamic>? visitLocationData = querySnapshot
-          .data()!['VisitLocation${widget.visitLocationIndex + 1}'];
-      if (visitLocationData != null && visitLocationData.isNotEmpty) {
-        dataList.addAll(visitLocationData.cast<String>().reversed); // 逆順に取得
+      // 取得したデータがnullでないことを確認
+      if (dataList != null) {
+        return dataList.reversed.toList(); // リストを逆順にして返す
+      } else {
+        return [];
       }
-      return dataList;
     } catch (e) {
       return [];
     }
   }
 
-  Future<void> _fetchMapDataFromFirestore() async {
-    // Firestoreからデータを取得
-    User? user = _auth.currentUser;
-    DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-        await _firestore.collection('user_old_data').doc(user?.uid).get();
+  // Future<void> _fetchMapDataFromFirestore() async {
+  //   // Firestoreからデータを取得
+  //   User? user = _auth.currentUser;
+  //   DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+  //       await _firestore.collection('user_old_data').doc(user?.uid).get();
 
-    if (userDataDoc.exists) {
-      // Firestoreから取得したJSONデータをデコード
-      var mapDataListJson =
-          userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
+  //   if (userDataDoc.exists) {
+  //     // Firestoreから取得したJSONデータをデコード
+  //     var mapDataListJson =
+  //         userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
 
-      // JSONデータが正しく取得できていることを確認
-      if (mapDataListJson != null && mapDataListJson is List<dynamic>) {
-        // リストからMapDataオブジェクトを作成
-        if (mapDataListJson.isNotEmpty) {
-          // 最初の要素を取得
-          var mapDataJson = mapDataListJson[0];
-          print('mapData${widget.visitLocationIndex + 1}[0]をとれました');
+  //     // JSONデータが正しく取得できていることを確認
+  //     if (mapDataListJson != null && mapDataListJson is List<dynamic>) {
+  //       // リストからMapDataオブジェクトを作成
+  //       if (mapDataListJson.isNotEmpty) {
+  //         // 最初の要素を取得
+  //         var mapDataJson = mapDataListJson[0];
+  //         print('mapData${widget.visitLocationIndex + 1}[0]をとれました');
 
-          // MapDataオブジェクトを作成
-          if (mapDataJson != null && mapDataJson is Map<String, dynamic>) {
-            MapData mapData = MapData.fromJson(mapDataJson);
-            print('mapDataをとれました');
+  //         // MapDataオブジェクトを作成
+  //         if (mapDataJson != null && mapDataJson is Map<String, dynamic>) {
+  //           MapData mapData = MapData.fromJson(mapDataJson);
+  //           print('mapDataをとれました');
 
-            // mapDataListに追加する場合は、以下のように追加
-            mapDataList.add(mapData);
-            print(mapDataList);
-          }
-        } else {
-          print("Empty mapData list");
-        }
-      } else {
-        print("mapData${widget.visitLocationIndex + 1} is not a List<dynamic>");
-      }
+  //           // mapDataListに追加する場合は、以下のように追加
+  //           mapDataList.add(mapData);
+  //           print(mapDataList);
+  //         }
+  //       } else {
+  //         print("Empty mapData list");
+  //       }
+  //     } else {
+  //       print("mapData${widget.visitLocationIndex + 1} is not a List<dynamic>");
+  //     }
+
+  //     if (_googleMapController != null) {
+  //       LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
+  //       _googleMapController
+  //           ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+  //     }
+
+  //     setState(() {});
+  //   }
+  // }
+
+  Future<void> _fetchMapDataFromSharedPreferences() async {
+    // SharedPreferencesからデータを取得
+    String? mapDataJson =
+        _prefs.getString('mapData${widget.visitLocationIndex + 1}');
+
+    if (mapDataJson != null) {
+      MapData mapData = MapData.fromJson(json.decode(mapDataJson));
+
+      // mapDataListに追加する場合は、以下のように追加
+      mapDataList.add(mapData);
 
       if (_googleMapController != null) {
         LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
@@ -129,18 +178,37 @@ class _KeepMapState extends State<KeepMap> {
     );
   }
 
-  Future<String> _fetchDateFromFirestore() async {
+  // Future<String> _fetchDateFromFirestore() async {
+  //   try {
+  //     String uid = FirebaseAuth.instance.currentUser!.uid;
+
+  //     DocumentSnapshot<Map<String, dynamic>> querySnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('user_old_data')
+  //             .doc(uid)
+  //             .get();
+
+  //     Timestamp timeStamp =
+  //         querySnapshot.data()!['day${widget.visitLocationIndex + 1}'];
+
+  //     // タイムスタンプからDateTimeオブジェクトに変換
+  //     DateTime date = timeStamp.toDate();
+
+  //     // 日付を適切な書式の文字列に変換
+  //     String formattedDate =
+  //         '${date.year}年${date.month}月${date.day}日${date.hour + 9}時${date.minute}分';
+
+  //     return formattedDate;
+  //   } catch (e) {
+  //     return '';
+  //   }
+  // }
+
+  Future<String> _fetchDateFromSharedPreferences() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-
-      Timestamp timeStamp =
-          querySnapshot.data()!['day${widget.visitLocationIndex + 1}'];
+      // SharedPreferencesからデータを取得
+      Timestamp timeStamp = Timestamp.fromMillisecondsSinceEpoch(
+          _prefs.getInt('day${widget.visitLocationIndex + 1}') ?? 0);
 
       // タイムスタンプからDateTimeオブジェクトに変換
       DateTime date = timeStamp.toDate();
@@ -157,63 +225,37 @@ class _KeepMapState extends State<KeepMap> {
 
   Future<void> _deleteVisitLocationData(BuildContext context) async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      // Firestoreの代わりにSharedPreferencesを使用
+      await _prefs.remove('VisitLocation${widget.visitLocationIndex + 1}');
+      await _prefs.remove('mapData${widget.visitLocationIndex + 1}');
+      await _prefs.remove('day${widget.visitLocationIndex + 1}');
 
-      await FirebaseFirestore.instance
-          .collection('user_old_data')
-          .doc(uid)
-          .update({
-        'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
-        'mapData${widget.visitLocationIndex + 1}': FieldValue.delete(),
-        'day${widget.visitLocationIndex + 1}': FieldValue.delete(),
-      });
+      // 番号やデータを削除する処理もSharedPreferencesを使用するように変更
 
-      // ignore: non_constant_identifier_names
-      List<dynamic> Data = [];
-      // ignore: non_constant_identifier_names
-      List<dynamic> Data2 = [];
-      DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-      int number = pickupDataDoc.get('NumberofData');
+      int number = _prefs.getInt('NumberofData') ?? 0;
       int i = widget.visitLocationIndex + 1;
 
-      while (i != number) {
-        DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-            await FirebaseFirestore.instance
-                .collection('user_old_data')
-                .doc(uid)
-                .get();
+      while (i < number) {
+        List<String>? data =
+            _prefs.getStringList('VisitLocation${i + 1}')?.cast<String>() ?? [];
+        List<String>? data2 =
+            _prefs.getStringList('mapData${i + 1}')?.cast<String>() ?? [];
+        String? day = _prefs.getString('day${i + 1}') ?? '';
 
-        Data = userDataDoc.get('VisitLocation${i + 1}');
-        Data2 = userDataDoc.get('mapData${i + 1}');
-
-        await FirebaseFirestore.instance
-            .collection('user_old_data')
-            .doc(uid)
-            .update({
-          'VisitLocation$i': Data,
-          'mapData$i': Data2,
-          'day$i': userDataDoc.get('day${i + 1}'),
-        });
+        _prefs.setStringList('VisitLocation$i', data);
+        _prefs.setStringList('mapData$i', data2);
+        _prefs.setString('day$i', day);
 
         i++;
       }
 
-      await FirebaseFirestore.instance
-          .collection('user_old_data')
-          .doc(uid)
-          .update({
-        'NumberofData': (i - 1),
-        'VisitLocation$i': FieldValue.delete(),
-        'mapData$i': FieldValue.delete(),
-        'day$i': FieldValue.delete(),
-      });
+      _prefs.setInt('NumberofData', (i - 1));
+      _prefs.remove('VisitLocation$i');
+      _prefs.remove('mapData$i');
+      _prefs.remove('day$i');
 
       setState(() {
-        _data = _fetchDataFromFirestore();
+        _data = _fetchDataFromSharedPreferences();
       });
 
       Navigator.pop(context); // プロフィールページに戻る
