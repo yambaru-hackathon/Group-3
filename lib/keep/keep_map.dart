@@ -258,7 +258,12 @@ class _KeepMapState extends State<KeepMap> {
                     );
                   } else {
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.fromLTRB(
+                        MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                        MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                        MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                        MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                      ),
                       child: Text(
                         dateSnapshot.data ?? '',
                         textAlign: TextAlign.center,
@@ -270,7 +275,12 @@ class _KeepMapState extends State<KeepMap> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                ),
                 child: SizedBox(
                   child: FutureBuilder<List<String>>(
                     future: _data,
@@ -293,9 +303,15 @@ class _KeepMapState extends State<KeepMap> {
                         return Center(
                           child: Column(
                             children: [
-                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.0099),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.fromLTRB(
+                                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                                ),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -305,12 +321,16 @@ class _KeepMapState extends State<KeepMap> {
                                     color: const Color.fromARGB(
                                         255, 215, 233, 250),
                                   ),
-                                  padding: const EdgeInsets.all(2.0),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: MediaQuery.of(context).size.height * 0.00249,
+                                    horizontal: MediaQuery.of(context).size.width * 0.00555,
+                                  ),
                                   child: Center(
                                     child: Column(
                                       children: [
-                                        const ListTile(
-                                          title: Text(
+                                        ListTile(
+                                          contentPadding: EdgeInsets.zero, 
+                                          title: const Text(
                                             '出発地点',
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.center,
@@ -320,18 +340,21 @@ class _KeepMapState extends State<KeepMap> {
                                           ),
                                           subtitle: Center(
                                             child: Padding(
-                                              padding: EdgeInsets.all(2.0),
-                                              child: Icon(Icons.arrow_downward),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: MediaQuery.of(context).size.height * 0.00249,
+                                                horizontal: MediaQuery.of(context).size.width * 0.00185,
+                                              ),
+                                              child: const Icon(Icons.arrow_downward),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(height: 8),
+                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                         for (int i = snapshot.data!.length - 1;
                                             i >= 0;
                                             i--)
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2.0,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: MediaQuery.of(context).size.height * 0.00249,
                                             ),
                                             child: Column(
                                               mainAxisAlignment:
@@ -347,14 +370,15 @@ class _KeepMapState extends State<KeepMap> {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
-                                                const SizedBox(height: 8),
+                                                SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                                 const Icon(
                                                     Icons.arrow_downward),
                                               ],
                                             ),
                                           ),
-                                        const SizedBox(height: 8),
+                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                         const ListTile(
+                                          contentPadding: EdgeInsets.zero, 
                                           title: Text(
                                             'ゴール',
                                             overflow: TextOverflow.ellipsis,
@@ -369,7 +393,7 @@ class _KeepMapState extends State<KeepMap> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                             ],
                           ),
                         );
@@ -379,7 +403,12 @@ class _KeepMapState extends State<KeepMap> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                ),
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height *
                       0.5, // GoogleMapの高さを指定
@@ -422,24 +451,27 @@ class _KeepMapState extends State<KeepMap> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (_) {
-                        return RouteDeletion(
-                          onDelete: () => _deleteVisitLocationData(context),
-                        );
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red, // テキストの色
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width * 0.0222),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (_) {
+                          return RouteDeletion(
+                            onDelete: () => _deleteVisitLocationData(context),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red, // テキストの色
+                    ),
+                    child: const Text('経路を削除'),
                   ),
-                  child: const Text('経路を削除'),
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 import 'package:http/http.dart' as http;
@@ -1066,11 +1067,11 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // ignore: non_constant_identifier_names
-  String selectedValue_foodEx = 'data fetching';
+  String selectedValue_foodEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_foodEx_sub = 'data fetching';
+  String selectedValue_foodEx_sub = '読み込み中…';
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_foodEx = ['data fetching'];
+  List<String> dropdownItems_foodEx = ['読み込み中…'];
   String? foodType = '';
   String? viewType = '';
   String? storeType = '';
@@ -1826,11 +1827,11 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 // ignore: non_constant_identifier_names
-  String selectedValue_viewEx = 'data fetching';
+  String selectedValue_viewEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_viewEx_sub = 'data fetching';
+  String selectedValue_viewEx_sub = '読み込み中…';
 // ignore: non_constant_identifier_names
-  List<String> dropdownItems_viewEx = ['data fetching'];
+  List<String> dropdownItems_viewEx = ['読み込み中…'];
 
   String? foodType = '';
   String? viewType = '';
@@ -2546,11 +2547,11 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ignore: non_constant_identifier_names
-  String selectedValue_storeEx = 'data fetching';
+  String selectedValue_storeEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_storeEx_sub = 'data fetching';
+  String selectedValue_storeEx_sub = '読み込み中…';
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_storeEx = ['data fetching'];
+  List<String> dropdownItems_storeEx = ['読み込み中…'];
 
   String? foodType = '';
   String? viewType = '';
@@ -3758,43 +3759,85 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         MediaQuery.of(context).size.width * 0.025),
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.5,
-                      child: GestureDetector(
-                        onTapDown: (_) {
-                          // マップがタップされたときにフラグを有効にする
-                          setState(() {
-                            _isMapTapped = true;
-                          });
-                        },
-                        onTapUp: (_) {
-                          // マップがタップ解除されたときにフラグを無効にする
-                          setState(() {
-                            _isMapTapped = false;
-                          });
-                        },
-                        child: GoogleMap(
-                          mapType: MapType.normal,
-                          markers: mapDataList.isNotEmpty
-                              ? Set.from(mapDataList.last.markers)
-                              : <Marker>{},
-                          polylines: mapDataList.isNotEmpty
-                              ? Set.from(mapDataList.last.polylines)
-                              : <Polyline>{},
-                          onMapCreated: (controller) {
-                            _googleMapController = controller;
-                            _fetchRoute();
-                          },
-                          initialCameraPosition: CameraPosition(
-                            target: _initialCameraPosition,
-                            zoom: 12.0,
-                          ),
-                          gestureRecognizers: _isMapTapped
-                              ? <Factory<OneSequenceGestureRecognizer>>{
-                                  Factory<OneSequenceGestureRecognizer>(
-                                    () => EagerGestureRecognizer(),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Transform.translate(
+                                offset: const Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
+                                child: Image.asset(
+                                  'lib/images/book.png', // アニメーション対象の画像
+                                  width: 300, // 画像の幅
+                                )
+                                  .animate(onPlay: (controller){
+                                    controller.repeat();
+                                    controller.repeat();
+                                  }) // アニメーションを再生する
+                                  .shimmer(
+                                    delay: const Duration(milliseconds: 400), // アニメーションの開始までの遅延時間
+                                    duration: const Duration(milliseconds: 800), // アニメーションの時間
+                                  )
+                                  .shake(hz: 4, curve: Curves.easeInOutCubic) // アニメーションを振動させる
+                                  .scale(
+                                    begin: const Offset(1, 1), // 開始時のスケール
+                                    end: const Offset(1.1, 1.1), // 終了時のスケール
+                                    duration: const Duration(milliseconds: 300), // アニメーションの時間
+                                  )
+                                  .then(delay: const Duration(milliseconds: 300)) // アニメーションの後の遅延時間
+                                  .scale(
+                                    begin: const Offset(1, 1), // 開始時のスケール
+                                    end: const Offset(1 / 1.1, 1 / 1.1), // 終了時のスケール
                                   ),
-                                }
-                              : <Factory<OneSequenceGestureRecognizer>>{},
-                        ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 20, // 下端からの距離
+                            left: 35, // 左端からの距離
+                            top: 10, // 上端からの距離
+                            right: 0, // 右端からの距離
+                            child: Image.asset('lib/images/loading.png'), // アニメーションの下に配置する画像
+                          ),
+                          GestureDetector(
+                            onTapDown: (_) {
+                              // マップがタップされたときにフラグを有効にする
+                              setState(() {
+                                _isMapTapped = true;
+                              });
+                            },
+                            onTapUp: (_) {
+                              // マップがタップ解除されたときにフラグを無効にする
+                              setState(() {
+                                _isMapTapped = false;
+                              });
+                            },
+                            child: GoogleMap(
+                              mapType: MapType.normal,
+                              markers: mapDataList.isNotEmpty
+                                  ? Set.from(mapDataList.last.markers)
+                                  : <Marker>{},
+                              polylines: mapDataList.isNotEmpty
+                                  ? Set.from(mapDataList.last.polylines)
+                                  : <Polyline>{},
+                              onMapCreated: (controller) {
+                                _googleMapController = controller;
+                                _fetchRoute();
+                              },
+                              initialCameraPosition: CameraPosition(
+                                target: _initialCameraPosition,
+                                zoom: 12.0,
+                              ),
+                              gestureRecognizers: _isMapTapped
+                                  ? <Factory<OneSequenceGestureRecognizer>>{
+                                      Factory<OneSequenceGestureRecognizer>(
+                                        () => EagerGestureRecognizer(),
+                                      ),
+                                    }
+                                  : <Factory<OneSequenceGestureRecognizer>>{},
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
