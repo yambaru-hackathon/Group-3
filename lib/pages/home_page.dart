@@ -3767,7 +3767,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               child: Transform.translate(
                                 offset: const Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
                                 child: Image.asset(
-                                  'lib/images/book.png', // アニメーション対象の画像a
+                                  'lib/images/book.png', // アニメーション対象の画像
                                   width: 300, // 画像の幅
                                 )
                                   .animate(onPlay: (controller){
