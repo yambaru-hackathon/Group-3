@@ -334,14 +334,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Stream<List<List<String>>> _fetchDataFromSharedPreferencesStream() async* {
     try {
-      int number = _prefs.getInt('counter') ?? 0;
       List<List<String>> visitLocationDataList = [];
+      int counter = _prefs.getInt('counter') ?? 0;
 
-      for (int i = 0; i < number; i++) {
+      for (int i = 0; i < counter; i++) {
         String visitLocationKey = 'VisitLocation$i';
-
+        String? visitLocationDataString = _prefs.getString(visitLocationKey);
         List<String> visitLocationData =
-            _prefs.getStringList(visitLocationKey) ?? [];
+            (visitLocationDataString != null) ? [visitLocationDataString] : [];
+
         visitLocationDataList.add(visitLocationData);
       }
 
