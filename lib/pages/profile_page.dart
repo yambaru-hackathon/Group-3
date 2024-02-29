@@ -390,7 +390,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<String> fetchImageUrlFromFirestore(String lastLocation) async {
     try {
-      String apiKey = 'AIzaSyCwTPS1JbpKwPqSV2mQWzLXX-Pq1sb_9P0'; // ここにGoogleのAPIキーを入力してください
+      String apiKey = 'AIzaSyCwTPS1JbpKwPqSV2mQWzLXX-Pq1sb_9P0';
       String imageUrl = await fetchImageUrlFromPlacesAPI(apiKey, lastLocation);
       if (imageUrl.isNotEmpty) {
         String uid = FirebaseAuth.instance.currentUser!.uid;
