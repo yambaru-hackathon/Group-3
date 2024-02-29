@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+ //ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -4012,6 +4012,14 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     await _getCurrentLocation();
     await fetchVisitLocations();
 
+    visitLocations.sublist(0, visitLocations.length - 1);
+
+
+     //マップ生成に必要なデータを集め、変換して格納するメソッド
+  Future<void> _fetchRoute() async {
+    await _getCurrentLocation();
+    await fetchVisitLocations();
+
     List<String> waypoints =
         visitLocations.sublist(0, visitLocations.length - 1);
     List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
@@ -4019,6 +4027,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       await getCoordinatesFromAddress(visitLocations.last),
       waypoints,
     );
+    
 
     List<Marker> markers = [
       Marker(
@@ -4073,4 +4082,5 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
     setState(() {});
   }
+}
 }
