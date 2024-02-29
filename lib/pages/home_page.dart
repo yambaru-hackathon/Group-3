@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+//ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
