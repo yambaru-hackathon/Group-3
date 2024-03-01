@@ -3785,30 +3785,46 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             child: Align(
                               alignment: Alignment.center,
                               child: Transform.translate(
-                                offset: const Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
+
+                                offset: const Offset(
+                                    10.0, 0.0), // 画像を右に10.0ポイント移動させる
+
                                 child: Image.asset(
                                   'lib/images/book.png', // アニメーション対象の画像
                                   width: 300, // 画像の幅
                                 )
-                                  .animate(onPlay: (controller){
-                                    controller.repeat();
-                                    controller.repeat();
-                                  }) // アニメーションを再生する
-                                  .shimmer(
-                                    delay: const Duration(milliseconds: 400), // アニメーションの開始までの遅延時間
-                                    duration: const Duration(milliseconds: 800), // アニメーションの時間
-                                  )
-                                  .shake(hz: 4, curve: Curves.easeInOutCubic) // アニメーションを振動させる
-                                  .scale(
-                                    begin: const Offset(1, 1), // 開始時のスケール
-                                    end: const Offset(1.1, 1.1), // 終了時のスケール
-                                    duration: const Duration(milliseconds: 300), // アニメーションの時間
-                                  )
-                                  .then(delay: const Duration(milliseconds: 300)) // アニメーションの後の遅延時間
-                                  .scale(
-                                    begin: const Offset(1, 1), // 開始時のスケール
-                                    end: const Offset(1 / 1.1, 1 / 1.1), // 終了時のスケール
-                                  ),
+
+                                    .animate(onPlay: (controller) {
+                                      controller.repeat();
+                                      controller.repeat();
+                                    }) // アニメーションを再生する
+                                    .shimmer(
+                                      delay: const Duration(
+                                          milliseconds:
+                                              400), // アニメーションの開始までの遅延時間
+                                      duration: const Duration(
+                                          milliseconds: 800), // アニメーションの時間
+                                    )
+                                    .shake(
+                                        hz: 4,
+                                        curve: Curves
+                                            .easeInOutCubic) // アニメーションを振動させる
+                                    .scale(
+                                      begin: const Offset(1, 1), // 開始時のスケール
+                                      end: const Offset(1.1, 1.1), // 終了時のスケール
+                                      duration: const Duration(
+                                          milliseconds: 300), // アニメーションの時間
+                                    )
+                                    .then(
+                                        delay: const Duration(
+                                            milliseconds:
+                                                300)) // アニメーションの後の遅延時間
+                                    .scale(
+                                      begin: const Offset(1, 1), // 開始時のスケール
+                                      end: const Offset(
+                                          1 / 1.1, 1 / 1.1), // 終了時のスケール
+                                    ),
+
                               ),
                             ),
                           ),
@@ -3817,7 +3833,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             left: 35, // 左端からの距離
                             top: 10, // 上端からの距離
                             right: 0, // 右端からの距離
-                            child: Image.asset('lib/images/loading.png'), // アニメーションの下に配置する画像
+
+                            child: Image.asset(
+                                'lib/images/loading.png'), // アニメーションの下に配置する画像
+
                           ),
                           GestureDetector(
                             onTapDown: (_) {
@@ -3937,47 +3956,51 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               .toList();
 
                           // 既存のデータと新しいデータが一致するか確認
-                          // bool isDuplicate =
-                          //     // ignore: unrelated_type_equality_checks
-                          //     oldDataList == newMapDataList.toString();
+
+                          bool isDuplicate = oldDataList == newMapDataList;
 
                           // 新しいデータが一致しない場合
+                          if (!isDuplicate) {
+                            // カウンターを増やして保存
+                            await _prefs.setInt('counter', counter + 1);
 
+                            // カウンターを使用してキーを増やす
+                            String currentVisitLocationKey =
+                                '$visitLocationKey$counter';
+                            String currentDayKey = '$dayKey$counter';
+                            String currentMapDataKey = '$mapDataKey$counter';
 
-                          // カウンターを増やして保存
-                          await _prefs.setInt('counter', counter + 1);
+                            // FirestoreのタイムスタンプをStringに変換して保存
+                            DateTime currentTime = DateTime.now();
+                            String currentDayValue = DateTime.utc(
+                              currentTime.year,
+                              currentTime.month,
+                              currentTime.day,
+                              currentTime.hour,
+                              currentTime.minute,
+                            ).toString();// JST (UTC+9) に変換.add(const Duration(hours: 9))
 
-                          // カウンターを使用してキーを増やす
-                          String currentVisitLocationKey =
-                              '$visitLocationKey$counter';
-                          String currentDayKey = '$dayKey$counter';
-                          String currentMapDataKey = '$mapDataKey$counter';
+                            // データを保存
 
-                          // FirestoreのタイムスタンプをStringに変換して保存
-                          String currentDayValue =
-                              DateTime.now().toUtc().toString();
+                            await _prefs.setStringList(
+                                currentVisitLocationKey, oldDataList);
+                            await _prefs.setString(
+                                currentDayKey, currentDayValue);
+                            await _prefs.setStringList(
+                                currentMapDataKey, newMapDataList);
 
-                          // データを保存
+                            // デバッグ用にSharedPreferencesの内容をログに表示
+                            print(
+                                'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
+                            print(
+                                'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
+                            print(
+                                'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
 
-                          await _prefs.setStringList(
-                              currentVisitLocationKey, oldDataList);
-                          await _prefs.setString(
-                              currentDayKey, currentDayValue);
-                          await _prefs.setStringList(
-                              currentMapDataKey, newMapDataList);
+                            // ルートが保存されたことをフラグで示す
+                            isSaved = true;
+                          }
 
-                          // デバッグ用にSharedPreferencesの内容をログに表示
-                          print(
-                              'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
-                          print(
-                              'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
-                          print(
-                              'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
-
-                          
-
-                          // ルートが保存されたことをフラグで示す
-                          isSaved = true;
 
                           showDialog(
                             // ignore: use_build_context_synchronously
@@ -4145,4 +4168,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
     setState(() {});
   }
+
 }
+

@@ -20,7 +20,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int numberOfData = 1;
-  bool _isDeleting = false;
 
   late SharedPreferences _prefs;
 
@@ -256,61 +255,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ],
                                             ),
                                           ),
-                                          Positioned(
-                                            top: 0,
-                                            right: 0,
-                                            child: _isDeleting
-                                                ? const CircularProgressIndicator()
-                                                : IconButton(
-                                                    onPressed: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            title: const Text(
-                                                                '経路を削除しますか？'),
-                                                            actions: <Widget>[
-                                                              TextButton(
-                                                                child:
-                                                                    const Text(
-                                                                        'キャンセル'),
-                                                                onPressed: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              ),
-                                                              TextButton(
-                                                                child:
-                                                                    const Text(
-                                                                  '削除',
-                                                                  style: TextStyle(
-                                                                      color: Color(
-                                                                          0xFFE57373)),
-                                                                ),
-                                                                onPressed: () {
-                                                                  Navigator.pop(
-                                                                      context); // ダイアログを閉じる
-                                                                  _deleteVisitLocationData(
-                                                                      context,
-                                                                      index);
-                                                                },
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.white,
-                                                      size: 30,
-                                                    ),
-                                                  ),
-                                          ),
+                                          
                                           Positioned(
                                             bottom: 0,
-                                            right: 50,
+                                            right: 10,
                                             child: FutureBuilder<String>(
                                               future:
                                                   fetchImageUrlFromFirestore(
@@ -329,7 +277,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 } else {
                                                   return Image.network(
                                                     snapshot.data!,
-                                                    width: 150,
+                                                    width: 200,
                                                     height: 150,
                                                     fit: BoxFit.cover,
                                                   );
@@ -351,6 +299,59 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
+            ),
+            Column(
+              children: [
+                SizedBox(
+                  height: 50,
+                  child:IconButton(
+                         onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext
+                                    context) {
+                                       return AlertDialog(
+                                          title: const Text(
+                                            'すべての経路を削除しますか？'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child:
+                                               const Text(
+                                                  'キャンセル'),
+                                                      onPressed: () {
+                                                       Navigator.pop(
+                                                        context);
+                                                      },
+                                             ),
+                                             TextButton(
+                                                  child:
+                                                  const Text(
+                                                    '削除',
+                                                     style: TextStyle(
+                                                     color: Color(
+                                                       0xFFE57373)),
+                                                  ),
+                                                  onPressed: () {
+                                                  Navigator.pop(
+                                                   context); // ダイアログを閉じる
+                                                    _deleteVisitLocationData(
+                                                        context,
+                                                    );
+                                                  },
+                                                 ),
+                                             ],
+                                      );
+                                    },
+                                );
+                             },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                             size: 30,
+                             ),
+                     ),
+                ),
+              ],
             ),
           ],
         ),
@@ -393,55 +394,38 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _deleteVisitLocationData(BuildContext context, int index) async {
-    try {
-      setState(() {
-        _isDeleting = true;
-      });
+ Future<void> _deleteVisitLocationData(BuildContext context) async {
+  try {
+    setState(() {
+    });
 
-      // ローカルのデータを削除
-      await _prefs.remove('VisitLocation$index');
-      await _prefs.remove('day$index');
-      await _prefs.remove('mapData$index');
-
-      int? number = _prefs.getInt('counter');
-      await _prefs.setInt('counter', number! - 1);
-
-      // 削除するアイテム以外のアイテムをコピーし、ローカルのデータを更新
-      List<int> indicesToRemove = [index];
-      List<int> indicesToKeep = List.generate(number, (i) => i)
-          .where((i) => !indicesToRemove.contains(i))
-          .toList();
-
-      for (int i in indicesToKeep) {
-        List<String>? data =
-            _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
-
-        // ローカルのデータを更新
-        await _prefs.setStringList('VisitLocation$i', data);
-        await _prefs.setString('day$i', _prefs.getString('day$i') ?? '');
-        await _prefs.setString(
-            'mapData$i', _prefs.getString('mapData$i') ?? '');
-      }
-
-      setState(() {
-        _isDeleting = false;
-      });
-      // コンテキストがアクティブな場合にのみ Navigator.canPop を呼び出す
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      setState(() {
-        _isDeleting = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("経路を削除する際にエラーが発生しました。"),
-        ),
-      );
+    // SharedPreferencesから経路データを削除
+    await _prefs.remove('counter');
+    for (int i = 0; i < numberOfData; i++) {
+      await _prefs.remove('VisitLocation$i');
+      await _prefs.remove('day$i');
+      await _prefs.remove('mapData$i');
     }
+
+    setState(() {
+      numberOfData = 0; // カウンターをリセット
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("すべての経路が削除されました"),
+      ),
+    );
+  } catch (e) {
+    setState(() {
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("経路を削除する際にエラーが発生しました。"),
+      ),
+    );
   }
+}
 
   Future<String> fetchImageUrlFromFirestore(String lastLocation) async {
     try {
