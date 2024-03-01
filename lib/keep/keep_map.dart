@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,8 +42,8 @@ class _KeepMapState extends State<KeepMap> {
     _initSharedPreferences();
     _initSharedPreferences().then((_) {
       setState(() {
-        _data = _fetchDataFromSharedPreferences();
         _date = _fetchDateFromSharedPreferences();
+        _data = _fetchDataFromSharedPreferences();
       });
     });
   }
@@ -76,17 +75,13 @@ class _KeepMapState extends State<KeepMap> {
 
   Future<String> _fetchDateFromSharedPreferences() async {
     try {
-      // SharedPreferencesからデータを取得
-      Timestamp timeStamp = Timestamp.fromMillisecondsSinceEpoch(
-          _prefs.getInt('day${widget.visitLocationIndex + 1}') ?? 0);
+      String storedValue =
+          _prefs.getString('day${widget.visitLocationIndex}') ?? '';
+      DateTime date = DateTime.parse(storedValue);
 
-      // タイムスタンプからDateTimeオブジェクトに変換
-      DateTime date = timeStamp.toDate();
-
-      // 日付を適切な書式の文字列に変換
       String formattedDate =
           '${date.year}年${date.month}月${date.day}日${date.hour}時${date.minute}分';
-      print("dateを読み取りました");
+      print("dateを読み取りました: $formattedDate");
       return formattedDate;
     } catch (e) {
       print("Error in _fetchDateFromSharedPreferences: $e");

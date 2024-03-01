@@ -3964,8 +3964,14 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             String currentMapDataKey = '$mapDataKey$counter';
 
                             // FirestoreのタイムスタンプをStringに変換して保存
-                            String currentDayValue =
-                                DateTime.now().toUtc().toString();
+                            DateTime currentTime = DateTime.now();
+                            String currentDayValue = DateTime.utc(
+                              currentTime.year,
+                              currentTime.month,
+                              currentTime.day,
+                              currentTime.hour,
+                              currentTime.minute,
+                            ).add(const Duration(hours: 9)).toString();// JST (UTC+9) に変換
 
                             // データを保存
 
