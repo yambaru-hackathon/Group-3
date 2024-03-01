@@ -272,9 +272,8 @@ class _KeepMapState extends State<KeepMap> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                        color: const Color.fromARGB(
-                                            255, 94, 107, 158),
-                                        width: 5.0),
+                                        color: const Color.fromARGB(255, 94, 107, 158),width: 2.0),
+                                    borderRadius: BorderRadius.circular(8),
                                     color: const Color.fromARGB(
                                         255, 215, 233, 250),
                                   ),
