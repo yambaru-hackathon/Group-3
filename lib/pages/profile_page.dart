@@ -348,7 +348,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Icons.delete,
                               color: Colors.white,
                              size: 30,
-                           ),
+                             ),
                      ),
                 ),
               ],

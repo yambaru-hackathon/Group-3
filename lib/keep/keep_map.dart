@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,14 +41,21 @@ class _KeepMapState extends State<KeepMap> {
   initState() {
     super.initState();
     _initSharedPreferences();
-    _data = _fetchDataFromSharedPreferences();
-    _date = _fetchDateFromSharedPreferences();
+
+    _initSharedPreferences().then((_) {
+      setState(() {
+        _date = _fetchDateFromSharedPreferences();
+        _data = _fetchDataFromSharedPreferences();
+      });
+    });
+
   }
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     // await _prefs.clear();
-    await _fetchMapDataFromSharedPreferences();
+
+
   }
 
   Future<List<String>> _fetchDataFromSharedPreferences() async {
@@ -66,8 +73,27 @@ class _KeepMapState extends State<KeepMap> {
         return [];
       }
     } catch (e) {
-      print("VisitLocation${widget.visitLocationIndex} is error");
+
+      print("VisitLocation${widget.visitLocationIndex} is error: $e");
+
       return [];
+    }
+  }
+
+
+  Future<String> _fetchDateFromSharedPreferences() async {
+    try {
+      String storedValue =
+          _prefs.getString('day${widget.visitLocationIndex}') ?? '';
+      DateTime date = DateTime.parse(storedValue);
+
+      String formattedDate =
+          '${date.year}年${date.month}月${date.day}日${date.hour}時${date.minute}分';
+      print("dateを読み取りました: $formattedDate");
+      return formattedDate;
+    } catch (e) {
+      print("Error in _fetchDateFromSharedPreferences: $e");
+      return '';
     }
   }
 
@@ -119,24 +145,6 @@ class _KeepMapState extends State<KeepMap> {
     );
   }
 
-  Future<String> _fetchDateFromSharedPreferences() async {
-    try {
-      // SharedPreferencesからデータを取得
-      Timestamp timeStamp = Timestamp.fromMillisecondsSinceEpoch(
-          _prefs.getInt('day${widget.visitLocationIndex + 1}') ?? 0);
-
-      // タイムスタンプからDateTimeオブジェクトに変換
-      DateTime date = timeStamp.toDate();
-
-      // 日付を適切な書式の文字列に変換
-      String formattedDate =
-          '${date.year}年${date.month}月${date.day}日${date.hour + 9}時${date.minute}分';
-      print("dateを読み取りました");
-      return formattedDate;
-    } catch (e) {
-      return '';
-    }
-  }
 
   Future<void> _deleteVisitLocationData(BuildContext context) async {
     try {
@@ -171,6 +179,8 @@ class _KeepMapState extends State<KeepMap> {
 
       setState(() {
         _data = _fetchDataFromSharedPreferences();
+
+
       });
 
       Navigator.pop(context); // プロフィールページに戻る
@@ -225,7 +235,9 @@ class _KeepMapState extends State<KeepMap> {
                         dateSnapshot.data ?? '',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     );
                   }
@@ -261,13 +273,20 @@ class _KeepMapState extends State<KeepMap> {
                           child: Column(
                             children: [
                               SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.0099),
+
+                                  height: MediaQuery.of(context).size.height *
+                                      0.0099),
                               Padding(
                                 padding: EdgeInsets.fromLTRB(
-                                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
-                                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
-                                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
-                                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                                  MediaQuery.of(context).size.width *
+                                      0.0222, // 左端からの距離
+                                  MediaQuery.of(context).size.height *
+                                      0.0099, // 上端からの距離
+                                  MediaQuery.of(context).size.width *
+                                      0.0222, // 右端からの距離
+                                  MediaQuery.of(context).size.height *
+                                      0.0099, // 下端からの距離
+
                                 ),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -279,14 +298,22 @@ class _KeepMapState extends State<KeepMap> {
                                         255, 215, 233, 250),
                                   ),
                                   padding: EdgeInsets.symmetric(
-                                    vertical: MediaQuery.of(context).size.height * 0.00249,
-                                    horizontal: MediaQuery.of(context).size.width * 0.00555,
+
+                                    vertical:
+                                        MediaQuery.of(context).size.height *
+                                            0.00249,
+                                    horizontal:
+                                        MediaQuery.of(context).size.width *
+                                            0.00555,
+
                                   ),
                                   child: Center(
                                     child: Column(
                                       children: [
                                         ListTile(
-                                          contentPadding: EdgeInsets.zero, 
+
+                                          contentPadding: EdgeInsets.zero,
+
                                           title: const Text(
                                             '出発地点',
                                             overflow: TextOverflow.ellipsis,
@@ -298,20 +325,39 @@ class _KeepMapState extends State<KeepMap> {
                                           subtitle: Center(
                                             child: Padding(
                                               padding: EdgeInsets.symmetric(
-                                                vertical: MediaQuery.of(context).size.height * 0.00249,
-                                                horizontal: MediaQuery.of(context).size.width * 0.00185,
+
+                                                vertical: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.00249,
+                                                horizontal:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.00185,
                                               ),
-                                              child: const Icon(Icons.arrow_downward),
+                                              child: const Icon(
+                                                  Icons.arrow_downward),
                                             ),
                                           ),
                                         ),
-                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0099),
+
                                         for (int i = snapshot.data!.length - 1;
                                             i >= 0;
                                             i--)
                                           Padding(
                                             padding: EdgeInsets.symmetric(
-                                              vertical: MediaQuery.of(context).size.height * 0.00249,
+
+                                              vertical: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.00249,
+
                                             ),
                                             child: Column(
                                               mainAxisAlignment:
@@ -327,15 +373,28 @@ class _KeepMapState extends State<KeepMap> {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
-                                                SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
+
+                                                SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.0099),
+
                                                 const Icon(
                                                     Icons.arrow_downward),
                                               ],
                                             ),
                                           ),
-                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
+
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.0099),
                                         const ListTile(
-                                          contentPadding: EdgeInsets.zero, 
+                                          contentPadding: EdgeInsets.zero,
+
                                           title: Text(
                                             'ゴール',
                                             overflow: TextOverflow.ellipsis,
@@ -350,7 +409,11 @@ class _KeepMapState extends State<KeepMap> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
+
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.0099),
+
                             ],
                           ),
                         );
@@ -392,6 +455,7 @@ class _KeepMapState extends State<KeepMap> {
                           : <Polyline>{},
                       onMapCreated: (controller) {
                         _googleMapController = controller;
+                        _fetchMapDataFromSharedPreferences();
                       },
                       initialCameraPosition: CameraPosition(
                         target: _initialCameraPosition,
@@ -409,7 +473,10 @@ class _KeepMapState extends State<KeepMap> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width * 0.0222),
+
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.0222),
+
                 child: SizedBox(
                   width: double.infinity,
                   child: TextButton(
