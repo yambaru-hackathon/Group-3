@@ -58,7 +58,7 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "lib/images/napi_icon.png"
+  image_path: "lib/images/napi_icon.jpg"
 
 dev_dependencies:
   flutter_test:
