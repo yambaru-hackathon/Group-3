@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:yanbaru_hackathon/login/login_page.dart';
+import 'package:group3/login/login_page.dart';
 import 'firebase_options.dart';
 
 import 'pages/home_page.dart';

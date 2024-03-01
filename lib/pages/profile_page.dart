@@ -5,10 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yanbaru_hackathon/keep/keep_map.dart';
+import 'package:group3/keep/keep_map.dart';
 import 'dart:convert';
 
-import 'package:yanbaru_hackathon/login/login_page.dart';
+import 'package:group3/login/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

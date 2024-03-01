@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yanbaru_hackathon/login/register_model.dart';
+import 'package:group3/login/register_model.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

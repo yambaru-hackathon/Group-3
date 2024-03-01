@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yanbaru_hackathon/login/login_model.dart';
-import 'package:yanbaru_hackathon/login/register_page.dart';
+import 'package:group3/login/login_model.dart';
+import 'package:group3/login/register_page.dart';
 
 import '../main.dart';
 

@@ -1,4 +1,4 @@
-name: yanbaru_hackathon
+name: group3
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -52,13 +52,7 @@ dependencies:
   flutter_animate: ^4.5.0
   collection: ^1.18.0
   shared_preferences: ^2.2.2
-  flutter_launcher_icons: ^0.13.1
 # fd73bd994f2ff8a33484dc7c952d18fe94588
-
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "lib/images/napi_icon.png"
 
 dev_dependencies:
   flutter_test:
