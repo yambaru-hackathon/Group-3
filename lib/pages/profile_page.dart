@@ -435,18 +435,11 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _isDeleting = false;
       });
-      if (mounted) {
-        final scaffoldContext =
-            context.findRootAncestorStateOfType<ScaffoldState>()?.context;
-        if (scaffoldContext != null) {
-          // ignore: await_only_futures
-          await ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-            const SnackBar(
-              content: Text("経路を削除しました。"),
-            ),
-          );
-        }
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("経路を削除する際にエラーが発生しました。"),
+        ),
+      );
     }
   }
 
