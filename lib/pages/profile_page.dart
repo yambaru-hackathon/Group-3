@@ -57,37 +57,37 @@ class ProfilePage extends StatelessWidget {
                    onPressed: () {
                     Navigator.push(
                        context,
-                       MaterialPageRoute(builder: (context) => LoginPage()),
+                       MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                       // ボタンが押された時の処理をここに記述
                      },
-                   icon: Icon(Icons.person),
+                   icon: const Icon(Icons.person),
               ),
             
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage('https://example.com/user_profile_image.jpg'),
                // ユーザーのプロフィール画像
               ),
               
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'ユーザー名',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'user@example.com',
                 style: TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   // プロフィールを編集する画面に遷移する処理を追加
                 },
-                child: Text('プロフィールを編集'),
+                child: const Text('プロフィールを編集'),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Expanded(
                   child: GridView.count(
                     crossAxisCount: 2,
@@ -99,7 +99,7 @@ class ProfilePage extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'Item $index',
-                            style: TextStyle(color: Colors.white, fontSize: 24),
+                            style: const TextStyle(color: Colors.white, fontSize: 24),
                           ),
                         ),
                       );

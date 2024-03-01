@@ -8,13 +8,15 @@ import 'package:yanbaru_hackathon/pages/home_page.dart';
 
 
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<LoginModel>(
       create: (_) => LoginModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('ログイン'),
+          title: const Text('ログイン'),
            backgroundColor: Colors.blue,
         ),
         body: Center(
@@ -31,14 +33,14 @@ class LoginPage extends StatelessWidget {
                           children: [
                             TextField(
                               controller: model.titleController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Email',
                               ),
                               onChanged: (text) {
                                 model.setEmail(text);
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             Padding(
@@ -47,7 +49,7 @@ class LoginPage extends StatelessWidget {
                                 children: [
                                   TextField(
                                     controller: model.authorController,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: 'パスワード',
                                     ),
                                     onChanged: (text) {
@@ -58,7 +60,7 @@ class LoginPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 16,
                             ),
                             ElevatedButton(
@@ -68,9 +70,10 @@ class LoginPage extends StatelessWidget {
                                 // 追加の処理
                                 try {
                                   await model.login();
+                                  // ignore: use_build_context_synchronously
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
-                                      builder: (context) => HomePage(), // 画面遷移したい！！！HOMEに！！
+                                      builder: (context) => const HomePage(), // 画面遷移したい！！！HOMEに！！
                                     ),
                                   );
                                 } catch (e) {
@@ -78,13 +81,14 @@ class LoginPage extends StatelessWidget {
                                     backgroundColor: Colors.red,
                                     content: Text(e.toString()),
                                   );
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
                                 } finally {
                                   model.endLoading();
                                 }
                               },
-                              child: Text('ログイン'),
+                              child: const Text('ログイン'),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -92,12 +96,12 @@ class LoginPage extends StatelessWidget {
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => RegisterPage(),
+                                    builder: (context) => const RegisterPage(),
                                     fullscreenDialog: true,
                                   ),
                                 );
                               },
-                              child: Text('新規登録の方はこちら'),
+                              child: const Text('新規登録の方はこちら'),
                             ),
                           ],
                         ),
@@ -108,7 +112,7 @@ class LoginPage extends StatelessWidget {
                 if (model.isLoading)
                   Container(
                     color: Colors.black54,
-                    child: Center(
+                    child: const Center(
                       child: CircularProgressIndicator(),
                     ),
                   ),

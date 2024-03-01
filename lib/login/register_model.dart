@@ -32,8 +32,8 @@ class RegisterModel extends ChangeNotifier {
   }
 
   Future signUp() async {
-    this.email = titleController.text;
-    this.password = authorController.text;
+    email = titleController.text;
+    password = authorController.text;
 
     if (email != null && password != null) {
       // firebase authでユーザー作成

@@ -4,13 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:yanbaru_hackathon/login/register_model.dart';
 
 class RegisterPage extends StatelessWidget {
+  const RegisterPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<RegisterModel>(
       create: (_) => RegisterModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('新規登録'),
+          title: const Text('新規登録'),
           backgroundColor: Colors.blue,
         ),
         body: Center(
@@ -27,14 +29,14 @@ class RegisterPage extends StatelessWidget {
                           children: [
                             TextField(
                               controller: model.titleController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: 'Email',
                               ),
                               onChanged: (text) {
                                 model.setEmail(text);
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             Padding(
@@ -43,7 +45,7 @@ class RegisterPage extends StatelessWidget {
                                 children: [
                                   TextField(
                                     controller: model.authorController,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'パスワード',
                                     ),
                                     onChanged: (text) {
@@ -53,7 +55,7 @@ class RegisterPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 16,
                             ),
                             ElevatedButton(
@@ -63,19 +65,21 @@ class RegisterPage extends StatelessWidget {
                                 // 追加の処理
                                 try {
                                   await model.signUp();
+                                  // ignore: use_build_context_synchronously
                                   Navigator.of(context).pop();
                                 } catch (e) {
                                   final snackBar = SnackBar(
                                     backgroundColor: Colors.red,
                                     content: Text(e.toString()),
                                   );
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
                                 } finally {
                                   model.endLoading();
                                 }
                               },
-                              child: Text('登録する'),
+                              child: const Text('登録する'),
                             ),
                           ],
                         ),
@@ -86,7 +90,7 @@ class RegisterPage extends StatelessWidget {
                 if (model.isLoading)
                   Container(
                     color: Colors.black54,
-                    child: Center(
+                    child: const Center(
                       child: CircularProgressIndicator(),
                     ),
                   ),
