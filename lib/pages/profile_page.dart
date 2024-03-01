@@ -19,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late int numberOfData = 0;
+  int numberOfData = 1;
   bool _isDeleting = false;
 
   late SharedPreferences _prefs;
@@ -32,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
+    //await _prefs.clear(); //shared preferences をすべてクリア
     // ローカルに保存してあるcounterの値をnumberOfDataに代入
     setState(() {
       numberOfData = _prefs.getInt('counter') ?? 0;
@@ -175,7 +176,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             return Text('Error: ${snapshot.error}');
                           } else {
                             List<List<String>> visitLocationDataList =
-                                snapshot.data ?? [];
+                                snapshot.data ?? <List<String>>[];
+
                             numberOfData = visitLocationDataList.length;
 
                             return Padding(
@@ -192,6 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 itemBuilder: (context, index) {
                                   final visitLocationData =
                                       visitLocationDataList[index];
+
                                   final visitLocationText =
                                       visitLocationData.join(", ");
                                   final lastLocation =
@@ -260,8 +263,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ? const CircularProgressIndicator()
                                                 : IconButton(
                                                     onPressed: () {
-                                                      _confirmDeleteDialog(
-                                                          context, index);
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                                '経路を削除しますか？'),
+                                                            actions: <Widget>[
+                                                              TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                        'キャンセル'),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              ),
+                                                              TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                  '削除',
+                                                                  style: TextStyle(
+                                                                      color: Color(
+                                                                          0xFFE57373)),
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context); // ダイアログを閉じる
+                                                                  _deleteVisitLocationData(
+                                                                      context,
+                                                                      index);
+                                                                },
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     icon: const Icon(
                                                       Icons.delete,
@@ -334,15 +372,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Stream<List<List<String>>> _fetchDataFromSharedPreferencesStream() async* {
     try {
-      int number = _prefs.getInt('counter') ?? 0;
+      int number = _prefs.getInt('counter') ?? 1;
       List<List<String>> visitLocationDataList = [];
 
       for (int i = 0; i < number; i++) {
         String visitLocationKey = 'VisitLocation$i';
 
-        List<String> visitLocationData =
-            _prefs.getStringList(visitLocationKey) ?? [];
-        visitLocationDataList.add(visitLocationData);
+        // ここで直接 String を取得するのではなく、List<String>? を取得するように変更
+        List<String>? visitLocationData =
+            _prefs.getStringList(visitLocationKey);
+
+        if (visitLocationData != null) {
+          visitLocationDataList.add(visitLocationData);
+        }
       }
 
       yield visitLocationDataList;
@@ -362,70 +404,43 @@ class _ProfilePageState extends State<ProfilePage> {
       await _prefs.remove('day$index');
       await _prefs.remove('mapData$index');
 
-      int number = numberOfData;
-      await _prefs.setInt('counter', number - 1);
+      int? number = _prefs.getInt('counter');
+      await _prefs.setInt('counter', number! - 1);
 
       // 削除するアイテム以外のアイテムをコピーし、ローカルのデータを更新
       List<int> indicesToRemove = [index];
-      for (int i = 0; i < number; i++) {
-        if (!indicesToRemove.contains(i)) {
-          List<String> data =
-              _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
+      List<int> indicesToKeep = List.generate(number, (i) => i)
+          .where((i) => !indicesToRemove.contains(i))
+          .toList();
 
-          // ローカルのデータを更新
-          _prefs.setStringList(
-              'VisitLocation${i - indicesToRemove.length}', data);
-          _prefs.setString('day${i - indicesToRemove.length}',
-              _prefs.getString('day$i') ?? '');
-          _prefs.setString('mapData${i - indicesToRemove.length}',
-              _prefs.getString('mapData$i') ?? '');
-        }
+      for (int i in indicesToKeep) {
+        List<String>? data =
+            _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
+
+        // ローカルのデータを更新
+        await _prefs.setStringList('VisitLocation$i', data);
+        await _prefs.setString('day$i', _prefs.getString('day$i') ?? '');
+        await _prefs.setString(
+            'mapData$i', _prefs.getString('mapData$i') ?? '');
       }
 
       setState(() {
         _isDeleting = false;
       });
-      Navigator.pop(context);
+      // コンテキストがアクティブな場合にのみ Navigator.canPop を呼び出す
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
     } catch (e) {
       setState(() {
         _isDeleting = false;
       });
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("経路を削除する際にエラーが発生しました。"),
         ),
       );
     }
-  }
-
-  Future<void> _confirmDeleteDialog(BuildContext context, int index) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('経路を削除しますか？'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('キャンセル'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                '削除',
-                style: TextStyle(color: Color(0xFFE57373)),
-              ),
-              onPressed: () {
-                _deleteVisitLocationData(context, index);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<String> fetchImageUrlFromFirestore(String lastLocation) async {

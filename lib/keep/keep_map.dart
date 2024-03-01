@@ -24,8 +24,6 @@ class KeepMap extends StatefulWidget {
 }
 
 class _KeepMapState extends State<KeepMap> {
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Future<List<String>> _data;
   late Future<String> _date;
   List<MapData> mapDataList = [];
@@ -40,122 +38,65 @@ class _KeepMapState extends State<KeepMap> {
       const LatLng(35.6895, 139.6917); // 東京タワーの座標
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _initSharedPreferences();
-    // _data = _fetchDataFromFirestore();
     _data = _fetchDataFromSharedPreferences();
     _date = _fetchDateFromSharedPreferences();
-    // _fetchMapDataFromFirestore();
-    _fetchMapDataFromSharedPreferences();
   }
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
+    // await _prefs.clear();
+    await _fetchMapDataFromSharedPreferences();
   }
-
-  // Future<List<String>> _fetchDataFromFirestore() async {
-  //   try {
-  //     String uid = FirebaseAuth.instance.currentUser!.uid;
-
-  //     DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('user_old_data')
-  //             .doc(uid)
-  //             .get();
-
-  //     List<String> dataList = [];
-  //     List<dynamic>? visitLocationData = querySnapshot
-  //         .data()!['VisitLocation${widget.visitLocationIndex + 1}'];
-  //     if (visitLocationData != null && visitLocationData.isNotEmpty) {
-  //       dataList.addAll(visitLocationData.cast<String>().reversed); // 逆順に取得
-  //     }
-  //     return dataList;
-  //   } catch (e) {
-  //     return [];
-  //   }
-  // }
 
   Future<List<String>> _fetchDataFromSharedPreferences() async {
     try {
       // SharedPreferencesからデータを取得
       List<String>? dataList =
-          _prefs.getStringList('VisitLocation${widget.visitLocationIndex + 1}');
+          _prefs.getStringList('VisitLocation${widget.visitLocationIndex}');
 
       // 取得したデータがnullでないことを確認
       if (dataList != null) {
+        print("dataを読み取りました");
         return dataList.reversed.toList(); // リストを逆順にして返す
       } else {
+        print("VisitLocation${widget.visitLocationIndex} is empty");
         return [];
       }
     } catch (e) {
+      print("VisitLocation${widget.visitLocationIndex} is error");
       return [];
     }
   }
 
-  // Future<void> _fetchMapDataFromFirestore() async {
-  //   // Firestoreからデータを取得
-  //   User? user = _auth.currentUser;
-  //   DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-  //       await _firestore.collection('user_old_data').doc(user?.uid).get();
-
-  //   if (userDataDoc.exists) {
-  //     // Firestoreから取得したJSONデータをデコード
-  //     var mapDataListJson =
-  //         userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
-
-  //     // JSONデータが正しく取得できていることを確認
-  //     if (mapDataListJson != null && mapDataListJson is List<dynamic>) {
-  //       // リストからMapDataオブジェクトを作成
-  //       if (mapDataListJson.isNotEmpty) {
-  //         // 最初の要素を取得
-  //         var mapDataJson = mapDataListJson[0];
-  //         print('mapData${widget.visitLocationIndex + 1}[0]をとれました');
-
-  //         // MapDataオブジェクトを作成
-  //         if (mapDataJson != null && mapDataJson is Map<String, dynamic>) {
-  //           MapData mapData = MapData.fromJson(mapDataJson);
-  //           print('mapDataをとれました');
-
-  //           // mapDataListに追加する場合は、以下のように追加
-  //           mapDataList.add(mapData);
-  //           print(mapDataList);
-  //         }
-  //       } else {
-  //         print("Empty mapData list");
-  //       }
-  //     } else {
-  //       print("mapData${widget.visitLocationIndex + 1} is not a List<dynamic>");
-  //     }
-
-  //     if (_googleMapController != null) {
-  //       LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
-  //       _googleMapController
-  //           ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-  //     }
-
-  //     setState(() {});
-  //   }
-  // }
-
   Future<void> _fetchMapDataFromSharedPreferences() async {
-    // SharedPreferencesからデータを取得
-    String? mapDataJson =
-        _prefs.getString('mapData${widget.visitLocationIndex + 1}');
+    try {
+      // SharedPreferencesからデータを取得
+      List<String>? mapDataJsonList =
+          _prefs.getStringList('mapData${widget.visitLocationIndex}');
 
-    if (mapDataJson != null) {
-      MapData mapData = MapData.fromJson(json.decode(mapDataJson));
+      if (mapDataJsonList != null) {
+        // mapDataList を新しく作成して追加
+        List<MapData> updatedMapDataList = mapDataJsonList.map((mapDataJson) {
+          return MapData.fromJson(json.decode(mapDataJson));
+        }).toList();
 
-      // mapDataListに追加する場合は、以下のように追加
-      mapDataList.add(mapData);
+        if (_googleMapController != null) {
+          LatLngBounds bounds =
+              getBounds(updatedMapDataList.first.routeCoordinates);
+          _googleMapController
+              ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+        }
 
-      if (_googleMapController != null) {
-        LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
-        _googleMapController
-            ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+        setState(() {
+          mapDataList = updatedMapDataList;
+        });
       }
-
-      setState(() {});
+    } catch (e) {
+      // エラーハンドリングが必要な場合は適切な処理を追加
+      print("mapData${widget.visitLocationIndex + 1} is error");
     }
   }
 
@@ -178,32 +119,6 @@ class _KeepMapState extends State<KeepMap> {
     );
   }
 
-  // Future<String> _fetchDateFromFirestore() async {
-  //   try {
-  //     String uid = FirebaseAuth.instance.currentUser!.uid;
-
-  //     DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('user_old_data')
-  //             .doc(uid)
-  //             .get();
-
-  //     Timestamp timeStamp =
-  //         querySnapshot.data()!['day${widget.visitLocationIndex + 1}'];
-
-  //     // タイムスタンプからDateTimeオブジェクトに変換
-  //     DateTime date = timeStamp.toDate();
-
-  //     // 日付を適切な書式の文字列に変換
-  //     String formattedDate =
-  //         '${date.year}年${date.month}月${date.day}日${date.hour + 9}時${date.minute}分';
-
-  //     return formattedDate;
-  //   } catch (e) {
-  //     return '';
-  //   }
-  // }
-
   Future<String> _fetchDateFromSharedPreferences() async {
     try {
       // SharedPreferencesからデータを取得
@@ -216,7 +131,7 @@ class _KeepMapState extends State<KeepMap> {
       // 日付を適切な書式の文字列に変換
       String formattedDate =
           '${date.year}年${date.month}月${date.day}日${date.hour + 9}時${date.minute}分';
-
+      print("dateを読み取りました");
       return formattedDate;
     } catch (e) {
       return '';
@@ -232,7 +147,7 @@ class _KeepMapState extends State<KeepMap> {
 
       // 番号やデータを削除する処理もSharedPreferencesを使用するように変更
 
-      int number = _prefs.getInt('NumberofData') ?? 0;
+      int number = _prefs.getInt('counter') ?? 0;
       int i = widget.visitLocationIndex + 1;
 
       while (i < number) {
@@ -249,7 +164,7 @@ class _KeepMapState extends State<KeepMap> {
         i++;
       }
 
-      _prefs.setInt('NumberofData', (i - 1));
+      _prefs.setInt('counter', i);
       _prefs.remove('VisitLocation$i');
       _prefs.remove('mapData$i');
       _prefs.remove('day$i');
@@ -564,7 +479,6 @@ class MapData {
   });
 
   factory MapData.fromJson(Map<String, dynamic> json) {
-    // markers データから Marker オブジェクトを作成
     List<Marker> markersList =
         (json['markers'] as List<dynamic>).map((markerData) {
       final info = markerData['info'];
@@ -583,7 +497,6 @@ class MapData {
       );
     }).toList();
 
-    // polylines データから Polyline オブジェクトを作成
     List<Polyline> polylinesList =
         (json['polylines'] as List<dynamic>).map((polylineData) {
       final List<Map<String, dynamic>> polylinePoints =
@@ -600,7 +513,6 @@ class MapData {
       );
     }).toList();
 
-    // routeCoordinates データから LatLng オブジェクトを作成
     List<LatLng> routeCoordinatesList =
         (json['routeCoordinates'] as List<dynamic>).map((coord) {
       return LatLng(coord['latitude'], coord['longitude']);

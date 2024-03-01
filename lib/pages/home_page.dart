@@ -3356,37 +3356,36 @@ class MapData {
 
   Map<String, dynamic> toJson() {
     return {
-      'routeCoordinates': routeCoordinates
-          .map((coord) => {
-                'latitude': coord.latitude,
-                'longitude': coord.longitude,
-              })
-          .toList(),
       'markers': markers
           .map((marker) => {
+                'markerId': marker.markerId.value,
+                'info': {
+                  'title': marker.infoWindow.title,
+                  'snippet': marker.infoWindow.snippet,
+                },
                 'position': {
                   'latitude': marker.position.latitude,
                   'longitude': marker.position.longitude,
                 },
-                // ignore: unnecessary_null_comparison
-                'info': marker.infoWindow == null
-                    ? null
-                    : {
-                        'title': marker.infoWindow.title,
-                        'snippet': marker.infoWindow.snippet,
-                      },
               })
           .toList(),
       'polylines': polylines
           .map((polyline) => {
-                'points': polyline.points
-                    .map((coord) => {
-                          'latitude': coord.latitude,
-                          'longitude': coord.longitude,
-                        })
-                    .toList(),
+                'polylineId': polyline.polylineId.value,
                 'color': polyline.color.value,
                 'width': polyline.width,
+                'points': polyline.points
+                    .map((point) => {
+                          'latitude': point.latitude,
+                          'longitude': point.longitude,
+                        })
+                    .toList(),
+              })
+          .toList(),
+      'routeCoordinates': routeCoordinates
+          .map((coord) => {
+                'latitude': coord.latitude,
+                'longitude': coord.longitude,
               })
           .toList(),
     };
@@ -3439,10 +3438,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
   // カウンターのロード
   void _loadCounter() {
-    counter = _prefs.getInt('counter') ?? 0;
-    if (counter < 0) {
-      _prefs.setInt('counter', 0);
-    }
     counter = _prefs.getInt('counter') ?? 0;
   }
 
@@ -3937,54 +3932,52 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                           List<String>? oldDataList = visitLocations;
 
                           // 新しいデータを作成
-                          List<Map<String, dynamic>> newMapDataList =
-                              mapDataList.map((data) => data.toJson()).toList();
+                          List<String> newMapDataList = mapDataList
+                              .map((data) => json.encode(data.toJson()))
+                              .toList();
 
                           // 既存のデータと新しいデータが一致するか確認
-                          bool isDuplicate =
-                              // ignore: unrelated_type_equality_checks
-                              oldDataList == newMapDataList.toString();
+                          // bool isDuplicate =
+                          //     // ignore: unrelated_type_equality_checks
+                          //     oldDataList == newMapDataList.toString();
 
-                          if (!isDuplicate) {
-                            // 新しいデータが一致しない場合
+                          // 新しいデータが一致しない場合
 
-                            // カウンターを使用してキーを増やす
-                            String currentVisitLocationKey =
-                                '$visitLocationKey$counter';
-                            String currentDayKey = '$dayKey$counter';
-                            String currentMapDataKey = '$mapDataKey$counter';
 
-                            // FirestoreのタイムスタンプをStringに変換して保存
-                            String currentDayValue =
-                                DateTime.now().toUtc().toString();
+                          // カウンターを増やして保存
+                          await _prefs.setInt('counter', counter + 1);
 
-                            // データを保存
+                          // カウンターを使用してキーを増やす
+                          String currentVisitLocationKey =
+                              '$visitLocationKey$counter';
+                          String currentDayKey = '$dayKey$counter';
+                          String currentMapDataKey = '$mapDataKey$counter';
 
-                            await _prefs.setStringList(
-                                currentVisitLocationKey, oldDataList);
-                            await _prefs.setString(
-                                currentDayKey, currentDayValue);
-                            await _prefs.setStringList(
-                                currentMapDataKey,
-                                newMapDataList
-                                    .map((data) => json.encode(data))
-                                    .toList());
+                          // FirestoreのタイムスタンプをStringに変換して保存
+                          String currentDayValue =
+                              DateTime.now().toUtc().toString();
 
-                            // デバッグ用にSharedPreferencesの内容をログに表示
-                            print(
-                                'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
-                            print(
-                                'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
-                            print(
-                                'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
+                          // データを保存
 
-                            // カウンターを増やして保存
-                            counter++;
-                            _prefs.setInt('counter', counter);
+                          await _prefs.setStringList(
+                              currentVisitLocationKey, oldDataList);
+                          await _prefs.setString(
+                              currentDayKey, currentDayValue);
+                          await _prefs.setStringList(
+                              currentMapDataKey, newMapDataList);
 
-                            // ルートが保存されたことをフラグで示す
-                            isSaved = true; 
-                          }
+                          // デバッグ用にSharedPreferencesの内容をログに表示
+                          print(
+                              'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
+                          print(
+                              'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
+                          print(
+                              'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
+
+                          
+
+                          // ルートが保存されたことをフラグで示す
+                          isSaved = true;
 
                           showDialog(
                             // ignore: use_build_context_synchronously
