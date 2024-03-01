@@ -3785,12 +3785,15 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             child: Align(
                               alignment: Alignment.center,
                               child: Transform.translate(
+
                                 offset: const Offset(
                                     10.0, 0.0), // 画像を右に10.0ポイント移動させる
+
                                 child: Image.asset(
                                   'lib/images/book.png', // アニメーション対象の画像
                                   width: 300, // 画像の幅
                                 )
+
                                     .animate(onPlay: (controller) {
                                       controller.repeat();
                                       controller.repeat();
@@ -3821,6 +3824,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                                       end: const Offset(
                                           1 / 1.1, 1 / 1.1), // 終了時のスケール
                                     ),
+
                               ),
                             ),
                           ),
@@ -3829,8 +3833,10 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             left: 35, // 左端からの距離
                             top: 10, // 上端からの距離
                             right: 0, // 右端からの距離
+
                             child: Image.asset(
                                 'lib/images/loading.png'), // アニメーションの下に配置する画像
+
                           ),
                           GestureDetector(
                             onTapDown: (_) {
@@ -3950,6 +3956,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               .toList();
 
                           // 既存のデータと新しいデータが一致するか確認
+
                           bool isDuplicate = oldDataList == newMapDataList;
 
                           // 新しいデータが一致しない場合
@@ -3993,6 +4000,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             // ルートが保存されたことをフラグで示す
                             isSaved = true;
                           }
+
 
                           showDialog(
                             // ignore: use_build_context_synchronously
@@ -4160,4 +4168,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
     setState(() {});
   }
+
 }
+

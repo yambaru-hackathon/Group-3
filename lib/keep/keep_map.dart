@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,17 +41,21 @@ class _KeepMapState extends State<KeepMap> {
   initState() {
     super.initState();
     _initSharedPreferences();
+
     _initSharedPreferences().then((_) {
       setState(() {
         _date = _fetchDateFromSharedPreferences();
         _data = _fetchDataFromSharedPreferences();
       });
     });
+
   }
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     // await _prefs.clear();
+
+
   }
 
   Future<List<String>> _fetchDataFromSharedPreferences() async {
@@ -68,10 +73,13 @@ class _KeepMapState extends State<KeepMap> {
         return [];
       }
     } catch (e) {
+
       print("VisitLocation${widget.visitLocationIndex} is error: $e");
+
       return [];
     }
   }
+
 
   Future<String> _fetchDateFromSharedPreferences() async {
     try {
@@ -217,6 +225,7 @@ class _KeepMapState extends State<KeepMap> {
                           child: Column(
                             children: [
                               SizedBox(
+
                                   height: MediaQuery.of(context).size.height *
                                       0.0099),
                               Padding(
@@ -229,6 +238,7 @@ class _KeepMapState extends State<KeepMap> {
                                       0.0222, // 右端からの距離
                                   MediaQuery.of(context).size.height *
                                       0.0099, // 下端からの距離
+
                                 ),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -240,18 +250,22 @@ class _KeepMapState extends State<KeepMap> {
                                         255, 215, 233, 250),
                                   ),
                                   padding: EdgeInsets.symmetric(
+
                                     vertical:
                                         MediaQuery.of(context).size.height *
                                             0.00249,
                                     horizontal:
                                         MediaQuery.of(context).size.width *
                                             0.00555,
+
                                   ),
                                   child: Center(
                                     child: Column(
                                       children: [
                                         ListTile(
+
                                           contentPadding: EdgeInsets.zero,
+
                                           title: const Text(
                                             '出発地点',
                                             overflow: TextOverflow.ellipsis,
@@ -263,6 +277,7 @@ class _KeepMapState extends State<KeepMap> {
                                           subtitle: Center(
                                             child: Padding(
                                               padding: EdgeInsets.symmetric(
+
                                                 vertical: MediaQuery.of(context)
                                                         .size
                                                         .height *
@@ -283,15 +298,18 @@ class _KeepMapState extends State<KeepMap> {
                                                     .size
                                                     .height *
                                                 0.0099),
+
                                         for (int i = snapshot.data!.length - 1;
                                             i >= 0;
                                             i--)
                                           Padding(
                                             padding: EdgeInsets.symmetric(
+
                                               vertical: MediaQuery.of(context)
                                                       .size
                                                       .height *
                                                   0.00249,
+
                                             ),
                                             child: Column(
                                               mainAxisAlignment:
@@ -307,17 +325,20 @@ class _KeepMapState extends State<KeepMap> {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
+
                                                 SizedBox(
                                                     height:
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .height *
                                                             0.0099),
+
                                                 const Icon(
                                                     Icons.arrow_downward),
                                               ],
                                             ),
                                           ),
+
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -325,6 +346,7 @@ class _KeepMapState extends State<KeepMap> {
                                                 0.0099),
                                         const ListTile(
                                           contentPadding: EdgeInsets.zero,
+
                                           title: Text(
                                             'ゴール',
                                             overflow: TextOverflow.ellipsis,
@@ -339,9 +361,11 @@ class _KeepMapState extends State<KeepMap> {
                                   ),
                                 ),
                               ),
+
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
                                       0.0099),
+
                             ],
                           ),
                         );
