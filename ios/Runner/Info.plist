@@ -47,8 +47,8 @@
 	<true/>
 	<!-- 位置情報取得許可 -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location for...</string>
+	<string>なぴちゃんがあなたの場所を知りたがっています！</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We need your location for...</string>
+	<string>なぴちゃんがあなたの場所を知りたがっています！</string>
 </dict>
 </plist>

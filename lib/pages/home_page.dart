@@ -3971,7 +3971,7 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                               currentTime.day,
                               currentTime.hour,
                               currentTime.minute,
-                            ).add(const Duration(hours: 9)).toString();// JST (UTC+9) に変換
+                            ).toString();// JST (UTC+9) に変換.add(const Duration(hours: 9))
 
                             // データを保存
 

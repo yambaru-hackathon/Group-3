@@ -137,59 +137,12 @@ class _KeepMapState extends State<KeepMap> {
     );
   }
 
-  Future<void> _deleteVisitLocationData(BuildContext context) async {
-    try {
-      // Firestoreの代わりにSharedPreferencesを使用
-      await _prefs.remove('VisitLocation${widget.visitLocationIndex + 1}');
-      await _prefs.remove('mapData${widget.visitLocationIndex + 1}');
-      await _prefs.remove('day${widget.visitLocationIndex + 1}');
-
-      // 番号やデータを削除する処理もSharedPreferencesを使用するように変更
-
-      int number = _prefs.getInt('counter') ?? 0;
-      int i = widget.visitLocationIndex + 1;
-
-      while (i < number) {
-        List<String>? data =
-            _prefs.getStringList('VisitLocation${i + 1}')?.cast<String>() ?? [];
-        List<String>? data2 =
-            _prefs.getStringList('mapData${i + 1}')?.cast<String>() ?? [];
-        String? day = _prefs.getString('day${i + 1}') ?? '';
-
-        _prefs.setStringList('VisitLocation$i', data);
-        _prefs.setStringList('mapData$i', data2);
-        _prefs.setString('day$i', day);
-
-        i++;
-      }
-
-      _prefs.setInt('counter', i);
-      _prefs.remove('VisitLocation$i');
-      _prefs.remove('mapData$i');
-      _prefs.remove('day$i');
-
-      setState(() {
-        _data = _fetchDataFromSharedPreferences();
-        _date = _fetchDateFromSharedPreferences();
-        _fetchMapDataFromSharedPreferences();
-      });
-
-      Navigator.pop(context); // プロフィールページに戻る
-    } catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("経路を削除する際にエラーが発生しました。"),
-        ),
-      );
-    }
-  }
-
   bool _isMapTapped = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'Navinator',
           style: TextStyle(
@@ -444,30 +397,6 @@ class _KeepMapState extends State<KeepMap> {
                             }
                           : <Factory<OneSequenceGestureRecognizer>>{},
                     ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.0222),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () {
-                      showDialog<void>(
-                        context: context,
-                        builder: (_) {
-                          return RouteDeletion(
-                            onDelete: () => _deleteVisitLocationData(context),
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red, // テキストの色
-                    ),
-                    child: const Text('経路を削除'),
                   ),
                 ),
               ),
