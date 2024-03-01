@@ -6,6 +6,7 @@ import 'dart:async';
 // ignore: library_prefixes
 import 'package:geocoding/geocoding.dart' as geoCoding;
 import 'package:geocoding_platform_interface/geocoding_platform_interface.dart';
+import 'package:speech_balloon/speech_balloon.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -17,10 +18,12 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   
-  final upL = [27.200, 127.400];
-  final upR = [27.200, 128.600];
-  final downL = [26.000, 127.400];
+  final upL = [27.1000, 127.4250];
+  final upR = [27.1000, 128.4250];
+  final downL = [26.1000, 127.4250];
   Map<String, List> prefpin = { //pref: [left, top]
+    'No_data': [-1, -1, 'データなし'],
+    'outside': [-1, -1, '地図外'],
     'Iheya': [582, 87, '伊平屋村'],
     'Izena' : [560, 210, '伊是名村'],
     'Kunigami': [790, 420, '国頭村'],
@@ -122,11 +125,44 @@ class _MapPageState extends State<MapPage> {
 
     Position pos = await Geolocator.getCurrentPosition();
     List<Placemark> placeMarks = await geoCoding
-        .placemarkFromCoordinates(pos.latitude, pos.longitude, localeIdentifier: "JP");
+        .placemarkFromCoordinates(pos.latitude, pos.longitude, /*localeIdentifier: "JP"*/);
 
     setState(() {
       position = [pos.latitude, pos.longitude];
-      Locality = placeMarks[0].locality.toString();
+      if(placeMarks[0].administrativeArea.toString() != 'Okinawa'){
+        if(placeMarks[0].administrativeArea.toString() == '沖縄県'){
+          if(placeMarks[0].locality.toString() == '伊平屋村'){
+            Locality = 'Iheya';
+          }
+          else{
+            Locality = 'outside';
+          }
+        }
+        else{
+          Locality = 'outside';
+        }
+      }
+      else{
+        switch(placeMarks[0].locality.toString()){
+          case 'Kurume':
+          case 'Tokashiki':
+          case 'Zamami':
+          case 'Aguni':
+          case 'Tonaki':
+          case 'Kitadaitou':
+          case 'Minamidaitou':
+          case 'Miyakojima':
+          case 'Tarama':
+          case 'Ishigaki':
+          case 'Taketomi':
+          case 'Yonaguni':
+          Locality = 'outside';
+          break;
+
+          default:
+          Locality = placeMarks[0].locality.toString();
+        }
+      }
     });
     
     return;
@@ -134,6 +170,9 @@ class _MapPageState extends State<MapPage> {
   
   Future<void> getDataFromFirestore() async {
     DocumentSnapshot docSnapshot = await docRef.get();
+    if(Locality == 'outside'){
+      return;
+    }
     if (docSnapshot.exists) {
       fieldValue = docSnapshot.get(Locality);
     }
@@ -144,6 +183,9 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> increment_data(int num) async{
+    if(Locality == 'outside'){
+      return;
+    }
     DocumentSnapshot docSnapshot = await docRef.get();
     if (docSnapshot.exists) {
       docRef.update({Locality:FieldValue.increment(num)});
@@ -167,66 +209,156 @@ class _MapPageState extends State<MapPage> {
   Future<void> updatePosition() async{
     Position pos = await Geolocator.getCurrentPosition();
     List<Placemark> placeMarks = await geoCoding
-        .placemarkFromCoordinates(pos.latitude, pos.longitude, localeIdentifier: "JP");
-    if(Locality != placeMarks[0].locality.toString()){
+        .placemarkFromCoordinates(pos.latitude, pos.longitude, /*localeIdentifier: "JP"*/);
+    String place = placeMarks[0].locality.toString();
+    if(place == '伊平屋村'){
+      place = 'Iheya';
+    }
+    if(Locality != place){
         await increment_data(-1);
         await _determinePosition();
         await increment_data(1);
         await getDataFromFirestore();
-        print('f');
+        //print('if');
     }
     else{
-      print('else');
+      //print('else');
     }
   }
 
-  String pinstatus(String pref){
+  Widget pinstatus(String pref){
     if(field == null){
-      return Pin[0];
+      return const Text('');
     }
     else{
-      if(field[pref] == 1){
-        return Pin[1];
+      if(field[pref] <= 10){
+        return 
+        Image.asset(
+          Pin[0],
+          height: 40,
+          width: 40
+        );
       }
-      else if(field[pref] >= 2){
-        return Pin[2];
+      else if(field[pref] <= 50){
+        return 
+          Image.asset(
+            Pin[1],
+            height: 40,
+            width: 40
+          );
       }
       else{
-        return Pin[0];
+        return 
+          Image.asset(
+            Pin[2],
+            height: 40,
+            width: 40
+          );
       }
     }
   }
 
   Widget prefname(String pref){
     if(_controller.value.getMaxScaleOnAxis() >= 2.5){
-      return  Text(prefpin[pref]![2], style: const TextStyle(fontSize: 10), textAlign: TextAlign.center,);
-      
+      return Text(
+          prefpin[pref]![2], 
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold
+            ), 
+          textAlign: TextAlign.center,
+        );
     }
-    return const Text('', style: TextStyle(fontSize: 10), textAlign: TextAlign.center);
+    return const Text('', style: TextStyle(fontSize: 20), textAlign: TextAlign.center); 
   }
 
   Widget printpin(String pref){
     List? pos = prefpin[pref];
+    double size = MediaQuery.of(context).size.width / mapWidth;
     return Positioned(
       left: pos![0] * 
-            MediaQuery.of(context).size.width /
-            mapWidth - 20,
+            size - 50,
       top: pos[1] * 
-            MediaQuery.of(context).size.width /
-            mapWidth - 40 + (1 - 1 / _controller.value.getMaxScaleOnAxis()) * 40 / 2,
+            size - 50 - (40 / _controller.value.getMaxScaleOnAxis()) / 2,
       child: Transform.scale(
         scale: 1 / _controller.value.getMaxScaleOnAxis(),
-        child: Stack(
-        children: [
-          Image.asset(
-          pinstatus(pref),
-          height: 40,
-          width: 40
-        ),
-        prefname(pref)
-        ])
+        child: Container(
+          height: 100,
+          width: 100,
+          alignment: Alignment.center,
+          child: Stack(
+          alignment: Alignment.center,
+          children: [
+            pinstatus(pref),
+            prefname(pref),
+          ]
+        ))
       )
     );
+  }
+
+  Widget currentpref(){
+    String massage;
+    if(Locality == 'No_data'){
+      massage = 'ロード中...';
+    }
+    else if(Locality == 'outside'){
+      massage = '今は地図の外側にいるみたいです...';
+    }
+    else{
+      massage = '今は${prefpin[Locality]![2]}にいますね！';
+    }
+    return Positioned(
+      left: 20,
+      top: 20,
+      child: Row(
+        children: [  
+          Image.asset(
+            'lib/images/napi.png',
+            height: 80,
+            width: 80,
+          ),
+
+          SpeechBalloon(
+            nipLocation: NipLocation.left,
+            borderColor: const Color.fromARGB(255, 128, 128, 128),
+            color: Colors.white,
+            height: MediaQuery.of(context).size.height * 0.06,
+            width: MediaQuery.of(context).size.width * 0.6,
+            borderRadius: 8.0,
+            child:Center( 
+              child: Text(
+                massage,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                )
+              )
+            ),
+          ) 
+        ]
+      ),
+    );
+  }
+
+  Widget currentpin(){
+    double size = MediaQuery.of(context).size.width / mapWidth;
+    if(Locality == 'outside' || Locality == 'No_data'){
+      return const Text('');
+    }
+    else{
+      return Positioned(
+        left: _positionFormat()[0] * size - 15,
+        top: _positionFormat()[1] * size - 15,
+        child: Transform.scale(
+          scale: 1 / _controller.value.getMaxScaleOnAxis(),
+          child: Image.asset(
+            'lib/images/pin_current.png',
+            height: 30,
+            width: 30,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -249,82 +381,73 @@ class _MapPageState extends State<MapPage> {
       ),
       body: SafeArea(
         child: Center(
-          child: SizedBox(
-            height: 800,
-            width: 600,
-            child: InteractiveViewer(
-              transformationController: _controller,
-              minScale: 1.0,
-              maxScale: 5.0,
-              scaleEnabled: true,
-              panEnabled: true,
-              constrained: true,
-              onInteractionUpdate: (details) {
-                setState(() {});
-              },
-              child: Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    
-                    Image.asset(
-                      'lib/images/map_okinawa_white.png',
-                    ),
-                    Text('$fieldValue,$Locality'),
-                    
-                    
-                    printpin('Iheya'),
-                    printpin('Izena'),
-                    printpin('Kunigami'),
-                    printpin('Ōgimi'),
-                    printpin('Higashi'),
-                    printpin('Nago'),
-                    printpin('Nakijin'),
-                    printpin('Motobu'),
-                    printpin('Ie'),
-                    printpin('Ginoza'),
-                    printpin('Onna'),
-                    printpin('Uruma'),
-                    printpin('Yomitan'),
-                    printpin('Kin'),
-                    printpin('Kadena'),
-                    printpin('Okinawa'),
-                    printpin('Chatan'),
-                    printpin('Kitanakagusuku'),
-                    printpin('Ginowan'),
-                    printpin('Nakagusuku'),
-                    printpin('Urasoe'),
-                    printpin('Nishihara'),
-                    printpin('Naha'),
-                    printpin('Yonabaru'),
-                    printpin('Haebaru'),
-                    printpin('Tomigusuku'),
-                    printpin('Nanjō'),
-                    printpin('Yaese'),
-                    printpin('Itoman'),
-                    
-                    Positioned(
-                      left: _positionFormat()[0] *
-                          MediaQuery.of(context).size.width /
-                          mapWidth - 15,
-                      top: _positionFormat()[1] *
-                          MediaQuery.of(context).size.width /
-                          mapWidth - 15,
-                      child: Transform.scale(
-                        scale: 1 / _controller.value.getMaxScaleOnAxis(),
-                        child: Image.asset(
-                          'lib/images/pin_current.png',
-                          height: 30,
-                          width: 30,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 800,
+                width: 600,
+                child: InteractiveViewer(
+                  transformationController: _controller,
+                  minScale: 1.0,
+                  maxScale: 10.0,
+                  scaleEnabled: true,
+                  panEnabled: true,
+                  constrained: true,
+                  onInteractionUpdate: (details) {
+                    setState(() {});
+                  },
+                  child: Center(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Image.asset(
+                          'lib/images/map_okinawa_white.png',
                         ),
-                      ),
+                    
+                        printpin('Iheya'),
+                        printpin('Izena'),
+                        printpin('Kunigami'),
+                        printpin('Ōgimi'),
+                        printpin('Higashi'),
+                        printpin('Nago'),
+                        printpin('Nakijin'),
+                        printpin('Motobu'),
+                        printpin('Ie'),
+                        printpin('Ginoza'),
+                        printpin('Onna'),
+                        printpin('Uruma'),
+                        printpin('Yomitan'),
+                        printpin('Kin'),
+                        printpin('Kadena'),
+                        printpin('Okinawa'),
+                        printpin('Chatan'),
+                        printpin('Kitanakagusuku'),
+                        printpin('Ginowan'),
+                        printpin('Nakagusuku'),
+                        printpin('Urasoe'),
+                        printpin('Nishihara'),
+                        printpin('Naha'),
+                        printpin('Yonabaru'),
+                        printpin('Haebaru'),
+                        printpin('Tomigusuku'),
+                        printpin('Nanjō'),
+                        printpin('Yaese'),
+                        printpin('Itoman'),
+
+                        currentpin(),
+
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+
+              currentpref(),
+
+            ]
           ),
-        ),
+        )
       ),
     );
   }
