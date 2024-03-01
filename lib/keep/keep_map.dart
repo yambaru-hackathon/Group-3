@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KeepMap extends StatefulWidget {
   final int visitLocationIndex;
@@ -22,11 +24,11 @@ class KeepMap extends StatefulWidget {
 }
 
 class _KeepMapState extends State<KeepMap> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Future<List<String>> _data;
   late Future<String> _date;
   List<MapData> mapDataList = [];
+
+  late SharedPreferences _prefs;
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -36,77 +38,65 @@ class _KeepMapState extends State<KeepMap> {
       const LatLng(35.6895, 139.6917); // 東京タワーの座標
 
   @override
-  void initState() {
+  initState() {
     super.initState();
-    _data = _fetchDataFromFirestore();
-    _date = _fetchDateFromFirestore();
-    _fetchMapDataFromFirestore();
+    _initSharedPreferences();
+    _data = _fetchDataFromSharedPreferences();
+    _date = _fetchDateFromSharedPreferences();
   }
 
-  Future<List<String>> _fetchDataFromFirestore() async {
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    // await _prefs.clear();
+    await _fetchMapDataFromSharedPreferences();
+  }
+
+  Future<List<String>> _fetchDataFromSharedPreferences() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      // SharedPreferencesからデータを取得
+      List<String>? dataList =
+          _prefs.getStringList('VisitLocation${widget.visitLocationIndex}');
 
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-
-      List<String> dataList = [];
-      List<dynamic>? visitLocationData = querySnapshot
-          .data()!['VisitLocation${widget.visitLocationIndex + 1}'];
-      if (visitLocationData != null && visitLocationData.isNotEmpty) {
-        dataList.addAll(visitLocationData.cast<String>().reversed); // 逆順に取得
+      // 取得したデータがnullでないことを確認
+      if (dataList != null) {
+        print("dataを読み取りました");
+        return dataList.reversed.toList(); // リストを逆順にして返す
+      } else {
+        print("VisitLocation${widget.visitLocationIndex} is empty");
+        return [];
       }
-      return dataList;
     } catch (e) {
+      print("VisitLocation${widget.visitLocationIndex} is error");
       return [];
     }
   }
 
-  Future<void> _fetchMapDataFromFirestore() async {
-    // Firestoreからデータを取得
-    User? user = _auth.currentUser;
-    DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-        await _firestore.collection('user_old_data').doc(user?.uid).get();
+  Future<void> _fetchMapDataFromSharedPreferences() async {
+    try {
+      // SharedPreferencesからデータを取得
+      List<String>? mapDataJsonList =
+          _prefs.getStringList('mapData${widget.visitLocationIndex}');
 
-    if (userDataDoc.exists) {
-      // Firestoreから取得したJSONデータをデコード
-      var mapDataListJson =
-          userDataDoc.get('mapData${widget.visitLocationIndex + 1}');
+      if (mapDataJsonList != null) {
+        // mapDataList を新しく作成して追加
+        List<MapData> updatedMapDataList = mapDataJsonList.map((mapDataJson) {
+          return MapData.fromJson(json.decode(mapDataJson));
+        }).toList();
 
-      // JSONデータが正しく取得できていることを確認
-      if (mapDataListJson != null && mapDataListJson is List<dynamic>) {
-        // リストからMapDataオブジェクトを作成
-        if (mapDataListJson.isNotEmpty) {
-          // 最初の要素を取得
-          var mapDataJson = mapDataListJson[0];
-          print('mapData${widget.visitLocationIndex + 1}[0]をとれました');
-
-          // MapDataオブジェクトを作成
-          if (mapDataJson != null && mapDataJson is Map<String, dynamic>) {
-            MapData mapData = MapData.fromJson(mapDataJson);
-            print('mapDataをとれました');
-
-            // mapDataListに追加する場合は、以下のように追加
-            mapDataList.add(mapData);
-            print(mapDataList);
-          }
-        } else {
-          print("Empty mapData list");
+        if (_googleMapController != null) {
+          LatLngBounds bounds =
+              getBounds(updatedMapDataList.first.routeCoordinates);
+          _googleMapController
+              ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
         }
-      } else {
-        print("mapData${widget.visitLocationIndex + 1} is not a List<dynamic>");
-      }
 
-      if (_googleMapController != null) {
-        LatLngBounds bounds = getBounds(mapDataList.first.routeCoordinates);
-        _googleMapController
-            ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+        setState(() {
+          mapDataList = updatedMapDataList;
+        });
       }
-
-      setState(() {});
+    } catch (e) {
+      // エラーハンドリングが必要な場合は適切な処理を追加
+      print("mapData${widget.visitLocationIndex + 1} is error");
     }
   }
 
@@ -129,18 +119,11 @@ class _KeepMapState extends State<KeepMap> {
     );
   }
 
-  Future<String> _fetchDateFromFirestore() async {
+  Future<String> _fetchDateFromSharedPreferences() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-
-      Timestamp timeStamp =
-          querySnapshot.data()!['day${widget.visitLocationIndex + 1}'];
+      // SharedPreferencesからデータを取得
+      Timestamp timeStamp = Timestamp.fromMillisecondsSinceEpoch(
+          _prefs.getInt('day${widget.visitLocationIndex + 1}') ?? 0);
 
       // タイムスタンプからDateTimeオブジェクトに変換
       DateTime date = timeStamp.toDate();
@@ -148,7 +131,7 @@ class _KeepMapState extends State<KeepMap> {
       // 日付を適切な書式の文字列に変換
       String formattedDate =
           '${date.year}年${date.month}月${date.day}日${date.hour + 9}時${date.minute}分';
-
+      print("dateを読み取りました");
       return formattedDate;
     } catch (e) {
       return '';
@@ -157,63 +140,37 @@ class _KeepMapState extends State<KeepMap> {
 
   Future<void> _deleteVisitLocationData(BuildContext context) async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      // Firestoreの代わりにSharedPreferencesを使用
+      await _prefs.remove('VisitLocation${widget.visitLocationIndex + 1}');
+      await _prefs.remove('mapData${widget.visitLocationIndex + 1}');
+      await _prefs.remove('day${widget.visitLocationIndex + 1}');
 
-      await FirebaseFirestore.instance
-          .collection('user_old_data')
-          .doc(uid)
-          .update({
-        'VisitLocation${widget.visitLocationIndex + 1}': FieldValue.delete(),
-        'mapData${widget.visitLocationIndex + 1}': FieldValue.delete(),
-        'day${widget.visitLocationIndex + 1}': FieldValue.delete(),
-      });
+      // 番号やデータを削除する処理もSharedPreferencesを使用するように変更
 
-      // ignore: non_constant_identifier_names
-      List<dynamic> Data = [];
-      // ignore: non_constant_identifier_names
-      List<dynamic> Data2 = [];
-      DocumentSnapshot<Map<String, dynamic>>? pickupDataDoc =
-          await FirebaseFirestore.instance
-              .collection('user_old_data')
-              .doc(uid)
-              .get();
-      int number = pickupDataDoc.get('NumberofData');
+      int number = _prefs.getInt('counter') ?? 0;
       int i = widget.visitLocationIndex + 1;
 
-      while (i != number) {
-        DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
-            await FirebaseFirestore.instance
-                .collection('user_old_data')
-                .doc(uid)
-                .get();
+      while (i < number) {
+        List<String>? data =
+            _prefs.getStringList('VisitLocation${i + 1}')?.cast<String>() ?? [];
+        List<String>? data2 =
+            _prefs.getStringList('mapData${i + 1}')?.cast<String>() ?? [];
+        String? day = _prefs.getString('day${i + 1}') ?? '';
 
-        Data = userDataDoc.get('VisitLocation${i + 1}');
-        Data2 = userDataDoc.get('mapData${i + 1}');
-
-        await FirebaseFirestore.instance
-            .collection('user_old_data')
-            .doc(uid)
-            .update({
-          'VisitLocation$i': Data,
-          'mapData$i': Data2,
-          'day$i': userDataDoc.get('day${i + 1}'),
-        });
+        _prefs.setStringList('VisitLocation$i', data);
+        _prefs.setStringList('mapData$i', data2);
+        _prefs.setString('day$i', day);
 
         i++;
       }
 
-      await FirebaseFirestore.instance
-          .collection('user_old_data')
-          .doc(uid)
-          .update({
-        'NumberofData': (i - 1),
-        'VisitLocation$i': FieldValue.delete(),
-        'mapData$i': FieldValue.delete(),
-        'day$i': FieldValue.delete(),
-      });
+      _prefs.setInt('counter', i);
+      _prefs.remove('VisitLocation$i');
+      _prefs.remove('mapData$i');
+      _prefs.remove('day$i');
 
       setState(() {
-        _data = _fetchDataFromFirestore();
+        _data = _fetchDataFromSharedPreferences();
       });
 
       Navigator.pop(context); // プロフィールページに戻る
@@ -258,7 +215,12 @@ class _KeepMapState extends State<KeepMap> {
                     );
                   } else {
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.fromLTRB(
+                        MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                        MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                        MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                        MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                      ),
                       child: Text(
                         dateSnapshot.data ?? '',
                         textAlign: TextAlign.center,
@@ -270,7 +232,12 @@ class _KeepMapState extends State<KeepMap> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                ),
                 child: SizedBox(
                   child: FutureBuilder<List<String>>(
                     future: _data,
@@ -293,9 +260,15 @@ class _KeepMapState extends State<KeepMap> {
                         return Center(
                           child: Column(
                             children: [
-                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.0099),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.fromLTRB(
+                                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                                ),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -305,12 +278,16 @@ class _KeepMapState extends State<KeepMap> {
                                     color: const Color.fromARGB(
                                         255, 215, 233, 250),
                                   ),
-                                  padding: const EdgeInsets.all(2.0),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: MediaQuery.of(context).size.height * 0.00249,
+                                    horizontal: MediaQuery.of(context).size.width * 0.00555,
+                                  ),
                                   child: Center(
                                     child: Column(
                                       children: [
-                                        const ListTile(
-                                          title: Text(
+                                        ListTile(
+                                          contentPadding: EdgeInsets.zero, 
+                                          title: const Text(
                                             '出発地点',
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.center,
@@ -320,18 +297,21 @@ class _KeepMapState extends State<KeepMap> {
                                           ),
                                           subtitle: Center(
                                             child: Padding(
-                                              padding: EdgeInsets.all(2.0),
-                                              child: Icon(Icons.arrow_downward),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: MediaQuery.of(context).size.height * 0.00249,
+                                                horizontal: MediaQuery.of(context).size.width * 0.00185,
+                                              ),
+                                              child: const Icon(Icons.arrow_downward),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(height: 8),
+                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                         for (int i = snapshot.data!.length - 1;
                                             i >= 0;
                                             i--)
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2.0,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: MediaQuery.of(context).size.height * 0.00249,
                                             ),
                                             child: Column(
                                               mainAxisAlignment:
@@ -347,14 +327,15 @@ class _KeepMapState extends State<KeepMap> {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
-                                                const SizedBox(height: 8),
+                                                SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                                 const Icon(
                                                     Icons.arrow_downward),
                                               ],
                                             ),
                                           ),
-                                        const SizedBox(height: 8),
+                                        SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                                         const ListTile(
+                                          contentPadding: EdgeInsets.zero, 
                                           title: Text(
                                             'ゴール',
                                             overflow: TextOverflow.ellipsis,
@@ -369,7 +350,7 @@ class _KeepMapState extends State<KeepMap> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.0099),
                             ],
                           ),
                         );
@@ -379,7 +360,12 @@ class _KeepMapState extends State<KeepMap> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).size.width * 0.0222, // 左端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 上端からの距離
+                  MediaQuery.of(context).size.width * 0.0222, // 右端からの距離
+                  MediaQuery.of(context).size.height * 0.0099, // 下端からの距離
+                ),
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height *
                       0.5, // GoogleMapの高さを指定
@@ -422,24 +408,27 @@ class _KeepMapState extends State<KeepMap> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (_) {
-                        return RouteDeletion(
-                          onDelete: () => _deleteVisitLocationData(context),
-                        );
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red, // テキストの色
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width * 0.0222),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (_) {
+                          return RouteDeletion(
+                            onDelete: () => _deleteVisitLocationData(context),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red, // テキストの色
+                    ),
+                    child: const Text('経路を削除'),
                   ),
-                  child: const Text('経路を削除'),
                 ),
               ),
             ],
@@ -490,7 +479,6 @@ class MapData {
   });
 
   factory MapData.fromJson(Map<String, dynamic> json) {
-    // markers データから Marker オブジェクトを作成
     List<Marker> markersList =
         (json['markers'] as List<dynamic>).map((markerData) {
       final info = markerData['info'];
@@ -509,7 +497,6 @@ class MapData {
       );
     }).toList();
 
-    // polylines データから Polyline オブジェクトを作成
     List<Polyline> polylinesList =
         (json['polylines'] as List<dynamic>).map((polylineData) {
       final List<Map<String, dynamic>> polylinePoints =
@@ -526,7 +513,6 @@ class MapData {
       );
     }).toList();
 
-    // routeCoordinates データから LatLng オブジェクトを作成
     List<LatLng> routeCoordinatesList =
         (json['routeCoordinates'] as List<dynamic>).map((coord) {
       return LatLng(coord['latitude'], coord['longitude']);

@@ -1,16 +1,18 @@
- //ignore_for_file: avoid_print
+//ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:speech_balloon/speech_balloon.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 bool action1Checked = false;
 bool action2Checked = false;
@@ -1066,11 +1068,11 @@ class _SelectFoodPageExState extends State<SelectFoodExPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // ignore: non_constant_identifier_names
-  String selectedValue_foodEx = 'data fetching';
+  String selectedValue_foodEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_foodEx_sub = 'data fetching';
+  String selectedValue_foodEx_sub = '読み込み中…';
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_foodEx = ['data fetching'];
+  List<String> dropdownItems_foodEx = ['読み込み中…'];
   String? foodType = '';
   String? viewType = '';
   String? storeType = '';
@@ -1826,11 +1828,11 @@ class _SelectViewExPageState extends State<SelectViewExPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 // ignore: non_constant_identifier_names
-  String selectedValue_viewEx = 'data fetching';
+  String selectedValue_viewEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_viewEx_sub = 'data fetching';
+  String selectedValue_viewEx_sub = '読み込み中…';
 // ignore: non_constant_identifier_names
-  List<String> dropdownItems_viewEx = ['data fetching'];
+  List<String> dropdownItems_viewEx = ['読み込み中…'];
 
   String? foodType = '';
   String? viewType = '';
@@ -2546,11 +2548,11 @@ class _SelectStoreExPageState extends State<SelectStoreExPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ignore: non_constant_identifier_names
-  String selectedValue_storeEx = 'data fetching';
+  String selectedValue_storeEx = '読み込み中…';
   // ignore: non_constant_identifier_names
-  String selectedValue_storeEx_sub = 'data fetching';
+  String selectedValue_storeEx_sub = '読み込み中…';
   // ignore: non_constant_identifier_names
-  List<String> dropdownItems_storeEx = ['data fetching'];
+  List<String> dropdownItems_storeEx = ['読み込み中…'];
 
   String? foodType = '';
   String? viewType = '';
@@ -3354,37 +3356,36 @@ class MapData {
 
   Map<String, dynamic> toJson() {
     return {
-      'routeCoordinates': routeCoordinates
-          .map((coord) => {
-                'latitude': coord.latitude,
-                'longitude': coord.longitude,
-              })
-          .toList(),
       'markers': markers
           .map((marker) => {
+                'markerId': marker.markerId.value,
+                'info': {
+                  'title': marker.infoWindow.title,
+                  'snippet': marker.infoWindow.snippet,
+                },
                 'position': {
                   'latitude': marker.position.latitude,
                   'longitude': marker.position.longitude,
                 },
-                // ignore: unnecessary_null_comparison
-                'info': marker.infoWindow == null
-                    ? null
-                    : {
-                        'title': marker.infoWindow.title,
-                        'snippet': marker.infoWindow.snippet,
-                      },
               })
           .toList(),
       'polylines': polylines
           .map((polyline) => {
-                'points': polyline.points
-                    .map((coord) => {
-                          'latitude': coord.latitude,
-                          'longitude': coord.longitude,
-                        })
-                    .toList(),
+                'polylineId': polyline.polylineId.value,
                 'color': polyline.color.value,
                 'width': polyline.width,
+                'points': polyline.points
+                    .map((point) => {
+                          'latitude': point.latitude,
+                          'longitude': point.longitude,
+                        })
+                    .toList(),
+              })
+          .toList(),
+      'routeCoordinates': routeCoordinates
+          .map((coord) => {
+                'latitude': coord.latitude,
+                'longitude': coord.longitude,
               })
           .toList(),
     };
@@ -3407,6 +3408,15 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<String> visitLocations = [];
   bool isSaved = false; // ルートが保存されたかどうかを示す状態フラグ
+  int counter = 1; // カウンターの初期値
+
+  // SharedPreferencesのキー
+  static const String visitLocationKey = 'VisitLocation';
+  static const String dayKey = 'day';
+  static const String mapDataKey = 'mapData';
+
+  // SharedPreferencesのインスタンス
+  late SharedPreferences _prefs;
 
   // 新たに追加したコントローラーと変数
   GoogleMapController? _googleMapController;
@@ -3417,7 +3427,18 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
   @override
   void initState() {
     super.initState();
+    _initSharedPreferences();
     _fetchRoute(); // fetchVisitLocations()はここで呼び出す
+  }
+
+  // SharedPreferencesの初期化
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // カウンターのロード
+  void _loadCounter() {
+    counter = _prefs.getInt('counter') ?? 0;
   }
 
   //firestoreから、visitLocationと、更新に必要なデータを取得
@@ -3758,43 +3779,85 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                         MediaQuery.of(context).size.width * 0.025),
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.5,
-                      child: GestureDetector(
-                        onTapDown: (_) {
-                          // マップがタップされたときにフラグを有効にする
-                          setState(() {
-                            _isMapTapped = true;
-                          });
-                        },
-                        onTapUp: (_) {
-                          // マップがタップ解除されたときにフラグを無効にする
-                          setState(() {
-                            _isMapTapped = false;
-                          });
-                        },
-                        child: GoogleMap(
-                          mapType: MapType.normal,
-                          markers: mapDataList.isNotEmpty
-                              ? Set.from(mapDataList.last.markers)
-                              : <Marker>{},
-                          polylines: mapDataList.isNotEmpty
-                              ? Set.from(mapDataList.last.polylines)
-                              : <Polyline>{},
-                          onMapCreated: (controller) {
-                            _googleMapController = controller;
-                            _fetchRoute();
-                          },
-                          initialCameraPosition: CameraPosition(
-                            target: _initialCameraPosition,
-                            zoom: 12.0,
-                          ),
-                          gestureRecognizers: _isMapTapped
-                              ? <Factory<OneSequenceGestureRecognizer>>{
-                                  Factory<OneSequenceGestureRecognizer>(
-                                    () => EagerGestureRecognizer(),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Transform.translate(
+                                offset: const Offset(10.0, 0.0), // 画像を右に10.0ポイント移動させる
+                                child: Image.asset(
+                                  'lib/images/book.png', // アニメーション対象の画像
+                                  width: 300, // 画像の幅
+                                )
+                                  .animate(onPlay: (controller){
+                                    controller.repeat();
+                                    controller.repeat();
+                                  }) // アニメーションを再生する
+                                  .shimmer(
+                                    delay: const Duration(milliseconds: 400), // アニメーションの開始までの遅延時間
+                                    duration: const Duration(milliseconds: 800), // アニメーションの時間
+                                  )
+                                  .shake(hz: 4, curve: Curves.easeInOutCubic) // アニメーションを振動させる
+                                  .scale(
+                                    begin: const Offset(1, 1), // 開始時のスケール
+                                    end: const Offset(1.1, 1.1), // 終了時のスケール
+                                    duration: const Duration(milliseconds: 300), // アニメーションの時間
+                                  )
+                                  .then(delay: const Duration(milliseconds: 300)) // アニメーションの後の遅延時間
+                                  .scale(
+                                    begin: const Offset(1, 1), // 開始時のスケール
+                                    end: const Offset(1 / 1.1, 1 / 1.1), // 終了時のスケール
                                   ),
-                                }
-                              : <Factory<OneSequenceGestureRecognizer>>{},
-                        ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 20, // 下端からの距離
+                            left: 35, // 左端からの距離
+                            top: 10, // 上端からの距離
+                            right: 0, // 右端からの距離
+                            child: Image.asset('lib/images/loading.png'), // アニメーションの下に配置する画像
+                          ),
+                          GestureDetector(
+                            onTapDown: (_) {
+                              // マップがタップされたときにフラグを有効にする
+                              setState(() {
+                                _isMapTapped = true;
+                              });
+                            },
+                            onTapUp: (_) {
+                              // マップがタップ解除されたときにフラグを無効にする
+                              setState(() {
+                                _isMapTapped = false;
+                              });
+                            },
+                            child: GoogleMap(
+                              mapType: MapType.normal,
+                              markers: mapDataList.isNotEmpty
+                                  ? Set.from(mapDataList.last.markers)
+                                  : <Marker>{},
+                              polylines: mapDataList.isNotEmpty
+                                  ? Set.from(mapDataList.last.polylines)
+                                  : <Polyline>{},
+                              onMapCreated: (controller) {
+                                _googleMapController = controller;
+                                _fetchRoute();
+                              },
+                              initialCameraPosition: CameraPosition(
+                                target: _initialCameraPosition,
+                                zoom: 12.0,
+                              ),
+                              gestureRecognizers: _isMapTapped
+                                  ? <Factory<OneSequenceGestureRecognizer>>{
+                                      Factory<OneSequenceGestureRecognizer>(
+                                        () => EagerGestureRecognizer(),
+                                      ),
+                                    }
+                                  : <Factory<OneSequenceGestureRecognizer>>{},
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -3843,66 +3906,75 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
                             return; // ここで処理を終了する
                           }
 
-                          User? user = _auth.currentUser;
-                          List<dynamic> oldData = [];
-
                           // 既存のデータを取得
-                          DocumentSnapshot<Map<String, dynamic>>? userDataDoc =
+                          _loadCounter();
+
+                          User? user = _auth.currentUser;
+
+                          // FirestoreからVisitLocationのデータを取得
+                          DocumentSnapshot<Map<String, dynamic>> snapshot =
                               await _firestore
                                   .collection('user_data')
                                   .doc(user?.uid)
                                   .get();
-                          if (userDataDoc.exists) {
-                            oldData = userDataDoc.get('VisitLocation');
-                          }
 
-                          // 新しいデータを作成
-                          List<Map<String, dynamic>> newMapDataList =
-                              mapDataList.map((data) => data.toJson()).toList();
-
-                          // 既存のデータと新しいデータが一致するか確認
-                          bool isDuplicate =
-                              oldData.length == newMapDataList.length &&
-                                  List.generate(oldData.length, (index) {
-                                    return oldData[index].toString() ==
-                                        newMapDataList[index].toString();
-                                  }).every((element) => element);
-
-                          if (!isDuplicate) {
-                            // 新しいデータが一致しない場合
-
-                            // user_old_data ドキュメントを取得
-                            DocumentSnapshot<Map<String, dynamic>>
-                                userData01Doc = await _firestore
-                                    .collection('user_old_data')
-                                    .doc(user?.uid)
-                                    .get();
-
-                            if (!userData01Doc.exists) {
-                              // ドキュメントが存在しない場合
-                              await _firestore
-                                  .collection('user_old_data')
-                                  .doc(user?.uid)
-                                  .set({
-                                'NumberofData': 1,
-                                'VisitLocation1': oldData,
-                                'day1': FieldValue.serverTimestamp(),
-                                'mapData1': newMapDataList,
-                              });
-                            } else {
-                              // ドキュメントが存在する場合
-                              int a = userData01Doc.get('NumberofData') + 1;
-                              await _firestore
-                                  .collection('user_old_data')
-                                  .doc(user?.uid)
-                                  .update({
-                                'NumberofData': a,
-                                'VisitLocation$a': oldData,
-                                'day$a': FieldValue.serverTimestamp(),
-                                'mapData$a': newMapDataList,
-                              });
+                          // VisitLocationのデータが存在する場合、visitLocationsリストに格納
+                          if (snapshot.exists && snapshot.data() != null) {
+                            List<dynamic>? visitLocationData =
+                                snapshot.data()?['VisitLocation'];
+                            if (visitLocationData != null &&
+                                visitLocationData.isNotEmpty) {
+                              visitLocations =
+                                  visitLocationData.cast<String>().toList();
                             }
                           }
+
+                          List<String>? oldDataList = visitLocations;
+
+                          // 新しいデータを作成
+                          List<String> newMapDataList = mapDataList
+                              .map((data) => json.encode(data.toJson()))
+                              .toList();
+
+                          // 既存のデータと新しいデータが一致するか確認
+                          // bool isDuplicate =
+                          //     // ignore: unrelated_type_equality_checks
+                          //     oldDataList == newMapDataList.toString();
+
+                          // 新しいデータが一致しない場合
+
+
+                          // カウンターを増やして保存
+                          await _prefs.setInt('counter', counter + 1);
+
+                          // カウンターを使用してキーを増やす
+                          String currentVisitLocationKey =
+                              '$visitLocationKey$counter';
+                          String currentDayKey = '$dayKey$counter';
+                          String currentMapDataKey = '$mapDataKey$counter';
+
+                          // FirestoreのタイムスタンプをStringに変換して保存
+                          String currentDayValue =
+                              DateTime.now().toUtc().toString();
+
+                          // データを保存
+
+                          await _prefs.setStringList(
+                              currentVisitLocationKey, oldDataList);
+                          await _prefs.setString(
+                              currentDayKey, currentDayValue);
+                          await _prefs.setStringList(
+                              currentMapDataKey, newMapDataList);
+
+                          // デバッグ用にSharedPreferencesの内容をログに表示
+                          print(
+                              'SharedPreferences - $currentVisitLocationKey: ${_prefs.getStringList(currentVisitLocationKey)}');
+                          print(
+                              'SharedPreferences - $currentDayKey: ${_prefs.getString(currentDayKey)}');
+                          print(
+                              'SharedPreferences - $currentMapDataKey: ${_prefs.getStringList(currentMapDataKey)}');
+
+                          
 
                           // ルートが保存されたことをフラグで示す
                           isSaved = true;
@@ -4012,14 +4084,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
     await _getCurrentLocation();
     await fetchVisitLocations();
 
-    visitLocations.sublist(0, visitLocations.length - 1);
-
-
-     //マップ生成に必要なデータを集め、変換して格納するメソッド
-  Future<void> _fetchRoute() async {
-    await _getCurrentLocation();
-    await fetchVisitLocations();
-
     List<String> waypoints =
         visitLocations.sublist(0, visitLocations.length - 1);
     List<LatLng> routeCoordinates = await getRouteCoordinatesWithWaypoints(
@@ -4027,7 +4091,6 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
       await getCoordinatesFromAddress(visitLocations.last),
       waypoints,
     );
-    
 
     List<Marker> markers = [
       Marker(
@@ -4082,5 +4145,4 @@ class _ShowRoutePageState extends State<ShowRoutePage> {
 
     setState(() {});
   }
-}
 }
