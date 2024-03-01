@@ -38,7 +38,6 @@ class LoginModel extends ChangeNotifier {
       // ログイン
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email!, password: password!);
-
     }
   }
 }
