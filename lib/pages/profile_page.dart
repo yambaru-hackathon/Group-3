@@ -39,6 +39,12 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  void _reloadPage() {
+    setState(() {
+      _initSharedPreferences();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,7 +261,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ],
                                             ),
                                           ),
-                                          
                                           Positioned(
                                             bottom: 0,
                                             right: 10,
@@ -302,54 +307,63 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Column(
               children: [
-                SizedBox(
-                  height: 50,
-                  child:IconButton(
-                         onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext
-                                    context) {
-                                       return AlertDialog(
-                                          title: const Text(
-                                            'すべての経路を削除しますか？'),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child:
-                                               const Text(
-                                                  'キャンセル'),
-                                                      onPressed: () {
-                                                       Navigator.pop(
-                                                        context);
-                                                      },
-                                             ),
-                                             TextButton(
-                                                  child:
-                                                  const Text(
-                                                    '削除',
-                                                     style: TextStyle(
-                                                     color: Color(
-                                                       0xFFE57373)),
-                                                  ),
-                                                  onPressed: () {
-                                                  Navigator.pop(
-                                                   context); // ダイアログを閉じる
-                                                    _deleteVisitLocationData(
-                                                        context,
-                                                    );
-                                                  },
-                                                 ),
-                                             ],
+                Row(
+                  children: [
+                    const Spacer(),
+                    SizedBox(
+                      height: 50,
+                      child: IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('すべての経路を削除しますか？'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('キャンセル'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text(
+                                      '削除',
+                                      style:
+                                          TextStyle(color: Color(0xFFE57373)),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context); // ダイアログを閉じる
+                                      _deleteVisitLocationData(
+                                        context,
                                       );
                                     },
-                                );
-                             },
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                             size: 30,
-                             ),
-                     ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        _reloadPage();
+                      },
+                      icon: const Icon(
+                        Icons.refresh,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
                 ),
               ],
             ),
@@ -394,38 +408,36 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
- Future<void> _deleteVisitLocationData(BuildContext context) async {
-  try {
-    setState(() {
-    });
+  Future<void> _deleteVisitLocationData(BuildContext context) async {
+    try {
+      setState(() {});
 
-    // SharedPreferencesから経路データを削除
-    await _prefs.remove('counter');
-    for (int i = 0; i < numberOfData; i++) {
-      await _prefs.remove('VisitLocation$i');
-      await _prefs.remove('day$i');
-      await _prefs.remove('mapData$i');
+      // SharedPreferencesから経路データを削除
+      await _prefs.remove('counter');
+      for (int i = 0; i < numberOfData; i++) {
+        await _prefs.remove('VisitLocation$i');
+        await _prefs.remove('day$i');
+        await _prefs.remove('mapData$i');
+      }
+
+      setState(() {
+        numberOfData = 0; // カウンターをリセット
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("すべての経路が削除されました"),
+        ),
+      );
+    } catch (e) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("経路を削除する際にエラーが発生しました。"),
+        ),
+      );
     }
-
-    setState(() {
-      numberOfData = 0; // カウンターをリセット
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("すべての経路が削除されました"),
-      ),
-    );
-  } catch (e) {
-    setState(() {
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("経路を削除する際にエラーが発生しました。"),
-      ),
-    );
   }
-}
 
   Future<String> fetchImageUrlFromFirestore(String lastLocation) async {
     try {
