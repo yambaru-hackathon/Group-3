@@ -237,7 +237,7 @@ class _KeepMapState extends State<KeepMap> {
                                   MediaQuery.of(context).size.width *
                                       0.0222, // 右端からの距離
                                   MediaQuery.of(context).size.height *
-                                      0.0099, // 下端からの距離a
+                                      0.0099, // 下端からの距離
 
                                 ),
                                 child: Container(
