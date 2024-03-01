@@ -19,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late int numberOfData = 1;
+  int numberOfData = 1;
   bool _isDeleting = false;
 
   late SharedPreferences _prefs;
@@ -32,10 +32,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
-    // await _prefs.clear(); //shared preferences をすべてクリア
+    //await _prefs.clear(); //shared preferences をすべてクリア
     // ローカルに保存してあるcounterの値をnumberOfDataに代入
     setState(() {
-      numberOfData = _prefs.getInt('counter') ?? 1;
+      numberOfData = _prefs.getInt('counter') ?? 0;
       print(numberOfData);
     });
   }
@@ -263,8 +263,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ? const CircularProgressIndicator()
                                                 : IconButton(
                                                     onPressed: () {
-                                                      _confirmDeleteDialog(
-                                                          context, index);
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                                '経路を削除しますか？'),
+                                                            actions: <Widget>[
+                                                              TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                        'キャンセル'),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              ),
+                                                              TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                  '削除',
+                                                                  style: TextStyle(
+                                                                      color: Color(
+                                                                          0xFFE57373)),
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context); // ダイアログを閉じる
+                                                                  _deleteVisitLocationData(
+                                                                      context,
+                                                                      index);
+                                                                },
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     icon: const Icon(
                                                       Icons.delete,
@@ -369,72 +404,50 @@ class _ProfilePageState extends State<ProfilePage> {
       await _prefs.remove('day$index');
       await _prefs.remove('mapData$index');
 
-      int number = numberOfData;
-      await _prefs.setInt('counter', number - 1);
+      int? number = _prefs.getInt('counter');
+      await _prefs.setInt('counter', number! - 1);
 
       // 削除するアイテム以外のアイテムをコピーし、ローカルのデータを更新
       List<int> indicesToRemove = [index];
-      for (int i = 0; i < number; i++) {
-        if (!indicesToRemove.contains(i)) {
-          List<String>? data =
-              _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
+      List<int> indicesToKeep = List.generate(number, (i) => i)
+          .where((i) => !indicesToRemove.contains(i))
+          .toList();
 
-          // ローカルのデータを更新
-          _prefs.setStringList(
-              'VisitLocation${i - indicesToRemove.length}', data);
-          _prefs.setString('day${i - indicesToRemove.length}',
-              _prefs.getString('day$i') ?? '');
-          _prefs.setString('mapData${i - indicesToRemove.length}',
-              _prefs.getString('mapData$i') ?? '');
-        }
+      for (int i in indicesToKeep) {
+        List<String>? data =
+            _prefs.getStringList('VisitLocation$i')?.cast<String>() ?? [];
+
+        // ローカルのデータを更新
+        await _prefs.setStringList('VisitLocation$i', data);
+        await _prefs.setString('day$i', _prefs.getString('day$i') ?? '');
+        await _prefs.setString(
+            'mapData$i', _prefs.getString('mapData$i') ?? '');
       }
 
       setState(() {
         _isDeleting = false;
       });
-
-      
+      // コンテキストがアクティブな場合にのみ Navigator.canPop を呼び出す
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
     } catch (e) {
       setState(() {
         _isDeleting = false;
       });
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("経路を削除する際にエラーが発生しました。"),
-        ),
-      );
+      if (mounted) {
+        final scaffoldContext =
+            context.findRootAncestorStateOfType<ScaffoldState>()?.context;
+        if (scaffoldContext != null) {
+          // ignore: await_only_futures
+          await ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+            const SnackBar(
+              content: Text("経路を削除しました。"),
+            ),
+          );
+        }
+      }
     }
-  }
-
-  Future<void> _confirmDeleteDialog(BuildContext context, int index) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('経路を削除しますか？'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('キャンセル'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                '削除',
-                style: TextStyle(color: Color(0xFFE57373)),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                _deleteVisitLocationData(context, index);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<String> fetchImageUrlFromFirestore(String lastLocation) async {

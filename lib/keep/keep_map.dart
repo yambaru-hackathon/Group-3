@@ -55,18 +55,18 @@ class _KeepMapState extends State<KeepMap> {
     try {
       // SharedPreferencesからデータを取得
       List<String>? dataList =
-          _prefs.getStringList('VisitLocation${widget.visitLocationIndex + 1}');
+          _prefs.getStringList('VisitLocation${widget.visitLocationIndex}');
 
       // 取得したデータがnullでないことを確認
       if (dataList != null) {
         print("dataを読み取りました");
         return dataList.reversed.toList(); // リストを逆順にして返す
       } else {
-        print("VisitLocation${widget.visitLocationIndex + 1} is empty");
+        print("VisitLocation${widget.visitLocationIndex} is empty");
         return [];
       }
     } catch (e) {
-      print("VisitLocation${widget.visitLocationIndex + 1} is error");
+      print("VisitLocation${widget.visitLocationIndex} is error");
       return [];
     }
   }
@@ -75,7 +75,7 @@ class _KeepMapState extends State<KeepMap> {
     try {
       // SharedPreferencesからデータを取得
       List<String>? mapDataJsonList =
-          _prefs.getStringList('mapData${widget.visitLocationIndex + 1}');
+          _prefs.getStringList('mapData${widget.visitLocationIndex}');
 
       if (mapDataJsonList != null) {
         // mapDataList を新しく作成して追加
@@ -164,7 +164,7 @@ class _KeepMapState extends State<KeepMap> {
         i++;
       }
 
-      _prefs.setInt('counter', (i - 1));
+      _prefs.setInt('counter', i);
       _prefs.remove('VisitLocation$i');
       _prefs.remove('mapData$i');
       _prefs.remove('day$i');
